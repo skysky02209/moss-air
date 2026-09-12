@@ -1,0 +1,326 @@
+<meta charset="utf-8">
+<title>MOSS AIR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#F4F7F4; --surface:#fff; --surface-alt:#EEF2EE; --border:#E1E7E1; --divider:#EDF1ED;
+    --primary:#1F5A3D; --primary-dark:#163F2B; --accent:#4CAF7D; --mint:#E4F2EA;
+    --ink:#1C2A22; --muted:#62706A; --faint:#93A099;
+    --good:#2E8B5B; --good-tint:#E5F3EB; --warning:#C9822B; --warning-tint:#FBF0DE; --danger:#C34B3F; --danger-tint:#F8E5E2;
+    --radius:16px; --radius-sm:10px; --shadow:0 1px 2px rgba(20,40,30,.04),0 8px 22px rgba(20,40,30,.05);
+    --font:'Noto Sans KR',system-ui,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;line-height:1.5}
+  h1,h2,h3,p{margin:0} button{font-family:inherit;cursor:pointer}
+  .shell{display:flex;min-height:100vh}
+  .sidebar{width:240px;flex:none;position:sticky;top:0;height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:22px 16px;gap:6px}
+  .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px}
+  .brand .mark{width:34px;height:34px;border-radius:10px;background:var(--primary);color:#fff;display:grid;place-items:center}
+  .brand .mark svg{width:20px;height:20px}
+  .brand .bt{font-size:16px;font-weight:700}.brand .bs{font-size:11px;color:var(--muted)}
+  .navlink{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:11px;color:var(--muted);font-size:14px;font-weight:600;border:0;background:none;width:100%;text-align:left}
+  .navlink svg{width:20px;height:20px}
+  .navlink:hover{background:var(--surface-alt);color:var(--ink)}
+  .navlink.active{background:var(--mint);color:var(--primary)}
+  .sidebar .spacer{flex:1}
+  .demo-tag{font-size:11px;color:var(--muted);padding:8px 10px;border:1px dashed var(--border);border-radius:10px;text-align:center}
+  .content{flex:1;min-width:0;padding:28px 34px 60px}
+  .inner{max-width:1040px;margin:0 auto}
+  .topbar{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;gap:16px;flex-wrap:wrap}
+  .topbar h1{font-size:24px;font-weight:700;letter-spacing:-.3px}.topbar .sub{font-size:13px;color:var(--muted);margin-top:3px}
+  .conn{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--border)}
+  .conn .dot{width:8px;height:8px;border-radius:999px;background:var(--good)} .conn.err .dot{background:var(--danger)} .conn .ago{color:var(--muted);font-weight:400}
+  .grid{display:grid;gap:16px}.cols-2{grid-template-columns:repeat(2,1fr)}.cols-3{grid-template-columns:repeat(3,1fr)}.cols-4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:900px){.cols-3,.cols-4{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:620px){.sidebar{width:64px}.brand .bt,.brand .bs,.navlink span,.demo-tag{display:none}.cols-2,.cols-3,.cols-4{grid-template-columns:1fr}.content{padding:20px 16px 60px}}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)} .card.pad{padding:20px}
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;margin:28px 2px 12px}.section-head h2{font-size:16px;font-weight:700}.section-head .hint{font-size:12.5px;color:var(--muted)}
+  .metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px}
+  .metric .lbl{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;font-weight:600}.metric .lbl svg{width:16px;height:16px}
+  .metric .val{font-family:var(--mono);font-size:26px;font-weight:600;margin-top:8px;letter-spacing:-.5px}.metric .val .u{font-family:var(--font);font-size:13px;color:var(--muted);margin-left:4px}.metric .val .word{font-family:var(--font);font-size:18px}
+  .metric .foot{margin-top:8px}
+  .hero{display:flex;gap:22px;align-items:center;padding:24px;border-radius:var(--radius);box-shadow:var(--shadow)}
+  .hero .big{font-size:40px;font-weight:700;line-height:1;font-family:var(--mono);letter-spacing:-1px}.hero .eyebrow{font-size:12.5px;color:var(--muted);font-weight:600}.hero .msg{font-size:13.5px;color:var(--muted);margin-top:8px;line-height:1.6;max-width:520px}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:5px 11px;border-radius:999px}.badge .dot{width:8px;height:8px;border-radius:999px}
+  .bar{width:100%;height:8px;border-radius:999px;background:var(--divider);overflow:hidden}.bar>span{display:block;height:100%;border-radius:999px}
+  .row{display:flex;align-items:center;justify-content:space-between;padding:13px 2px;border-bottom:1px solid var(--divider);font-size:14px}.row:last-child{border-bottom:0}.row .k{color:var(--muted)}.row .v{font-weight:600}.row .v.data{font-family:var(--mono)}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:var(--radius-sm);border:0;font-size:14px;font-weight:600}
+  .btn.primary{background:var(--primary);color:#fff}.btn.primary:hover{background:var(--primary-dark)}.btn.ghost{background:var(--surface);color:var(--primary);border:1.5px solid var(--primary)}
+  .alert{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;background:var(--surface)}
+  .alert .ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none}.alert .ico svg{width:18px;height:18px}
+  .alert .t{font-size:14px;font-weight:700}.alert .c{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.55}.alert .a{font-size:12.5px;margin-top:6px;font-weight:600}
+  .switch{position:relative;width:46px;height:27px;flex:none;display:inline-block}.switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+  .switch .tk{position:absolute;inset:0;border-radius:999px;background:var(--border);transition:.2s}.switch .th{position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:999px;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .switch input:checked~.tk{background:var(--accent)}.switch input:checked~.th{transform:translateX(19px)}
+  .chart svg{width:100%;display:block}.chart .cap{font-size:11px;color:var(--faint);margin-top:8px}
+  .seg{display:inline-flex;gap:4px;background:var(--surface-alt);border-radius:11px;padding:4px}.seg button{border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:600;padding:8px 14px;border-radius:8px}.seg button[aria-pressed="true"]{background:var(--surface);color:var(--primary);box-shadow:var(--shadow)}
+  .disclaimer{font-size:11.5px;color:var(--faint);line-height:1.6;margin-top:16px}
+  input.name{border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-family:inherit;text-align:right;max-width:200px;color:var(--ink)}
+  button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h7V4H4zM13 20h7v-9h-7zM13 4v5h7V4zM4 20h7v-5H4z"/></symbol>
+  <symbol id="i-air" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h11a3 3 0 1 0-3-3"/><path d="M3 14h15a3 3 0 1 1-3 3"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6 8v5l-4 2v-7z"/></symbol>
+  <symbol id="i-stats" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><path d="M8 15l3-4 3 2 4-6"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M4.5 4.5l2 2M17.5 17.5l2 2M3 12h3M18 12h3M4.5 19.5l2-2M17.5 6.5l2-2"/></symbol>
+  <symbol id="i-water" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s5 5.5 5 10a5 5 0 0 1-10 0c0-4.5 5-10 5-10Z"/></symbol>
+  <symbol id="i-temp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13.5V5a2 2 0 1 1 4 0v8.5a4 4 0 1 1-4 0Z"/></symbol>
+  <symbol id="i-humidity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></symbol>
+  <symbol id="i-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.4 1.4M17.6 17.6L19 19M19 5l-1.4 1.4M6.4 17.6L5 19"/></symbol>
+  <symbol id="i-wind" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h9a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h13a3 3 0 1 1-3 3"/><path d="M3 16h7"/></symbol>
+  <symbol id="i-fan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 10c0-4 1-7 3-7s2 4-1 6M14 12c4 0 7 1 7 3s-4 2-6-1M12 14c0 4-1 7-3 7s-2-4 1-6M10 12c-4 0-7-1-7-3s4-2 6 1"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13l4-4"/><path d="M4 15a8 8 0 1 1 16 0"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 9v5"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20C6 20 4 16 4 11c6 0 10 1 12 5"/><path d="M20 4c0 8-4 13-9 15"/></symbol>
+  <symbol id="i-pump" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="12" height="9" rx="1.5"/><path d="M16 13h3v4h-3M8 10V6h4"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.5.8.5 1.1v.5h6v-.5c0-.3 0-.7.5-1.1A6 6 0 0 0 12 3Z"/></symbol>
+</defs></svg>
+
+<div class="shell">
+  <nav class="sidebar">
+    <div class="brand"><div class="mark"><svg><use href="#i-leaf"/></svg></div><div><div class="bt">MOSS AIR</div><div class="bs">살아있는 이끼 공기청정</div></div></div>
+    <button class="navlink active" data-nav="dashboard"><svg><use href="#i-dashboard"/></svg><span>대시보드</span></button>
+    <button class="navlink" data-nav="air"><svg><use href="#i-air"/></svg><span>공기</span></button>
+    <button class="navlink" data-nav="filter"><svg><use href="#i-filter"/></svg><span>필터</span></button>
+    <button class="navlink" data-nav="statistics"><svg><use href="#i-stats"/></svg><span>통계</span></button>
+    <button class="navlink" data-nav="settings"><svg><use href="#i-settings"/></svg><span>설정</span></button>
+    <div class="spacer"></div>
+    <div class="demo-tag">Demo Mode · 가상 데이터</div>
+  </nav>
+  <main class="content"><div class="inner" id="view"></div></main>
+</div>
+
+<script>
+/* ============ MOSS AIR WEB — 데모(가상 센서) 실행 버전 ============
+   Next.js 버전과 동일한 로직(정화효율/알림/필터/통계). 실제 하드웨어/카메라 없음. */
+const THRESH={ waterLow:30, waterCrit:15, airflowMin:1, effDrop:8, lightLow:300, pmNormal:35, pmBad:75 };
+const BASELINE=39;
+const STATUS={
+  good:{label:'정상',color:'var(--good)',tint:'var(--good-tint)'},
+  warning:{label:'주의',color:'var(--warning)',tint:'var(--warning-tint)'},
+  inspect:{label:'점검 필요',color:'var(--warning)',tint:'var(--warning-tint)'},
+  replace:{label:'교체 권장',color:'var(--danger)',tint:'var(--danger-tint)'},
+  neutral:{label:'대기',color:'var(--muted)',tint:'var(--surface-alt)'},
+};
+function calcEff(inV,outV){ if(inV==null||outV==null||inV<=0)return 0; const e=((inV-outV)/inV)*100; return Number.isFinite(e)?Math.round(Math.min(100,Math.max(0,e))*10)/10:0; }
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)); const drift=s=>(Math.random()*2-1)*s; const r1=v=>Math.round(v*10)/10;
+
+/* ---- 상태 ---- */
+let sim={ sensorFault:false };
+let reading=initReading();
+let connection='demo';
+let lastUpdated=Date.now();
+let current='dashboard';
+const settings=loadSettings();
+
+function initReading(){ const i=40,o=26; return sanitize({deviceId:'MOSS-001',pm25In:i,pm25Out:o,temperature:24.2,humidity:61,waterLevel:76,light:5200,airflow:2,pressure:42,fan:'on',pump:'on',led:'off'}); }
+function step(p){
+  const inV=clamp(Math.round((p.pm25In??40)+drift(3)),12,90);
+  const outV=clamp(Math.round(Math.min((p.pm25Out??26)+drift(2),inV-5)),3,inV);
+  const light=clamp(Math.round((p.light??5000)+drift(400)),0,12000);
+  const water=clamp(Math.round((p.waterLevel??76)-Math.random()*0.7),0,100);
+  let air=p.airflow??2; if(Math.random()<0.12) air=clamp(air+(Math.random()<.5?-1:1),1,3);
+  return sanitize({deviceId:'MOSS-001',pm25In:inV,pm25Out:outV,
+    temperature:clamp(r1((p.temperature??24)+drift(.2)),16,32),
+    humidity:clamp(Math.round((p.humidity??60)+drift(1.5)),30,85),
+    waterLevel:water,light,airflow:air,pressure:clamp(Math.round((p.pressure??42)+drift(4)),10,200),
+    fan:'on',pump:water<=0?'off':'on',led:light<THRESH.lightLow?'on':'off'});
+}
+function sanitize(r){
+  const b=(v,a,c)=> v==null||Number.isNaN(v)||v<a||v>c?null:v;
+  if(sim.sensorFault){ r={...r,pm25In:null,pm25Out:null}; }
+  const inV=b(r.pm25In,0,1000), outV=b(r.pm25Out,0,1000);
+  return {...r,pm25In:inV,pm25Out:outV,temperature:b(r.temperature,-20,60),humidity:b(r.humidity,0,100),
+    waterLevel:b(r.waterLevel,0,100),light:b(r.light,0,200000),pressure:b(r.pressure,0,1000),
+    efficiency:calcEff(inV,outV),ts:new Date().toISOString()};
+}
+
+/* ---- 통계 기록(고정 시드) ---- */
+const SERIES=(()=>{ let s=20260912; const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;}; const now=Date.now(); const out=[];
+  for(let t=now-30*864e5;t<=now;t+=3600e3){ const day=(now-t)/864e5;
+    const pm=Math.max(6,Math.round(20+Math.sin(t/(864e5/2))*6+(rnd()-.5)*6));
+    const eff=Math.max(0,Math.min(100,Math.round((BASELINE-day*0.12+(rnd()-.5)*4)*10)/10));
+    out.push({t,pm,eff,water:8+rnd()*6}); } return out; })();
+function cutoff(p){ const n=Date.now(); return p==='today'?n-864e5:p==='7d'?n-7*864e5:n-30*864e5; }
+function eff7d(){ const a=SERIES.filter(p=>p.t>=cutoff('7d')).map(p=>p.eff); return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*10)/10:BASELINE; }
+function usage(p){ const pts=SERIES.filter(x=>x.t>=cutoff(p)); const pm=pts.map(x=>x.pm),ef=pts.map(x=>x.eff);
+  const avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*10)/10:null;
+  let ser=pts.map(x=>({pm:x.pm,eff:x.eff})); if(ser.length>48){const n=Math.ceil(ser.length/48);ser=ser.filter((_,i)=>i%n===0);}
+  return {label:p==='today'?'오늘':p==='7d'?'최근 7일':'최근 30일',avgPm:avg(pm),avgEff:avg(ef),
+    maxPm:pm.length?Math.max(...pm):null,minPm:pm.length?Math.min(...pm):null,hours:pts.length,
+    water:Math.round(pts.reduce((s,x)=>s+x.water,0)),ser}; }
+
+/* ---- 필터 판단 ---- */
+function evalFilter(r){
+  const avg=eff7d();
+  const moisture=r.waterLevel==null?'neutral':r.waterLevel<=THRESH.waterCrit?'replace':r.waterLevel<=THRESH.waterLow?'warning':'good';
+  const airflow=r.airflow==null?'neutral':r.airflow<THRESH.airflowMin?'warning':'good';
+  const light=r.light==null?'neutral':r.light<THRESH.lightLow?'warning':'good';
+  const mk=(st,reason,rep=false)=>({current:r.efficiency,baseline:BASELINE,avg7d:avg,airflow,moisture,light,status:st,reason,replace:rep});
+  if(r.waterLevel!=null&&r.waterLevel<=THRESH.waterCrit) return mk('warning','물탱크의 물이 부족합니다. 먼저 물을 보충해주세요. (필터 교체 아님)');
+  if(r.airflow!=null&&r.airflow<THRESH.airflowMin) return mk('inspect','공기 흐름이 약합니다. 흡입구·배출구 막힘을 확인해주세요.');
+  if(r.pm25In==null||r.pm25Out==null) return mk('inspect','센서 값이 정상 수신되지 않아 성능을 판단할 수 없습니다.');
+  const drop=BASELINE-avg;
+  if(drop>=THRESH.effDrop) return mk('replace',`최근 7일 정화 효율이 초기(${BASELINE}%)보다 지속 감소(최근 ${avg}%). 환경·풍량·수분·센서 정상 조건에서 이끼 필터 성능 저하 가능성이 높습니다.`,true);
+  if(drop>=THRESH.effDrop/2) return mk('warning','정화 효율이 초기보다 다소 낮아졌습니다. 추세를 지켜봐 주세요.');
+  return mk('good','현재 조건에서 특이 이상 없이 정상 작동 중입니다.');
+}
+
+/* ---- 알림 ---- */
+function alerts(){
+  if(!settings.notifications) return [];
+  const r=reading, out=[]; const f=evalFilter(r);
+  const on={water_low:settings.alertWater,filter_replace:settings.alertFilter,disconnected:settings.alertDisconnect};
+  const push=a=>{ if(on[a.kind]!==false) out.push(a); };
+  if(connection==='disconnected'){ if(on.disconnected!==false) out.push({kind:'disconnected',level:'replace',title:'제품 연결이 끊어졌습니다.',cause:'제품과의 통신이 중단되었습니다.',action:'전원과 네트워크 상태를 확인한 뒤 다시 연결해주세요.'}); return out; }
+  if(r.pm25In==null||r.pm25Out==null) push({kind:'sensor_error',level:'warning',title:'센서 신호에 이상이 있습니다.',cause:'일부 센서 값이 정상 수신되지 않았습니다.',action:'센서 연결 상태를 확인하고 잠시 후 다시 시도해주세요.'});
+  if(r.waterLevel!=null&&r.waterLevel<=THRESH.waterCrit) push({kind:'water_low',level:'replace',title:'물탱크의 물이 부족합니다.',cause:`물탱크 잔량이 ${r.waterLevel}% 입니다.`,action:'물을 보충해주세요. 수분이 부족하면 정화 성능이 낮아질 수 있습니다.'});
+  else if(r.waterLevel!=null&&r.waterLevel<=THRESH.waterLow) push({kind:'water_low',level:'warning',title:'물탱크의 물이 곧 부족해집니다.',cause:`물탱크 잔량이 ${r.waterLevel}% 입니다.`,action:'가까운 시일 내에 물을 보충해주세요.'});
+  if(r.airflow!=null&&r.airflow<THRESH.airflowMin) push({kind:'airflow_abnormal',level:'warning',title:'공기 흐름이 약합니다.',cause:'풍량이 정상보다 낮습니다.',action:'흡입구·배출구가 막히지 않았는지 확인해주세요.'});
+  const waterOk=r.waterLevel==null||r.waterLevel>THRESH.waterLow;
+  if(waterOk&&BASELINE-eff7d()>=THRESH.effDrop) push({kind:'efficiency_drop',level:'warning',title:'정화 효율이 낮아지고 있습니다.',cause:`최근 7일 평균(${eff7d()}%)이 초기(${BASELINE}%)보다 낮습니다.`,action:'환경과 필터 상태를 점검해주세요.'});
+  if(f.replace) push({kind:'filter_replace',level:'replace',title:'이끼 필터 교체가 권장됩니다.',cause:'환경·풍량·센서가 정상인데도 정화 성능 저하가 지속되고 있습니다.',action:'이끼 필터의 성능 저하 가능성이 높습니다. 필터 점검·교체를 권장합니다.'});
+  return out;
+}
+
+/* ---- helpers ---- */
+const DASH='--';
+const num=(v,d=0)=> v==null||Number.isNaN(v)?DASH:v.toFixed(d);
+const airLabel=a=>a==null?DASH:['정지','약','보통','강'][a]??DASH;
+const actLabel=s=>s==='on'?'작동 중':s==='off'?'꺼짐':'오류';
+const actLevel=s=>s==='on'?'good':s==='error'?'replace':'neutral';
+const connLabel=c=>({connected:'연결됨',connecting:'연결 중',disconnected:'연결 끊김',error:'오류',demo:'Demo Mode'}[c]||DASH);
+function ago(){ const s=Math.floor((Date.now()-lastUpdated)/1000); return s<5?'방금':s<60?s+'초 전':Math.floor(s/60)+'분 전'; }
+function badge(level,label){ const m=STATUS[level]; return `<span class="badge" style="background:${m.tint};color:${m.color}"><span class="dot" style="background:${m.color}"></span>${label??m.label}</span>`; }
+function metric(icon,label,{value,unit,word,status}={}){ const disp=word!=null?`<span class="word">${word}</span>`:(value==null||value===''?DASH:value)+(unit?`<span class="u">${unit}</span>`:'');
+  return `<div class="metric"><div class="lbl"><svg><use href="#i-${icon}"/></svg>${label}</div><div class="val">${disp}</div>${status?`<div class="foot">${badge(status)}</div>`:''}</div>`; }
+function alertCard(a){ const m=STATUS[a.level]; return `<div class="alert" style="border-color:color-mix(in srgb, ${m.color} 30%, var(--border))"><div class="ico" style="background:${m.tint};color:${m.color}"><svg><use href="#i-${a.level==='good'?'check':'alert'}"/></svg></div><div style="flex:1"><div class="t" style="color:${m.color}">${a.title}</div><div class="c">${a.cause}</div><div class="a" style="color:${m.color}">권장: ${a.action}</div></div></div>`; }
+function lineChart(vals,{color='var(--primary)',band}={}){ if(!vals.length)return '<div style="color:var(--muted);padding:20px">데이터 없음</div>'; const w=640,h=150,pad=10;
+  const lo=band?band.lo:Math.min(...vals),hi=band?band.hi:Math.max(...vals),range=(hi-lo)||1;
+  const x=i=>pad+i*(w-pad*2)/Math.max(1,vals.length-1),y=v=>pad+(h-pad*2)*(1-(v-lo)/range);
+  const path=vals.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+  const area=`${path} L ${x(vals.length-1).toFixed(1)} ${h-pad} L ${pad} ${h-pad} Z`;
+  return `<div class="chart"><svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="height:${h}px"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".16"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>${band?`<rect x="0" y="${y(band.max)}" width="${w}" height="${Math.max(0,y(band.min)-y(band.max))}" fill="var(--good)" opacity=".14"/>`:''}<path d="${area}" fill="url(#lg)"/><path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`; }
+function header(title,sub){ const cls=connection==='disconnected'?'conn err':'conn';
+  return `<div class="topbar"><div><h1>${title}</h1>${sub?`<div class="sub">${sub}</div>`:''}</div><div class="${cls}"><span class="dot"></span>${connLabel(connection)}<span class="ago">· ${ago()}</span></div></div>`; }
+function airStatus(v){ return v==null?'neutral':v<=THRESH.pmNormal?'good':v<=THRESH.pmBad?'warning':'replace'; }
+
+/* ---- 화면 ---- */
+let period={air:'7d',stats:'7d'};
+function render(){
+  const v=document.getElementById('view');
+  if(current==='dashboard') v.innerHTML=viewDashboard();
+  else if(current==='air') v.innerHTML=viewAir();
+  else if(current==='filter') v.innerHTML=viewFilter();
+  else if(current==='statistics') v.innerHTML=viewStats();
+  else v.innerHTML=viewSettings();
+  bind();
+}
+function viewDashboard(){
+  const r=reading, f=evalFilter(r), al=alerts(), as=airStatus(r.pm25Out);
+  const heroMsg=as==='good'?'MOSS AIR가 정상적으로 공기를 순환·정화하고 있습니다.':(al[0]?.cause||'일부 지표에서 변화가 감지되었습니다.');
+  return header('대시보드',`${settings.productName} · ${settings.productId}`)
+    + (al[0]?`<div style="margin-bottom:16px">${alertCard(al[0])}</div>`:'')
+    + `<div class="hero" style="background:${STATUS[as].tint}"><div style="min-width:120px"><div class="eyebrow" style="color:${STATUS[as].color}">실내 공기 상태</div><div class="big" style="color:${STATUS[as].color}">${num(r.efficiency)}<span style="font-size:16px"> % 정화효율</span></div></div><div>${badge(as,as==='good'?'좋음':as==='warning'?'보통':'주의')}<div style="font-size:20px;font-weight:700;margin-top:8px">${as==='good'?'좋음':as==='warning'?'보통':'주의'}</div><div class="msg">${heroMsg}</div></div></div>`
+    + `<div class="section-head"><h2>주요 수치</h2></div><div class="grid cols-4">
+        ${metric('air','PM2.5 (후단)',{value:num(r.pm25Out),unit:'µg/m³',status:as})}
+        ${metric('gauge','정화 효율',{value:num(r.efficiency),unit:'%'})}
+        ${metric('temp','온도',{value:num(r.temperature,1),unit:'°C'})}
+        ${metric('humidity','습도',{value:num(r.humidity),unit:'%'})}</div>`
+    + `<div class="section-head"><h2>공기·환경</h2></div><div class="grid cols-4">
+        ${metric('water','물탱크',{value:num(r.waterLevel),unit:'%',status:f.moisture})}
+        ${metric('light','조도',{value:num(r.light),unit:'lux'})}
+        ${metric('wind','풍량',{word:airLabel(r.airflow),status:f.airflow})}
+        ${metric('filter','필터 상태',{word:STATUS[f.status].label,status:f.status})}</div>`
+    + `<div class="section-head"><h2>장치 상태</h2><span class="hint">데모 · 실제 신호 없음</span></div><div class="grid cols-3">
+        ${metric('fan','팬',{word:actLabel(r.fan),status:actLevel(r.fan)})}
+        ${metric('pump','펌프',{word:actLabel(r.pump),status:actLevel(r.pump)})}
+        ${metric('bulb','LED',{word:actLabel(r.led),status:actLevel(r.led)})}</div>`
+    + `<p class="disclaimer">${r.led==='on'?'조도가 낮아 보조 LED가 작동 중입니다. 펌프는 이끼 필터에 수분을 공급합니다.':'펌프는 이끼 필터에 수분을 공급합니다.'}</p>`
+    + `<div class="section-head"><h2>최근 알림</h2><span class="hint">${al.length}건</span></div>`
+    + (al.length?`<div class="grid" style="gap:12px">${al.map(alertCard).join('')}</div>`:`<div class="card pad" style="display:flex;gap:10px;align-items:center">${badge('good','정상')} 현재 특이 알림이 없습니다.</div>`)
+    + `<p class="disclaimer">Demo Mode(가상 센서) 기준입니다. 수치는 참고용이며 실제 성능은 검증 전까지 확정 표기하지 않습니다.</p>`;
+}
+function viewAir(){
+  const r=reading, u=usage(period.air), as=airStatus(r.pm25Out);
+  const removed=r.pm25In!=null&&r.pm25Out!=null?Math.max(0,r.pm25In-r.pm25Out):null;
+  return header('공기','유입·배출 공기질과 정화 성능')
+    +`<div class="grid cols-4">${metric('air','PM2.5 전단(유입)',{value:num(r.pm25In),unit:'µg/m³'})}${metric('air','PM2.5 후단(배출)',{value:num(r.pm25Out),unit:'µg/m³',status:as})}${metric('gauge','PM2.5 제거량',{value:num(removed),unit:'µg/m³'})}${metric('gauge','정화 효율',{value:num(r.efficiency),unit:'%'})}</div>`
+    +`<div class="section-head"><h2>기간별 추세</h2>${seg('air')}</div>`
+    +`<div class="card pad"><div style="font-size:13px;font-weight:700;margin-bottom:8px">PM2.5 (배출) — ${u.label}</div>${lineChart(u.ser.map(s=>s.pm),{color:'var(--accent)'})}<div class="cap">기록된 Demo 데이터 기반</div></div>`
+    +`<div class="card pad" style="margin-top:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">정화 효율 — ${u.label}</div>${lineChart(u.ser.map(s=>s.eff),{color:'var(--primary)',band:{min:30,max:45,lo:0,hi:60}})}<div class="cap">연한 영역은 참고용 정상권(30~45%)</div></div>`
+    +`<p class="disclaimer">현재 MOSS AIR는 유입 공기보다 낮은 PM2.5 농도의 공기를 배출하고 있습니다(정화 효율 ${num(r.efficiency)}%). 수치는 Demo 값이며 과장하지 않습니다.</p>`;
+}
+function viewFilter(){
+  const f=evalFilter(reading), m=STATUS[f.status];
+  return header('필터','이끼 필터 상태 및 교체 판단')
+    +`<div class="hero" style="background:${m.tint}"><div style="min-width:120px"><div class="eyebrow" style="color:${m.color}">이끼 필터 상태</div><div class="big" style="color:${m.color}">${m.label}</div></div><div>${badge(f.status)}<div class="msg" style="margin-top:10px">${f.reason}</div></div></div>`
+    +`<div class="section-head"><h2>정화 성능</h2></div><div class="grid cols-3">${metric('gauge','현재 정화 효율',{value:num(f.current),unit:'%'})}${metric('gauge','초기 정화 효율',{value:num(f.baseline),unit:'%'})}${metric('stats','최근 7일 평균',{value:num(f.avg7d),unit:'%'})}</div>`
+    +`<div class="section-head"><h2>환경 상태</h2></div><div class="grid cols-3">${metric('wind','공기 흐름',{word:STATUS[f.airflow].label,status:f.airflow})}${metric('water','수분 상태',{word:STATUS[f.moisture].label,status:f.moisture})}${metric('light','빛 상태',{word:STATUS[f.light].label,status:f.light})}</div>`
+    +(f.replace?`<div class="section-head"><h2>교체 권장</h2></div>${alertCard({level:'replace',title:'필터 교체 권장',cause:f.reason,action:'이끼 필터의 성능 저하 가능성이 높습니다. 필터 점검·교체를 진행해 주세요.'})}`:'')
+    +`<p class="disclaimer">카메라 없이 센서 데이터로만 판단합니다. 순서: 물 부족 → 풍량 → 센서 이상 → 정화 효율 추세 → 필터 상태. 확정 표현은 사용하지 않습니다.</p>`;
+}
+function viewStats(){
+  const u=usage(period.stats);
+  return header('통계','사용 기록 및 공기질 추세')
+    +`<div class="section-head"><h2>${u.label}</h2>${seg('stats')}</div>`
+    +`<div class="grid cols-3">${metric('air','평균 PM2.5',{value:num(u.avgPm),unit:'µg/m³'})}${metric('gauge','평균 정화 효율',{value:num(u.avgEff),unit:'%'})}${metric('stats','총 작동 시간',{value:num(u.hours),unit:'시간'})}${metric('air','최고 PM2.5',{value:num(u.maxPm),unit:'µg/m³'})}${metric('air','최저 PM2.5',{value:num(u.minPm),unit:'µg/m³'})}${metric('water','물 사용량',{value:num(u.water),unit:'mL'})}</div>`
+    +`<div class="card pad" style="margin-top:20px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">PM2.5 추세</div>${lineChart(u.ser.map(s=>s.pm),{color:'var(--accent)'})}</div>`
+    +`<div class="card pad" style="margin-top:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">정화 효율 추세</div>${lineChart(u.ser.map(s=>s.eff),{color:'var(--primary)'})}</div>`
+    +`<p class="disclaimer">기록된 Demo 데이터를 계산합니다. 통계 수치는 하드코딩이 아닙니다.</p>`;
+}
+function viewSettings(){
+  const connected=connection==='connected'||connection==='demo';
+  const sw=(id,on)=>`<label class="switch"><input type="checkbox" data-set="${id}" ${on?'checked':''}><span class="tk"></span><span class="th"></span></label>`;
+  return header('설정')
+    +`<div class="section-head"><h2>제품 정보</h2></div><div class="card pad">
+      <div class="row"><span class="k">제품 이름</span><input class="name" id="pname" value="${settings.productName}"></div>
+      <div class="row"><span class="k">제품 ID</span><span class="v data">${settings.productId}</span></div>
+      <div class="row"><span class="k">연결 상태</span>${badge(connected?'good':'replace',connLabel(connection))}</div>
+      <div style="display:flex;gap:10px;margin-top:12px"><button class="btn ghost" data-conn="demo">연결(데모)</button><button class="btn ghost" data-conn="disconnected">연결 끊김 시뮬레이션</button></div></div>`
+    +`<div class="section-head"><h2>모드</h2></div><div class="card pad"><div class="row"><span class="k">Demo Mode</span>${sw('demoMode',settings.demoMode)}</div><p class="disclaimer" style="margin-top:8px">실제 하드웨어가 없어 Demo Mode를 유지합니다.</p></div>`
+    +`<div class="section-head"><h2>알림</h2></div><div class="card pad">
+      <div class="row"><span class="k">알림 사용</span>${sw('notifications',settings.notifications)}</div>
+      <div class="row"><span class="k">물 부족 알림</span>${sw('alertWater',settings.alertWater)}</div>
+      <div class="row"><span class="k">필터 알림</span>${sw('alertFilter',settings.alertFilter)}</div>
+      <div class="row"><span class="k">연결 끊김 알림</span>${sw('alertDisconnect',settings.alertDisconnect)}</div></div>`
+    +`<div class="section-head"><h2>장치 제어</h2><span class="hint">데모 · 실제 신호 없음</span></div><div class="card pad"><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn ghost" data-ctl="팬">팬 제어</button><button class="btn ghost" data-ctl="펌프">펌프 제어</button><button class="btn ghost" data-ctl="LED">LED 제어</button></div><p class="disclaimer" id="ctl-note"></p></div>`
+    +`<div class="section-head"><h2>데모 상태 테스트</h2></div><div class="card pad"><div class="row"><span class="k">센서 이상 시뮬레이션</span>${sw('sensorFault',sim.sensorFault)}</div><div class="row"><span class="k">물탱크 부족 시뮬레이션</span>${sw('waterLow',reading.waterLevel!=null&&reading.waterLevel<=THRESH.waterCrit)}</div></div>`
+    +`<p class="disclaimer">설정은 이 브라우저에 저장됩니다. 카메라·이미지 분석 기능은 없습니다.</p>`;
+}
+function seg(key){ const opts=[['today','오늘'],['7d','7일'],['30d','30일']];
+  return `<div class="seg">${opts.map(o=>`<button data-period="${key}:${o[0]}" aria-pressed="${period[key]===o[0]}">${o[1]}</button>`).join('')}</div>`; }
+
+/* ---- 이벤트 ---- */
+function bind(){
+  document.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{const[k,p]=b.dataset.period.split(':');period[k]=p;render();});
+  document.querySelectorAll('[data-conn]').forEach(b=>b.onclick=()=>{connection=b.dataset.conn;lastUpdated=Date.now();render();});
+  document.querySelectorAll('[data-ctl]').forEach(b=>b.onclick=()=>{const n=document.getElementById('ctl-note');if(n){n.style.color='var(--warning)';n.textContent=`데모 모드: "${b.dataset.ctl}" 제어 신호는 실제로 전송되지 않습니다.`;}});
+  const pn=document.getElementById('pname'); if(pn) pn.onchange=()=>{settings.productName=pn.value;saveSettings();};
+  document.querySelectorAll('[data-set]').forEach(b=>b.onchange=()=>{ const k=b.dataset.set;
+    if(k==='sensorFault'){sim.sensorFault=b.checked; reading=sanitize(reading);}
+    else if(k==='waterLow'){ reading={...reading, waterLevel:b.checked?10:76}; reading=sanitize({...reading,pm25In:reading.pm25In,pm25Out:reading.pm25Out}); }
+    else { settings[k]=b.checked; saveSettings(); }
+    render();
+  });
+}
+document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{ current=b.dataset.nav;
+  document.querySelectorAll('.navlink').forEach(n=>n.classList.toggle('active',n.dataset.nav===current)); render(); });
+
+function loadSettings(){ const d={productName:'MOSS AIR',productId:'MOSS-001',demoMode:true,notifications:true,alertWater:true,alertFilter:true,alertDisconnect:true};
+  try{const r=localStorage.getItem('moss_air_web');return r?{...d,...JSON.parse(r)}:d;}catch(e){return d;} }
+function saveSettings(){ try{localStorage.setItem('moss_air_web',JSON.stringify(settings));}catch(e){} }
+
+/* ---- 실시간(3초) ---- */
+setInterval(()=>{ if(connection==='disconnected')return; reading=step(reading); lastUpdated=Date.now();
+  if(current==='dashboard'||current==='air'||current==='filter') render(); }, 3000);
+
+render();
+</script>
