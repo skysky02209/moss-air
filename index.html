@@ -61,6 +61,25 @@
   .disclaimer{font-size:11.5px;color:var(--faint);line-height:1.6;margin-top:16px}
   input.name{border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-family:inherit;text-align:right;max-width:200px;color:var(--ink)}
   button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
+  /* 판단 근거 체크리스트 */
+  .checklist{display:flex;flex-direction:column;gap:2px}
+  .checklist .ci{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--divider);font-size:14px}
+  .checklist .ci:last-child{border-bottom:0}
+  .checklist .ci .ck{width:22px;height:22px;border-radius:999px;display:grid;place-items:center;flex:none}
+  .checklist .ci .ck svg{width:14px;height:14px}
+  .checklist .ci .cl{flex:1;color:var(--ink)}
+  .checklist .ci .cv{font-size:12.5px;font-weight:600}
+  /* 그래프(시간축·단위·hover) */
+  .chart2{position:relative}
+  .chart2 .c-unit{position:absolute;top:2px;left:4px;font-size:10.5px;color:var(--faint);font-family:var(--mono)}
+  .chart2 .c-plot{position:relative}
+  .chart2 .c-plot svg{width:100%;display:block}
+  .chart2 .c-guide{position:absolute;top:0;bottom:20px;width:1px;background:var(--muted);opacity:.5;display:none;transform:translateX(-.5px);pointer-events:none}
+  .chart2 .c-tip{position:absolute;top:4px;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:8px 11px;font-size:11.5px;min-width:120px;display:none;pointer-events:none;z-index:5}
+  .chart2 .c-tip .tt{font-weight:700;margin-bottom:5px;font-size:12px}
+  .chart2 .c-tip .tr{display:flex;justify-content:space-between;gap:14px;color:var(--muted);line-height:1.7}
+  .chart2 .c-tip .tr b{color:var(--ink);font-family:var(--mono)}
+  .chart2 .c-axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);margin-top:4px;font-family:var(--mono)}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
@@ -120,17 +139,20 @@ let lastUpdated=Date.now();
 let current='dashboard';
 const settings=loadSettings();
 
-function initReading(){ const i=40,o=26; return sanitize({deviceId:'MOSS-001',pm25In:i,pm25Out:o,temperature:24.2,humidity:61,waterLevel:76,light:5200,airflow:2,pressure:42,fan:'on',pump:'on',led:'off'}); }
+const DEMO_TARGET_EFF=35;                 // Demo 목표 정화효율(안정 유지)
+function initReading(){ return sanitize({deviceId:'MOSS-001',pm25In:40,pm25Out:26,temperature:24.2,humidity:61,waterLevel:76,light:5200,airflow:2,fanMode:'auto',pressure:42,fan:'on',pump:'on',led:'off'}); }
 function step(p){
-  const inV=clamp(Math.round((p.pm25In??40)+drift(3)),12,90);
-  const outV=clamp(Math.round(Math.min((p.pm25Out??26)+drift(2),inV-5)),3,inV);
-  const light=clamp(Math.round((p.light??5000)+drift(400)),0,12000);
-  const water=clamp(Math.round((p.waterLevel??76)-Math.random()*0.7),0,100);
-  let air=p.airflow??2; if(Math.random()<0.12) air=clamp(air+(Math.random()<.5?-1:1),1,3);
+  /* 유입은 천천히 변동, 배출은 목표 정화효율을 기준으로 계산 → 효율이 안정적으로 유지되고
+     모든 페이지가 동일한 reading을 사용하므로 값이 페이지마다 달라지지 않음 */
+  const inV=clamp(Math.round((p.pm25In??40)+drift(1.5)),18,55);
+  const outV=clamp(Math.round(inV*(1-DEMO_TARGET_EFF/100)+drift(1)),3,inV-2);
+  const light=clamp(Math.round((p.light??5000)+drift(300)),0,12000);
+  const water=clamp(Math.round((p.waterLevel??76)-Math.random()*0.5),0,100);
   return sanitize({deviceId:'MOSS-001',pm25In:inV,pm25Out:outV,
-    temperature:clamp(r1((p.temperature??24)+drift(.2)),16,32),
-    humidity:clamp(Math.round((p.humidity??60)+drift(1.5)),30,85),
-    waterLevel:water,light,airflow:air,pressure:clamp(Math.round((p.pressure??42)+drift(4)),10,200),
+    temperature:clamp(r1((p.temperature??24)+drift(.15)),16,32),
+    humidity:clamp(Math.round((p.humidity??60)+drift(1)),30,85),
+    waterLevel:water,light,airflow:p.airflow??2,fanMode:p.fanMode??'auto',
+    pressure:clamp(Math.round((p.pressure??42)+drift(2)),10,200),
     fan:'on',pump:water<=0?'off':'on',led:light<THRESH.lightLow?'on':'off'});
 }
 function sanitize(r){
@@ -145,32 +167,65 @@ function sanitize(r){
 /* ---- 통계 기록(고정 시드) ---- */
 const SERIES=(()=>{ let s=20260912; const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;}; const now=Date.now(); const out=[];
   for(let t=now-30*864e5;t<=now;t+=3600e3){ const day=(now-t)/864e5;
-    const pm=Math.max(6,Math.round(20+Math.sin(t/(864e5/2))*6+(rnd()-.5)*6));
-    const eff=Math.max(0,Math.min(100,Math.round((BASELINE-day*0.12+(rnd()-.5)*4)*10)/10));
-    out.push({t,pm,eff,water:8+rnd()*6}); } return out; })();
+    const pmIn=Math.max(16,Math.round(40+Math.sin(t/(864e5/2))*8+(rnd()-.5)*6));
+    const effTarget=clamp(BASELINE-day*0.10+(rnd()-.5)*3,0,80);   // 초기 대비 완만한 하락
+    const pmOut=Math.max(2,Math.round(pmIn*(1-effTarget/100)));
+    const eff=calcEff(pmIn,pmOut);                                 // 화면과 동일한 공식으로 산출
+    out.push({t,pmIn,pmOut,eff,water:8+rnd()*6}); } return out; })();
 function cutoff(p){ const n=Date.now(); return p==='today'?n-864e5:p==='7d'?n-7*864e5:n-30*864e5; }
 function eff7d(){ const a=SERIES.filter(p=>p.t>=cutoff('7d')).map(p=>p.eff); return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*10)/10:BASELINE; }
-function usage(p){ const pts=SERIES.filter(x=>x.t>=cutoff(p)); const pm=pts.map(x=>x.pm),ef=pts.map(x=>x.eff);
+function effTrend(){ /* 7일을 앞·뒤 절반으로 나눈 평균 차이(추세). 음수=하락 */
+  const a=SERIES.filter(p=>p.t>=cutoff('7d')).map(p=>p.eff); if(a.length<4) return 0;
+  const h=Math.floor(a.length/2); const head=a.slice(0,h),tail=a.slice(-h);
+  const m=x=>x.reduce((s,y)=>s+y,0)/x.length; return Math.round((m(tail)-m(head))*10)/10; }
+function usage(p){ const pts=SERIES.filter(x=>x.t>=cutoff(p)); const pmO=pts.map(x=>x.pmOut),ef=pts.map(x=>x.eff);
   const avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*10)/10:null;
-  let ser=pts.map(x=>({pm:x.pm,eff:x.eff})); if(ser.length>48){const n=Math.ceil(ser.length/48);ser=ser.filter((_,i)=>i%n===0);}
-  return {label:p==='today'?'오늘':p==='7d'?'최근 7일':'최근 30일',avgPm:avg(pm),avgEff:avg(ef),
-    maxPm:pm.length?Math.max(...pm):null,minPm:pm.length?Math.min(...pm):null,hours:pts.length,
+  let ser=pts.map(x=>({t:x.t,pmIn:x.pmIn,pmOut:x.pmOut,eff:x.eff})); if(ser.length>60){const n=Math.ceil(ser.length/60);ser=ser.filter((_,i)=>i%n===0);}
+  return {label:p==='today'?'오늘':p==='7d'?'최근 7일':'최근 30일',period:p,avgPm:avg(pmO),avgEff:avg(ef),
+    maxPm:pmO.length?Math.max(...pmO):null,minPm:pmO.length?Math.min(...pmO):null,hours:pts.length,
     water:Math.round(pts.reduce((s,x)=>s+x.water,0)),ser}; }
 
-/* ---- 필터 판단 ---- */
+/* ---- 필터 판단 (카메라 없이 센서 데이터만) ----
+   우선순위: 물 부족 → 풍량 → 센서 → 환경 → (모두 정상일 때) 정화효율 추세 */
 function evalFilter(r){
-  const avg=eff7d();
+  const avg=eff7d(), drop=BASELINE-avg, trend=effTrend();
+  const sensorOk=!(r.pm25In==null||r.pm25Out==null);
   const moisture=r.waterLevel==null?'neutral':r.waterLevel<=THRESH.waterCrit?'replace':r.waterLevel<=THRESH.waterLow?'warning':'good';
   const airflow=r.airflow==null?'neutral':r.airflow<THRESH.airflowMin?'warning':'good';
   const light=r.light==null?'neutral':r.light<THRESH.lightLow?'warning':'good';
-  const mk=(st,reason,rep=false)=>({current:r.efficiency,baseline:BASELINE,avg7d:avg,airflow,moisture,light,status:st,reason,replace:rep});
+  const sensor=sensorOk?'good':'warning';
+  const perf=!sensorOk?'neutral':drop>=THRESH.effDrop?'replace':drop>=THRESH.effDrop/2?'warning':'good';
+  /* 판단 근거 체크리스트 */
+  const checks=[
+    {label:'정화 성능', status:perf,   ok:'정상', bad:perf==='replace'?'저하':'다소 낮음'},
+    {label:'공기 흐름', status:airflow, ok:'정상', bad:'약함'},
+    {label:'수분 상태', status:moisture,ok:'정상', bad:moisture==='replace'?'부족':'낮음'},
+    {label:'빛 상태',   status:light,   ok:'정상', bad:'부족'},
+    {label:'센서',      status:sensor,  ok:'정상', bad:'이상'},
+  ];
+  const mk=(st,reason,rep=false)=>({current:r.efficiency,baseline:BASELINE,avg7d:avg,trend,airflow,moisture,light,sensor,perf,checks,status:st,reason,replace:rep});
   if(r.waterLevel!=null&&r.waterLevel<=THRESH.waterCrit) return mk('warning','물탱크의 물이 부족합니다. 먼저 물을 보충해주세요. (필터 교체 아님)');
   if(r.airflow!=null&&r.airflow<THRESH.airflowMin) return mk('inspect','공기 흐름이 약합니다. 흡입구·배출구 막힘을 확인해주세요.');
-  if(r.pm25In==null||r.pm25Out==null) return mk('inspect','센서 값이 정상 수신되지 않아 성능을 판단할 수 없습니다.');
-  const drop=BASELINE-avg;
-  if(drop>=THRESH.effDrop) return mk('replace',`최근 7일 정화 효율이 초기(${BASELINE}%)보다 지속 감소(최근 ${avg}%). 환경·풍량·수분·센서 정상 조건에서 이끼 필터 성능 저하 가능성이 높습니다.`,true);
+  if(!sensorOk) return mk('inspect','센서 값이 정상 수신되지 않아 성능을 판단할 수 없습니다. 센서를 점검해주세요.');
+  if(drop>=THRESH.effDrop) return mk('replace',`최근 7일 정화 효율이 초기(${BASELINE}%)보다 지속 감소(최근 ${avg}%). 환경·풍량·수분·센서가 정상인데도 성능 저하가 이어져 이끼 필터 점검·교체를 권장합니다.`,true);
   if(drop>=THRESH.effDrop/2) return mk('warning','정화 효율이 초기보다 다소 낮아졌습니다. 추세를 지켜봐 주세요.');
   return mk('good','현재 조건에서 특이 이상 없이 정상 작동 중입니다.');
+}
+/* ---- 필터 예상 수명 ----
+   실제 사용 이력이 충분하지 않으므로 임의의 교체일을 표시하지 않는다.
+   충분한 데이터가 쌓이면 효율 추세(trend) 기반으로 계산할 수 있는 구조만 준비한다. */
+const FILTER_LIFE_MIN_DAYS=14;   // 예상 수명 계산에 필요한 최소 관측 일수
+function filterLife(){
+  const observedDays=Math.round((Date.now()-SERIES[0].t)/864e5);
+  const trend=effTrend();  // 7일 앞뒤 절반 평균 차이(음수=하락)
+  if(observedDays<FILTER_LIFE_MIN_DAYS||trend>=0){
+    return {enough:false, text:'데이터 수집 중', note:'충분한 데이터가 확보되면 효율 추세를 바탕으로 예상 교체 시점을 계산합니다.'};
+  }
+  /* 구조 예시: 현재 효율이 임계(교체권장 기준)까지 떨어지는 데 걸리는 일수 추정 */
+  const perWeek=-trend; const perDay=perWeek/7;
+  const margin=eff7d()-(BASELINE-THRESH.effDrop);
+  const days=perDay>0?Math.round(margin/perDay):null;
+  return {enough:true, text:days!=null&&days>0?`약 ${days}일 후 점검 권장`:'점검 권장', note:'효율 추세 기반 추정값(참고용)입니다.'};
 }
 
 /* ---- 알림 ---- */
@@ -211,6 +266,38 @@ function lineChart(vals,{color='var(--primary)',band}={}){ if(!vals.length)retur
 function header(title,sub){ const cls=connection==='disconnected'?'conn err':'conn';
   return `<div class="topbar"><div><h1>${title}</h1>${sub?`<div class="sub">${sub}</div>`:''}</div><div class="${cls}"><span class="dot"></span>${connLabel(connection)}<span class="ago">· ${ago()}</span></div></div>`; }
 function airStatus(v){ return v==null?'neutral':v<=THRESH.pmNormal?'good':v<=THRESH.pmBad?'warning':'replace'; }
+function two(n){ return String(n).padStart(2,'0'); }
+function airCmh(level){ return level==null?null:([0,90,140,185][level]); }         // Demo 환산값(가상)
+function fanModeLabel(m){ return ({auto:'자동',low:'약',mid:'보통',high:'강',off:'꺼짐'}[m])||'자동'; }
+function airflowStatus(level){ return level==null?'neutral':level<THRESH.airflowMin?'warning':'good'; }
+function tLabel(t,period){ const d=new Date(t); return period==='today'?two(d.getHours())+':'+two(d.getMinutes()):(d.getMonth()+1)+'/'+d.getDate(); }
+/* 시간축·단위·hover(전단/후단/효율)를 갖춘 추세 그래프 */
+let _cid=0;
+function trendChart(series,{metric='eff',color='var(--primary)',unit='',band=null,period='7d'}={}){
+  if(!series||!series.length) return '<div style="color:var(--muted);padding:20px">데이터 없음</div>';
+  const id='lg'+(++_cid); const vals=series.map(s=>s[metric]);
+  const W=640,H=150,padX=8,padTop=16;
+  const lo=band?band.lo:Math.min(...vals), hi=band?band.hi:Math.max(...vals), range=(hi-lo)||1;
+  const x=i=>padX+i*(W-padX*2)/Math.max(1,vals.length-1);
+  const y=v=>padTop+(H-padTop-6)*(1-(v-lo)/range);
+  const path=vals.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+  const area=`${path} L ${x(vals.length-1).toFixed(1)} ${H} L ${padX} ${H} Z`;
+  const bandRect=(band&&band.min!=null)?`<rect x="0" y="${y(band.max).toFixed(1)}" width="${W}" height="${Math.max(0,y(band.min)-y(band.max)).toFixed(1)}" fill="var(--good)" opacity=".14"/>`:'';
+  const pts=series.map(s=>({tl:tLabel(s.t,period),pmIn:s.pmIn,pmOut:s.pmOut,eff:s.eff}));
+  const ax=[pts[0].tl,pts[Math.floor(pts.length/2)].tl,pts[pts.length-1].tl];
+  return `<div class="chart2" data-pts='${JSON.stringify(pts)}'>
+    <div class="c-unit">${unit}</div>
+    <div class="c-plot" style="height:${H}px">
+      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="height:${H}px" role="img" aria-label="추세 그래프 (${unit})">
+        <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".16"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
+        ${bandRect}<path d="${area}" fill="url(#${id})"/>
+        <path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="c-guide"></div><div class="c-tip"></div>
+    </div>
+    <div class="c-axis"><span>${ax[0]}</span><span>${ax[1]}</span><span>${ax[2]}</span></div>
+  </div>`;
+}
 
 /* ---- 화면 ---- */
 let period={air:'7d',stats:'7d'};
@@ -225,28 +312,33 @@ function render(){
 }
 function viewDashboard(){
   const r=reading, f=evalFilter(r), al=alerts(), as=airStatus(r.pm25Out);
+  const removed=(r.pm25In!=null&&r.pm25Out!=null)?Math.max(0,r.pm25In-r.pm25Out):null;
   const heroMsg=as==='good'?'MOSS AIR가 정상적으로 공기를 순환·정화하고 있습니다.':(al[0]?.cause||'일부 지표에서 변화가 감지되었습니다.');
   return header('대시보드',`${settings.productName} · ${settings.productId}`)
     + (al[0]?`<div style="margin-bottom:16px">${alertCard(al[0])}</div>`:'')
-    + `<div class="hero" style="background:${STATUS[as].tint}"><div style="min-width:120px"><div class="eyebrow" style="color:${STATUS[as].color}">실내 공기 상태</div><div class="big" style="color:${STATUS[as].color}">${num(r.efficiency)}<span style="font-size:16px"> % 정화효율</span></div></div><div>${badge(as,as==='good'?'좋음':as==='warning'?'보통':'주의')}<div style="font-size:20px;font-weight:700;margin-top:8px">${as==='good'?'좋음':as==='warning'?'보통':'주의'}</div><div class="msg">${heroMsg}</div></div></div>`
-    + `<div class="section-head"><h2>주요 수치</h2></div><div class="grid cols-4">
-        ${metric('air','PM2.5 (후단)',{value:num(r.pm25Out),unit:'µg/m³',status:as})}
-        ${metric('gauge','정화 효율',{value:num(r.efficiency),unit:'%'})}
+    + `<div class="hero" style="background:${STATUS[as].tint}"><div style="min-width:130px"><div class="eyebrow" style="color:${STATUS[as].color}">정화 효율</div><div class="big" style="color:${STATUS[as].color}">${num(r.efficiency)}<span style="font-size:16px"> %</span></div><div style="font-size:12px;color:var(--muted);margin-top:6px">유입 ${num(r.pm25In)} → 배출 ${num(r.pm25Out)} µg/m³</div></div><div>${badge(as,as==='good'?'좋음':as==='warning'?'보통':'주의')}<div style="font-size:20px;font-weight:700;margin-top:8px">실내 공기 ${as==='good'?'좋음':as==='warning'?'보통':'주의'}</div><div class="msg">${heroMsg}</div></div></div>`
+    + `<div class="section-head"><h2>정화 현황</h2><span class="hint">전단 · 후단 · 효율</span></div><div class="grid cols-3">
+        ${metric('air','PM2.5 전단(유입)',{value:num(r.pm25In),unit:'µg/m³'})}
+        ${metric('air','PM2.5 후단(배출)',{value:num(r.pm25Out),unit:'µg/m³',status:as})}
+        ${metric('gauge','정화 효율',{value:num(r.efficiency),unit:'%'})}</div>`
+    + `<div class="section-head"><h2>환경</h2></div><div class="grid cols-4">
         ${metric('temp','온도',{value:num(r.temperature,1),unit:'°C'})}
-        ${metric('humidity','습도',{value:num(r.humidity),unit:'%'})}</div>`
-    + `<div class="section-head"><h2>공기·환경</h2></div><div class="grid cols-4">
+        ${metric('humidity','습도',{value:num(r.humidity),unit:'%'})}
         ${metric('water','물탱크',{value:num(r.waterLevel),unit:'%',status:f.moisture})}
-        ${metric('light','조도',{value:num(r.light),unit:'lux'})}
-        ${metric('wind','풍량',{word:airLabel(r.airflow),status:f.airflow})}
+        ${metric('light','조도',{value:num(r.light),unit:'lux'})}</div>`
+    + `<div class="section-head"><h2>공기 흐름 · 필터</h2></div><div class="grid cols-4">
+        ${metric('fan','팬 모드',{word:fanModeLabel(r.fanMode)})}
+        ${metric('wind','풍량',{word:STATUS[airflowStatus(r.airflow)].label,status:airflowStatus(r.airflow)})}
+        ${metric('gauge','차압',{value:num(r.pressure),unit:'Pa'})}
         ${metric('filter','필터 상태',{word:STATUS[f.status].label,status:f.status})}</div>`
-    + `<div class="section-head"><h2>장치 상태</h2><span class="hint">데모 · 실제 신호 없음</span></div><div class="grid cols-3">
+    + `<div class="section-head"><h2>장치 상태</h2><span class="hint">Demo · 실제 신호 없음</span></div><div class="grid cols-3">
         ${metric('fan','팬',{word:actLabel(r.fan),status:actLevel(r.fan)})}
         ${metric('pump','펌프',{word:actLabel(r.pump),status:actLevel(r.pump)})}
         ${metric('bulb','LED',{word:actLabel(r.led),status:actLevel(r.led)})}</div>`
-    + `<p class="disclaimer">${r.led==='on'?'조도가 낮아 보조 LED가 작동 중입니다. 펌프는 이끼 필터에 수분을 공급합니다.':'펌프는 이끼 필터에 수분을 공급합니다.'}</p>`
+    + `<p class="disclaimer">${r.led==='on'?'조도가 낮아 보조 LED가 작동 중입니다. 펌프는 이끼 필터에 수분을 공급합니다.':'펌프는 이끼 필터에 수분을 공급합니다.'} 풍량·차압은 Demo(가상) 값입니다.</p>`
     + `<div class="section-head"><h2>최근 알림</h2><span class="hint">${al.length}건</span></div>`
     + (al.length?`<div class="grid" style="gap:12px">${al.map(alertCard).join('')}</div>`:`<div class="card pad" style="display:flex;gap:10px;align-items:center">${badge('good','정상')} 현재 특이 알림이 없습니다.</div>`)
-    + `<p class="disclaimer">Demo Mode(가상 센서) 기준입니다. 수치는 참고용이며 실제 성능은 검증 전까지 확정 표기하지 않습니다.</p>`;
+    + `<p class="disclaimer">Demo Mode(가상 센서) 기준입니다. 모든 페이지는 동일한 센서 데이터와 동일한 정화효율 공식을 사용합니다. 수치는 참고용이며 실제 성능은 검증 전까지 확정 표기하지 않습니다.</p>`;
 }
 function viewAir(){
   const r=reading, u=usage(period.air), as=airStatus(r.pm25Out);
@@ -254,27 +346,31 @@ function viewAir(){
   return header('공기','유입·배출 공기질과 정화 성능')
     +`<div class="grid cols-4">${metric('air','PM2.5 전단(유입)',{value:num(r.pm25In),unit:'µg/m³'})}${metric('air','PM2.5 후단(배출)',{value:num(r.pm25Out),unit:'µg/m³',status:as})}${metric('gauge','PM2.5 제거량',{value:num(removed),unit:'µg/m³'})}${metric('gauge','정화 효율',{value:num(r.efficiency),unit:'%'})}</div>`
     +`<div class="section-head"><h2>기간별 추세</h2>${seg('air')}</div>`
-    +`<div class="card pad"><div style="font-size:13px;font-weight:700;margin-bottom:8px">PM2.5 (배출) — ${u.label}</div>${lineChart(u.ser.map(s=>s.pm),{color:'var(--accent)'})}<div class="cap">기록된 Demo 데이터 기반</div></div>`
-    +`<div class="card pad" style="margin-top:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">정화 효율 — ${u.label}</div>${lineChart(u.ser.map(s=>s.eff),{color:'var(--primary)',band:{min:30,max:45,lo:0,hi:60}})}<div class="cap">연한 영역은 참고용 정상권(30~45%)</div></div>`
-    +`<p class="disclaimer">현재 MOSS AIR는 유입 공기보다 낮은 PM2.5 농도의 공기를 배출하고 있습니다(정화 효율 ${num(r.efficiency)}%). 수치는 Demo 값이며 과장하지 않습니다.</p>`;
+    +`<div class="card pad"><div style="font-size:13px;font-weight:700;margin-bottom:8px">PM2.5 배출 — ${u.label} <span style="font-weight:400;color:var(--faint);font-size:11.5px">(그래프에 마우스를 올리면 상세값)</span></div>${trendChart(u.ser,{metric:'pmOut',color:'var(--accent)',unit:'µg/m³',period:u.period})}<div class="cap">기록된 Demo 데이터 기반</div></div>`
+    +`<div class="card pad" style="margin-top:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">정화 효율 — ${u.label}</div>${trendChart(u.ser,{metric:'eff',color:'var(--primary)',unit:'%',band:{min:30,max:45,lo:0,hi:60},period:u.period})}<div class="cap">연한 영역은 참고용 정상권(30~45%) · 공식 성능 기준 아님</div></div>`
+    +`<p class="disclaimer">현재 MOSS AIR는 유입 공기보다 낮은 PM2.5 농도의 공기를 배출하고 있습니다(정화 효율 ${num(r.efficiency)}%). 수치는 Demo 값이며 실제 성능은 시험 후 확정합니다.</p>`;
 }
 function viewFilter(){
-  const f=evalFilter(reading), m=STATUS[f.status];
+  const f=evalFilter(reading), m=STATUS[f.status], life=filterLife();
+  const ck=c=>{ const ok=c.status==='good', neu=c.status==='neutral'; const col=ok?'var(--good)':neu?'var(--muted)':STATUS[c.status].color;
+    const tint=ok?'var(--good-tint)':neu?'var(--surface-alt)':STATUS[c.status].tint; const icon=ok?'check':'alert';
+    return `<div class="ci"><span class="ck" style="background:${tint};color:${col}"><svg><use href="#i-${icon}"/></svg></span><span class="cl">${c.label}</span><span class="cv" style="color:${col}">${ok?c.ok:neu?'—':c.bad}</span></div>`; };
   return header('필터','이끼 필터 상태 및 교체 판단')
     +`<div class="hero" style="background:${m.tint}"><div style="min-width:120px"><div class="eyebrow" style="color:${m.color}">이끼 필터 상태</div><div class="big" style="color:${m.color}">${m.label}</div></div><div>${badge(f.status)}<div class="msg" style="margin-top:10px">${f.reason}</div></div></div>`
+    +`<div class="section-head"><h2>판단 근거</h2><span class="hint">카메라 없이 센서 데이터로 판단</span></div><div class="card pad"><div class="checklist">${f.checks.map(ck).join('')}</div></div>`
     +`<div class="section-head"><h2>정화 성능</h2></div><div class="grid cols-3">${metric('gauge','현재 정화 효율',{value:num(f.current),unit:'%'})}${metric('gauge','초기 정화 효율',{value:num(f.baseline),unit:'%'})}${metric('stats','최근 7일 평균',{value:num(f.avg7d),unit:'%'})}</div>`
-    +`<div class="section-head"><h2>환경 상태</h2></div><div class="grid cols-3">${metric('wind','공기 흐름',{word:STATUS[f.airflow].label,status:f.airflow})}${metric('water','수분 상태',{word:STATUS[f.moisture].label,status:f.moisture})}${metric('light','빛 상태',{word:STATUS[f.light].label,status:f.light})}</div>`
+    +`<div class="section-head"><h2>예상 수명</h2></div><div class="card pad"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div style="font-size:20px;font-weight:700">${life.text}</div><div style="font-size:12.5px;color:var(--muted);margin-top:4px">${life.note}</div></div>${life.enough?badge('warning','참고용'):badge('neutral','수집 중')}</div></div>`
     +(f.replace?`<div class="section-head"><h2>교체 권장</h2></div>${alertCard({level:'replace',title:'필터 교체 권장',cause:f.reason,action:'이끼 필터의 성능 저하 가능성이 높습니다. 필터 점검·교체를 진행해 주세요.'})}`:'')
-    +`<p class="disclaimer">카메라 없이 센서 데이터로만 판단합니다. 순서: 물 부족 → 풍량 → 센서 이상 → 정화 효율 추세 → 필터 상태. 확정 표현은 사용하지 않습니다.</p>`;
+    +`<p class="disclaimer">판단 순서: 물 부족 → 풍량 → 센서 이상 → 환경 → (모두 정상일 때) 정화 효율 추세. 한 번의 낮은 값이 아니라 지속 추세로 판단합니다. "이끼가 죽었다" 같은 확정 표현은 사용하지 않으며, 성능 저하 가능성·점검 권장으로 안내합니다.</p>`;
 }
 function viewStats(){
   const u=usage(period.stats);
   return header('통계','사용 기록 및 공기질 추세')
     +`<div class="section-head"><h2>${u.label}</h2>${seg('stats')}</div>`
     +`<div class="grid cols-3">${metric('air','평균 PM2.5',{value:num(u.avgPm),unit:'µg/m³'})}${metric('gauge','평균 정화 효율',{value:num(u.avgEff),unit:'%'})}${metric('stats','총 작동 시간',{value:num(u.hours),unit:'시간'})}${metric('air','최고 PM2.5',{value:num(u.maxPm),unit:'µg/m³'})}${metric('air','최저 PM2.5',{value:num(u.minPm),unit:'µg/m³'})}${metric('water','물 사용량',{value:num(u.water),unit:'mL'})}</div>`
-    +`<div class="card pad" style="margin-top:20px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">PM2.5 추세</div>${lineChart(u.ser.map(s=>s.pm),{color:'var(--accent)'})}</div>`
-    +`<div class="card pad" style="margin-top:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">정화 효율 추세</div>${lineChart(u.ser.map(s=>s.eff),{color:'var(--primary)'})}</div>`
-    +`<p class="disclaimer">기록된 Demo 데이터를 계산합니다. 통계 수치는 하드코딩이 아닙니다.</p>`;
+    +`<div class="card pad" style="margin-top:20px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">PM2.5 배출 추세 <span style="font-weight:400;color:var(--faint);font-size:11.5px">(마우스 오버 시 상세값)</span></div>${trendChart(u.ser,{metric:'pmOut',color:'var(--accent)',unit:'µg/m³',period:u.period})}</div>`
+    +`<div class="card pad" style="margin-top:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">정화 효율 추세</div>${trendChart(u.ser,{metric:'eff',color:'var(--primary)',unit:'%',band:{min:30,max:45,lo:0,hi:60},period:u.period})}</div>`
+    +`<p class="disclaimer">기록된 Demo 데이터를 동일한 정화효율 공식으로 계산합니다. 하드코딩된 값이 아닙니다.</p>`;
 }
 function viewSettings(){
   const connected=connection==='connected'||connection==='demo';
@@ -310,6 +406,19 @@ function bind(){
     else { settings[k]=b.checked; saveSettings(); }
     render();
   });
+  /* 그래프 hover — 시간/전단/후단/효율 상세값 */
+  document.querySelectorAll('.chart2').forEach(c=>{
+    const plot=c.querySelector('.c-plot'), tip=c.querySelector('.c-tip'), guide=c.querySelector('.c-guide');
+    let pts=[]; try{ pts=JSON.parse(c.dataset.pts); }catch(e){ pts=[]; }
+    if(!pts.length||!plot) return;
+    const move=e=>{ const rect=plot.getBoundingClientRect(); let rel=(e.clientX-rect.left)/rect.width; rel=Math.max(0,Math.min(1,rel));
+      const i=Math.round(rel*(pts.length-1)), p=pts[i], xp=(pts.length>1?i/(pts.length-1):0)*100;
+      guide.style.left=xp+'%'; guide.style.display='block';
+      tip.style.display='block'; tip.style.left=Math.max(12,Math.min(88,xp))+'%';
+      tip.innerHTML=`<div class="tt">${p.tl}</div><div class="tr"><span>전단</span><b>${p.pmIn} µg/m³</b></div><div class="tr"><span>후단</span><b>${p.pmOut} µg/m³</b></div><div class="tr"><span>정화효율</span><b>${p.eff}%</b></div>`; };
+    plot.addEventListener('mousemove',move);
+    plot.addEventListener('mouseleave',()=>{ tip.style.display='none'; guide.style.display='none'; });
+  });
 }
 document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{ current=b.dataset.nav;
   document.querySelectorAll('.navlink').forEach(n=>n.classList.toggle('active',n.dataset.nav===current)); render(); });
@@ -320,7 +429,8 @@ function saveSettings(){ try{localStorage.setItem('moss_air_web',JSON.stringify(
 
 /* ---- 실시간(3초) ---- */
 setInterval(()=>{ if(connection==='disconnected')return; reading=step(reading); lastUpdated=Date.now();
-  if(current==='dashboard'||current==='air'||current==='filter') render(); }, 3000);
+  /* 대시보드만 실시간 갱신 → 공기/필터/통계에서 값이 읽는 중 출렁이거나 그래프 hover가 끊기지 않음 */
+  if(current==='dashboard') render(); }, 3000);
 
 render();
 </script>
