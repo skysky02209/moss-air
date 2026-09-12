@@ -1,436 +1,753 @@
 <meta charset="utf-8">
-<title>MOSS AIR</title>
+<title>MOSS AIR — 이끼 초음파 진단</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
+  /* ============================================================
+     MOSS AIR — 이끼 초음파 기반 상태 진단 (Desktop Web)
+     모던 인포그래픽 / 화이트·딥그린 / 데스크톱 사이드바
+     ============================================================ */
   :root{
-    --bg:#F4F7F4; --surface:#fff; --surface-alt:#EEF2EE; --border:#E1E7E1; --divider:#EDF1ED;
-    --primary:#1F5A3D; --primary-dark:#163F2B; --accent:#4CAF7D; --mint:#E4F2EA;
-    --ink:#1C2A22; --muted:#62706A; --faint:#93A099;
-    --good:#2E8B5B; --good-tint:#E5F3EB; --warning:#C9822B; --warning-tint:#FBF0DE; --danger:#C34B3F; --danger-tint:#F8E5E2;
-    --radius:16px; --radius-sm:10px; --shadow:0 1px 2px rgba(20,40,30,.04),0 8px 22px rgba(20,40,30,.05);
-    --font:'Noto Sans KR',system-ui,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
-    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,monospace;
+    --bg:#F7F9F7; --surface:#FFFFFF; --surface-alt:#EEF3EE; --border:#DDE7E0; --divider:#EAEFEA;
+    --primary:#1B5E3B; --primary-dark:#14472C; --secondary:#4CAF7A; --light:#EAF4EC;
+    --ink:#1F2924; --muted:#68736D; --faint:#95A29B; --on-primary:#fff;
+    --good:#1B5E3B; --good-tint:#E7F2EB; --caution:#C6801F; --caution-tint:#FaF0DE;
+    --anomaly:#C0453B; --anomaly-tint:#F8E7E5; --neutral:#7A857F; --neutral-tint:#EDF1ED;
+    --moss-1:#1B5E3B; --moss-2:#2F7D50; --moss-3:#4CAF7A; --moss-4:#84C89D;
+    --moss-base-a:#CFE7D5; --moss-base-b:#A9D4B6; --moss-seta:#9FB08C; --moss-cap:#C8AA6C;
+    --r:16px; --r-sm:10px; --r-lg:22px;
+    --shadow:0 1px 2px rgba(20,40,30,.04),0 8px 22px rgba(20,40,30,.05);
+    --font:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,'Apple SD Gothic Neo',monospace;
   }
+  :root[data-theme="dark"]{
+    --bg:#10150F; --surface:#171E17; --surface-alt:#1C271E; --border:#26312A; --divider:#202A22;
+    --primary:#6FCB98; --primary-dark:#4CAF7A; --secondary:#4CAF7A; --light:#1C271E;
+    --ink:#ECF2EC; --muted:#9DAAA0; --faint:#6B776E; --on-primary:#08110B;
+    --good:#6FCB98; --good-tint:#17271C; --caution:#E0A254; --caution-tint:#2A2013;
+    --anomaly:#E27469; --anomaly-tint:#2B1614; --neutral:#9DAAA0; --neutral-tint:#1C271E;
+    --moss-1:#5FC08E; --moss-2:#4CAF7A; --moss-3:#72CD9A; --moss-4:#93DBB0;
+    --moss-base-a:#23372A; --moss-base-b:#2E4636; --moss-seta:#6F7F5F; --moss-cap:#AC9159;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+    --bg:#10150F; --surface:#171E17; --surface-alt:#1C271E; --border:#26312A; --divider:#202A22;
+    --primary:#6FCB98; --primary-dark:#4CAF7A; --secondary:#4CAF7A; --light:#1C271E;
+    --ink:#ECF2EC; --muted:#9DAAA0; --faint:#6B776E; --on-primary:#08110B;
+    --good:#6FCB98; --good-tint:#17271C; --caution:#E0A254; --caution-tint:#2A2013;
+    --anomaly:#E27469; --anomaly-tint:#2B1614; --neutral:#9DAAA0; --neutral-tint:#1C271E;
+    --moss-1:#5FC08E; --moss-2:#4CAF7A; --moss-3:#72CD9A; --moss-4:#93DBB0;
+    --moss-base-a:#23372A; --moss-base-b:#2E4636; --moss-seta:#6F7F5F; --moss-cap:#AC9159;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }}
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;line-height:1.5}
   h1,h2,h3,p{margin:0} button{font-family:inherit;cursor:pointer}
+  [hidden]{display:none!important}
+
+  /* ---- Shell ---- */
   .shell{display:flex;min-height:100vh}
-  .sidebar{width:240px;flex:none;position:sticky;top:0;height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:22px 16px;gap:6px}
-  .brand{display:flex;align-items:center;gap:10px;padding:6px 8px 18px}
-  .brand .mark{width:34px;height:34px;border-radius:10px;background:var(--primary);color:#fff;display:grid;place-items:center}
-  .brand .mark svg{width:20px;height:20px}
-  .brand .bt{font-size:16px;font-weight:700}.brand .bs{font-size:11px;color:var(--muted)}
-  .navlink{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:11px;color:var(--muted);font-size:14px;font-weight:600;border:0;background:none;width:100%;text-align:left}
-  .navlink svg{width:20px;height:20px}
+  .sidebar{width:236px;flex:none;position:sticky;top:0;height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 14px;gap:4px;transition:width .18s}
+  .brand{display:flex;align-items:center;gap:11px;padding:6px 8px 16px}
+  .brand .mark{width:36px;height:36px;border-radius:11px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;flex:none}
+  .brand .mark svg{width:21px;height:21px}
+  .brand .bt{font-size:16px;font-weight:700;letter-spacing:-.2px}.brand .bs{font-size:11px;color:var(--muted)}
+  .navlink{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:11px;color:var(--muted);font-size:14px;font-weight:600;border:0;background:none;width:100%;text-align:left;transition:background .14s,color .14s}
+  .navlink svg{width:20px;height:20px;flex:none}
   .navlink:hover{background:var(--surface-alt);color:var(--ink)}
-  .navlink.active{background:var(--mint);color:var(--primary)}
+  .navlink.active{background:var(--light);color:var(--primary)}
   .sidebar .spacer{flex:1}
-  .demo-tag{font-size:11px;color:var(--muted);padding:8px 10px;border:1px dashed var(--border);border-radius:10px;text-align:center}
-  .content{flex:1;min-width:0;padding:28px 34px 60px}
-  .inner{max-width:1040px;margin:0 auto}
-  .topbar{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:22px;gap:16px;flex-wrap:wrap}
-  .topbar h1{font-size:24px;font-weight:700;letter-spacing:-.3px}.topbar .sub{font-size:13px;color:var(--muted);margin-top:3px}
-  .conn{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:600;padding:6px 12px;border-radius:999px;background:var(--surface);border:1px solid var(--border)}
-  .conn .dot{width:8px;height:8px;border-radius:999px;background:var(--good)} .conn.err .dot{background:var(--danger)} .conn .ago{color:var(--muted);font-weight:400}
-  .grid{display:grid;gap:16px}.cols-2{grid-template-columns:repeat(2,1fr)}.cols-3{grid-template-columns:repeat(3,1fr)}.cols-4{grid-template-columns:repeat(4,1fr)}
-  @media(max-width:900px){.cols-3,.cols-4{grid-template-columns:repeat(2,1fr)}}
-  @media(max-width:620px){.sidebar{width:64px}.brand .bt,.brand .bs,.navlink span,.demo-tag{display:none}.cols-2,.cols-3,.cols-4{grid-template-columns:1fr}.content{padding:20px 16px 60px}}
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)} .card.pad{padding:20px}
-  .section-head{display:flex;align-items:baseline;justify-content:space-between;margin:28px 2px 12px}.section-head h2{font-size:16px;font-weight:700}.section-head .hint{font-size:12.5px;color:var(--muted)}
-  .metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px 18px}
+  .side-foot{font-size:11px;color:var(--muted);padding:8px 10px;border:1px dashed var(--border);border-radius:10px;text-align:center}
+  .collapse-btn{border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:9px;padding:8px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;font-weight:600}
+  .content{flex:1;min-width:0;display:flex;flex-direction:column}
+  .header{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid var(--divider);padding:14px 30px;display:flex;align-items:center;gap:16px}
+  .header .htitle{font-size:15px;font-weight:700}
+  .header .hspace{flex:1}
+  .header .chip{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;padding:6px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--border)}
+  .header .chip .dot{width:8px;height:8px;border-radius:999px;background:var(--good)} .header .chip.err .dot{background:var(--anomaly)}
+  .header .mode{font-size:11px;font-weight:700;letter-spacing:.3px;padding:5px 10px;border-radius:999px;background:var(--caution-tint);color:var(--caution)}
+  .header .iconbtn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--ink);display:grid;place-items:center}
+  .header .iconbtn svg{width:18px;height:18px}
+  .main{flex:1;padding:26px 30px 70px}
+  .inner{max-width:1200px;margin:0 auto}
+  .page-title{font-size:24px;font-weight:700;letter-spacing:-.4px}
+  .page-sub{font-size:13.5px;color:var(--muted);margin-top:3px}
+  .sec{display:flex;align-items:baseline;justify-content:space-between;margin:26px 2px 12px}
+  .sec h2{font-size:15px;font-weight:700}.sec .hint{font-size:12px;color:var(--muted)}
+
+  .grid{display:grid;gap:16px}
+  .c2{grid-template-columns:repeat(2,1fr)}.c3{grid-template-columns:repeat(3,1fr)}.c4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
+  .card.pad{padding:20px}
+  .metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:16px 18px}
   .metric .lbl{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;font-weight:600}.metric .lbl svg{width:16px;height:16px}
-  .metric .val{font-family:var(--mono);font-size:26px;font-weight:600;margin-top:8px;letter-spacing:-.5px}.metric .val .u{font-family:var(--font);font-size:13px;color:var(--muted);margin-left:4px}.metric .val .word{font-family:var(--font);font-size:18px}
-  .metric .foot{margin-top:8px}
-  .hero{display:flex;gap:22px;align-items:center;padding:24px;border-radius:var(--radius);box-shadow:var(--shadow)}
-  .hero .big{font-size:40px;font-weight:700;line-height:1;font-family:var(--mono);letter-spacing:-1px}.hero .eyebrow{font-size:12.5px;color:var(--muted);font-weight:600}.hero .msg{font-size:13.5px;color:var(--muted);margin-top:8px;line-height:1.6;max-width:520px}
-  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:5px 11px;border-radius:999px}.badge .dot{width:8px;height:8px;border-radius:999px}
-  .bar{width:100%;height:8px;border-radius:999px;background:var(--divider);overflow:hidden}.bar>span{display:block;height:100%;border-radius:999px}
-  .row{display:flex;align-items:center;justify-content:space-between;padding:13px 2px;border-bottom:1px solid var(--divider);font-size:14px}.row:last-child{border-bottom:0}.row .k{color:var(--muted)}.row .v{font-weight:600}.row .v.data{font-family:var(--mono)}
-  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:var(--radius-sm);border:0;font-size:14px;font-weight:600}
-  .btn.primary{background:var(--primary);color:#fff}.btn.primary:hover{background:var(--primary-dark)}.btn.ghost{background:var(--surface);color:var(--primary);border:1.5px solid var(--primary)}
-  .alert{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 16px;background:var(--surface)}
-  .alert .ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none}.alert .ico svg{width:18px;height:18px}
-  .alert .t{font-size:14px;font-weight:700}.alert .c{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.55}.alert .a{font-size:12.5px;margin-top:6px;font-weight:600}
-  .switch{position:relative;width:46px;height:27px;flex:none;display:inline-block}.switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
-  .switch .tk{position:absolute;inset:0;border-radius:999px;background:var(--border);transition:.2s}.switch .th{position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:999px;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
-  .switch input:checked~.tk{background:var(--accent)}.switch input:checked~.th{transform:translateX(19px)}
+  .metric .val{font-family:var(--mono);font-size:25px;font-weight:600;margin-top:8px;letter-spacing:-.5px}
+  .metric .val .u{font-family:var(--font);font-size:12px;color:var(--muted);margin-left:4px}.metric .val .word{font-family:var(--font);font-size:17px}
+  .metric .foot{margin-top:9px}
+
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:5px 11px;border-radius:999px}
+  .badge .dot{width:8px;height:8px;border-radius:999px}
+  .st-normal{color:var(--good);background:var(--good-tint)} .st-normal .dot{background:var(--good)}
+  .st-caution{color:var(--caution);background:var(--caution-tint)} .st-caution .dot{background:var(--caution)}
+  .st-anomaly{color:var(--anomaly);background:var(--anomaly-tint)} .st-anomaly .dot{background:var(--anomaly)}
+  .st-insufficient{color:var(--neutral);background:var(--neutral-tint)} .st-insufficient .dot{background:var(--neutral)}
+
+  /* ---- Moss Status Component (대표 UI) ---- */
+  .moss-status{display:grid;grid-template-columns:220px 1fr;gap:26px;align-items:center;padding:26px 28px}
+  @media(max-width:720px){.moss-status{grid-template-columns:1fr;text-align:center;justify-items:center}}
+  .moss-visual{position:relative;display:inline-grid;place-items:center;line-height:0}
+  .moss-visual>svg{width:100%;height:100%;display:block;overflow:visible}
+  .moss-visual .mo-arc{transition:stroke-dashoffset .8s ease}
+  .moss-visual.is-caution{filter:saturate(.7) brightness(.98)}
+  .moss-visual.is-anomaly{filter:saturate(.48) brightness(.94)}
+  .moss-visual.is-insufficient{filter:saturate(.25) brightness(.98) opacity(.9)}
+  .moss-dot{position:absolute;top:5%;right:7%;width:12px;height:12px;border-radius:999px;box-shadow:0 0 0 3px var(--surface)}
+  .ms-eyebrow{font-size:12.5px;color:var(--muted);font-weight:600}
+  .ms-state{font-size:30px;font-weight:700;letter-spacing:-.5px;margin-top:2px}
+  .ms-msg{font-size:13.5px;color:var(--muted);margin-top:8px;line-height:1.6;max-width:560px}
+  .ms-grid{display:flex;gap:30px;flex-wrap:wrap;margin-top:18px}
+  .ms-grid .k{font-size:12px;color:var(--muted)}.ms-grid .v{font-family:var(--mono);font-size:18px;font-weight:600;margin-top:3px}
+
+  /* ---- Range bar ---- */
+  .rb{position:relative;height:52px;margin-top:6px}
+  .rb-track{position:absolute;top:22px;left:0;right:0;height:8px;border-radius:999px;background:var(--divider);overflow:hidden}
+  .rb-normal{position:absolute;top:0;height:100%;background:var(--secondary);opacity:.5}
+  .rb-mark{position:absolute;top:13px;width:3px;height:26px;border-radius:3px;background:var(--ink);transform:translateX(-50%)}
+  .rb-dot{position:absolute;top:10px;width:16px;height:16px;border-radius:999px;border:3px solid var(--surface);transform:translateX(-50%);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+  .rb-cap{position:absolute;top:39px;font-size:10.5px;color:var(--faint);transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+  .rb-ends{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);margin-top:2px}
+
+  /* ---- Measurement ---- */
+  .measure-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;padding:16px 0}
+  .moss-measure{position:relative;width:180px;height:180px;display:grid;place-items:center;margin:4px auto}
+  .moss-measure .pulse{position:absolute;inset:4px;border-radius:999px;border:1.5px solid var(--secondary);opacity:0;pointer-events:none}
+  .moss-measure.measuring .pulse{animation:mp 2.6s ease-out infinite}
+  .moss-measure.measuring .pulse.p2{animation-delay:1.3s}
+  @keyframes mp{0%{transform:scale(.72);opacity:.4}100%{transform:scale(1.26);opacity:0}}
+  @media(prefers-reduced-motion:reduce){.moss-measure .pulse{animation:none!important;display:none}}
+  .mbtn{margin-top:18px;min-height:52px;padding:0 26px;border-radius:14px;border:0;background:var(--primary);color:var(--on-primary);font-size:15px;font-weight:700;display:inline-flex;align-items:center;gap:9px}
+  .mbtn.rec{background:var(--anomaly)}
+  .mbtn svg{width:18px;height:18px}
+  .live{width:100%;max-width:640px;margin-top:20px}
+  .live .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 18px;border-radius:var(--r-sm);border:0;font-size:14px;font-weight:600}
+  .btn svg{width:18px;height:18px}
+  .btn.primary{background:var(--primary);color:var(--on-primary)}.btn.primary:hover{background:var(--primary-dark)}
+  .btn.ghost{background:var(--surface);color:var(--primary);border:1.5px solid var(--primary)}.btn.ghost:hover{background:var(--light)}
+  .btn.soft{background:var(--light);color:var(--primary)}
+
+  /* ---- Tabs ---- */
+  .tabs{display:flex;gap:6px;background:var(--surface-alt);border-radius:12px;padding:4px;margin-top:16px;max-width:520px}
+  .tab{flex:1;border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:600;padding:9px 4px;border-radius:9px}
+  .tab[aria-selected="true"]{background:var(--surface);color:var(--primary);box-shadow:var(--shadow)}
+  .tab-note{font-size:11.5px;color:var(--faint);margin-top:8px;line-height:1.5}
+
+  /* ---- Spectrogram ---- */
+  .spectro{display:grid;gap:2px}.spectro .r{display:grid;gap:2px;grid-auto-flow:column}.spectro .cell{height:12px;border-radius:2px}
+
+  /* ---- Chart ---- */
   .chart svg{width:100%;display:block}.chart .cap{font-size:11px;color:var(--faint);margin-top:8px}
-  .seg{display:inline-flex;gap:4px;background:var(--surface-alt);border-radius:11px;padding:4px}.seg button{border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:600;padding:8px 14px;border-radius:8px}.seg button[aria-pressed="true"]{background:var(--surface);color:var(--primary);box-shadow:var(--shadow)}
-  .disclaimer{font-size:11.5px;color:var(--faint);line-height:1.6;margin-top:16px}
-  input.name{border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-family:inherit;text-align:right;max-width:200px;color:var(--ink)}
-  button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:8px}
-  /* 판단 근거 체크리스트 */
+  .chart2{position:relative}
+  .chart2 .c-unit{position:absolute;top:2px;left:4px;font-size:10.5px;color:var(--faint);font-family:var(--mono)}
+  .chart2 .c-plot{position:relative}.chart2 .c-plot svg{width:100%;display:block}
+  .chart2 .c-guide{position:absolute;top:0;bottom:20px;width:1px;background:var(--muted);opacity:.5;display:none;pointer-events:none}
+  .chart2 .c-tip{position:absolute;top:4px;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:8px 11px;font-size:11.5px;min-width:120px;display:none;pointer-events:none;z-index:5}
+  .chart2 .c-tip .tt{font-weight:700;margin-bottom:5px}.chart2 .c-tip .tr{display:flex;justify-content:space-between;gap:14px;color:var(--muted);line-height:1.7}.chart2 .c-tip .tr b{color:var(--ink);font-family:var(--mono)}
+  .chart2 .c-axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);margin-top:4px;font-family:var(--mono)}
+
+  /* ---- Table (history) ---- */
+  .tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+  .tbl th{text-align:left;font-size:12px;color:var(--muted);font-weight:600;padding:12px 14px;border-bottom:1px solid var(--border)}
+  .tbl td{padding:13px 14px;border-bottom:1px solid var(--divider)}
+  .tbl tr:last-child td{border-bottom:0}
+  .tbl tbody tr{cursor:pointer}.tbl tbody tr:hover{background:var(--surface-alt)}
+  .tbl .mono{font-family:var(--mono)}
+  .tbl-wrap{overflow-x:auto}
+  .thumb{width:34px;height:34px;display:inline-grid;place-items:center;vertical-align:middle}
+
+  /* ---- Checklist ---- */
   .checklist{display:flex;flex-direction:column;gap:2px}
   .checklist .ci{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--divider);font-size:14px}
   .checklist .ci:last-child{border-bottom:0}
-  .checklist .ci .ck{width:22px;height:22px;border-radius:999px;display:grid;place-items:center;flex:none}
-  .checklist .ci .ck svg{width:14px;height:14px}
-  .checklist .ci .cl{flex:1;color:var(--ink)}
-  .checklist .ci .cv{font-size:12.5px;font-weight:600}
-  /* 그래프(시간축·단위·hover) */
-  .chart2{position:relative}
-  .chart2 .c-unit{position:absolute;top:2px;left:4px;font-size:10.5px;color:var(--faint);font-family:var(--mono)}
-  .chart2 .c-plot{position:relative}
-  .chart2 .c-plot svg{width:100%;display:block}
-  .chart2 .c-guide{position:absolute;top:0;bottom:20px;width:1px;background:var(--muted);opacity:.5;display:none;transform:translateX(-.5px);pointer-events:none}
-  .chart2 .c-tip{position:absolute;top:4px;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:8px 11px;font-size:11.5px;min-width:120px;display:none;pointer-events:none;z-index:5}
-  .chart2 .c-tip .tt{font-weight:700;margin-bottom:5px;font-size:12px}
-  .chart2 .c-tip .tr{display:flex;justify-content:space-between;gap:14px;color:var(--muted);line-height:1.7}
-  .chart2 .c-tip .tr b{color:var(--ink);font-family:var(--mono)}
-  .chart2 .c-axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);margin-top:4px;font-family:var(--mono)}
+  .checklist .ck{width:22px;height:22px;border-radius:999px;display:grid;place-items:center;flex:none}.checklist .ck svg{width:14px;height:14px}
+  .checklist .cl{flex:1}.checklist .cv{font-size:12.5px;font-weight:600}
+
+  /* ---- Alert ---- */
+  .alert{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 16px;background:var(--surface)}
+  .alert .ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none}.alert .ico svg{width:18px;height:18px}
+  .alert .t{font-size:14px;font-weight:700}.alert .c{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.55}.alert .a{font-size:12.5px;margin-top:6px;font-weight:600}
+
+  .row{display:flex;align-items:center;justify-content:space-between;padding:13px 2px;border-bottom:1px solid var(--divider);font-size:14px}.row:last-child{border-bottom:0}.row .k{color:var(--muted)}.row .v{font-weight:600}.row .v.data{font-family:var(--mono)}
+  .switch{position:relative;width:46px;height:27px;flex:none;display:inline-block}.switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+  .switch .tk{position:absolute;inset:0;border-radius:999px;background:var(--border);transition:.2s}.switch .th{position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:999px;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .switch input:checked~.tk{background:var(--secondary)}.switch input:checked~.th{transform:translateX(19px)}
+  input.txt{border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-family:inherit;color:var(--ink);background:var(--surface);font-size:13.5px}
+  .disclaimer{font-size:11.5px;color:var(--faint);line-height:1.6;margin-top:16px}
+  .empty{text-align:center;padding:56px 20px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:10px}
+  .empty .ei{width:60px;height:60px;border-radius:999px;background:var(--surface-alt);color:var(--primary);display:grid;place-items:center}.empty .ei svg{width:28px;height:28px}
+  button:focus-visible,a:focus-visible,input:focus-visible,[role=tab]:focus-visible{outline:2px solid var(--secondary);outline-offset:2px;border-radius:8px}
+
+  /* ---- Responsive ---- */
+  @media(max-width:1080px){.c4{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:900px){.c3{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:760px){
+    .sidebar{width:60px;padding:16px 8px}.brand .bt,.brand .bs,.navlink span,.side-foot span,.collapse-btn span{display:none}
+    .navlink{justify-content:center}.main{padding:20px 16px 60px}.header{padding:12px 16px}
+    .c2,.c3,.c4{grid-template-columns:1fr}
+  }
+  .sidebar.mini{width:60px}.sidebar.mini .brand .bt,.sidebar.mini .brand .bs,.sidebar.mini .navlink span,.sidebar.mini .side-foot span,.sidebar.mini .collapse-btn span{display:none}
+  .sidebar.mini .navlink{justify-content:center}
 </style>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-  <symbol id="i-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h7V4H4zM13 20h7v-9h-7zM13 4v5h7V4zM4 20h7v-5H4z"/></symbol>
-  <symbol id="i-air" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h11a3 3 0 1 0-3-3"/><path d="M3 14h15a3 3 0 1 1-3 3"/></symbol>
-  <symbol id="i-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6 8v5l-4 2v-7z"/></symbol>
-  <symbol id="i-stats" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16h16"/><path d="M8 15l3-4 3 2 4-6"/></symbol>
+  <symbol id="i-dash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h7V4H4zM13 20h7v-9h-7zM13 4v5h7V4zM4 20h7v-5H4z"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17v4"/></symbol>
+  <symbol id="i-analyze" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-6 3 14 3-11 2 6 2-3h3"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 4v4h4"/><path d="M12 8v4l3 2"/></symbol>
+  <symbol id="i-env" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></symbol>
+  <symbol id="i-device" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3"/><path d="M12 4v2M12 18v2"/></symbol>
   <symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M4.5 4.5l2 2M17.5 17.5l2 2M3 12h3M18 12h3M4.5 19.5l2-2M17.5 6.5l2-2"/></symbol>
-  <symbol id="i-water" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s5 5.5 5 10a5 5 0 0 1-10 0c0-4.5 5-10 5-10Z"/></symbol>
-  <symbol id="i-temp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13.5V5a2 2 0 1 1 4 0v8.5a4 4 0 1 1-4 0Z"/></symbol>
-  <symbol id="i-humidity" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></symbol>
-  <symbol id="i-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.4 1.4M17.6 17.6L19 19M19 5l-1.4 1.4M6.4 17.6L5 19"/></symbol>
-  <symbol id="i-wind" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h9a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h13a3 3 0 1 1-3 3"/><path d="M3 16h7"/></symbol>
-  <symbol id="i-fan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 10c0-4 1-7 3-7s2 4-1 6M14 12c4 0 7 1 7 3s-4 2-6-1M12 14c0 4-1 7-3 7s-2-4 1-6M10 12c-4 0-7-1-7-3s4-2 6 1"/></symbol>
-  <symbol id="i-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13l4-4"/><path d="M4 15a8 8 0 1 1 16 0"/></symbol>
-  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 9v5"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/></symbol>
-  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
   <symbol id="i-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20C6 20 4 16 4 11c6 0 10 1 12 5"/><path d="M20 4c0 8-4 13-9 15"/></symbol>
+  <symbol id="i-temp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13.5V5a2 2 0 1 1 4 0v8.5a4 4 0 1 1-4 0Z"/></symbol>
+  <symbol id="i-humid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s5 5.5 5 10a5 5 0 0 1-10 0c0-4.5 5-10 5-10Z"/><path d="M9.5 13a2.5 2.5 0 0 0 2.5 2.5"/></symbol>
+  <symbol id="i-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.4 1.4M17.6 17.6L19 19M19 5l-1.4 1.4M6.4 17.6L5 19"/></symbol>
+  <symbol id="i-air" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h11a3 3 0 1 0-3-3"/><path d="M3 14h15a3 3 0 1 1-3 3"/></symbol>
+  <symbol id="i-fan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 10c0-4 1-7 3-7s2 4-1 6M14 12c4 0 7 1 7 3s-4 2-6-1M12 14c0 4-1 7-3 7s-2-4 1-6M10 12c-4 0-7-1-7-3s4-2 6 1"/></symbol>
   <symbol id="i-pump" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="12" height="9" rx="1.5"/><path d="M16 13h3v4h-3M8 10V6h4"/></symbol>
   <symbol id="i-bulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.5.8.5 1.1v.5h6v-.5c0-.3 0-.7.5-1.1A6 6 0 0 0 12 3Z"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6 8v5l-4 2v-7z"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13l4-4"/><path d="M4 15a8 8 0 1 1 16 0"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 9v5"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.2 2.4c-.8.3-1.2.8-1.2 1.6v.5"/><circle cx="12" cy="16.5" r=".6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13.5A8 8 0 1 1 10.5 4a6.2 6.2 0 0 0 9.5 9.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
 </defs></svg>
 
 <div class="shell">
-  <nav class="sidebar">
-    <div class="brand"><div class="mark"><svg><use href="#i-leaf"/></svg></div><div><div class="bt">MOSS AIR</div><div class="bs">살아있는 이끼 공기청정</div></div></div>
-    <button class="navlink active" data-nav="dashboard"><svg><use href="#i-dashboard"/></svg><span>대시보드</span></button>
-    <button class="navlink" data-nav="air"><svg><use href="#i-air"/></svg><span>공기</span></button>
-    <button class="navlink" data-nav="filter"><svg><use href="#i-filter"/></svg><span>필터</span></button>
-    <button class="navlink" data-nav="statistics"><svg><use href="#i-stats"/></svg><span>통계</span></button>
+  <nav class="sidebar" id="sidebar">
+    <div class="brand"><div class="mark"><svg><use href="#i-leaf"/></svg></div><div><div class="bt">MOSS AIR</div><div class="bs">이끼 초음파 진단</div></div></div>
+    <button class="navlink active" data-nav="dashboard"><svg><use href="#i-dash"/></svg><span>대시보드</span></button>
+    <button class="navlink" data-nav="measure"><svg><use href="#i-mic"/></svg><span>측정</span></button>
+    <button class="navlink" data-nav="analysis"><svg><use href="#i-analyze"/></svg><span>분석</span></button>
+    <button class="navlink" data-nav="history"><svg><use href="#i-history"/></svg><span>기록</span></button>
+    <button class="navlink" data-nav="environment"><svg><use href="#i-env"/></svg><span>환경</span></button>
+    <button class="navlink" data-nav="device"><svg><use href="#i-device"/></svg><span>기기</span></button>
     <button class="navlink" data-nav="settings"><svg><use href="#i-settings"/></svg><span>설정</span></button>
     <div class="spacer"></div>
-    <div class="demo-tag">Demo Mode · 가상 데이터</div>
+    <button class="collapse-btn" id="collapse"><svg style="width:16px;height:16px"><use href="#i-menu"/></svg><span>접기</span></button>
+    <div class="side-foot"><span>DEMO MODE · 가상 센서</span></div>
   </nav>
-  <main class="content"><div class="inner" id="view"></div></main>
+  <div class="content">
+    <header class="header">
+      <span class="htitle" id="h-title">대시보드</span>
+      <span class="hspace"></span>
+      <span class="mode" id="h-mode">DEMO MODE</span>
+      <span class="chip" id="h-conn"><span class="dot"></span><span id="h-conn-t">센서 미연결</span></span>
+      <button class="iconbtn" id="theme-btn" aria-label="테마"><svg><use href="#i-moon" id="theme-i"/></svg></button>
+    </header>
+    <main class="main"><div class="inner" id="view"></div></main>
+  </div>
 </div>
 
 <script>
-/* ============ MOSS AIR WEB — 데모(가상 센서) 실행 버전 ============
-   Next.js 버전과 동일한 로직(정화효율/알림/필터/통계). 실제 하드웨어/카메라 없음. */
-const THRESH={ waterLow:30, waterCrit:15, airflowMin:1, effDrop:8, lightLow:300, pmNormal:35, pmBad:75 };
-const BASELINE=39;
-const STATUS={
-  good:{label:'정상',color:'var(--good)',tint:'var(--good-tint)'},
-  warning:{label:'주의',color:'var(--warning)',tint:'var(--warning-tint)'},
-  inspect:{label:'점검 필요',color:'var(--warning)',tint:'var(--warning-tint)'},
-  replace:{label:'교체 권장',color:'var(--danger)',tint:'var(--danger-tint)'},
-  neutral:{label:'대기',color:'var(--muted)',tint:'var(--surface-alt)'},
+/* ================================================================
+   MOSS AIR — 이끼 초음파 진단 (Desktop Web) · Demo(가상 센서)
+   실제 하드웨어/AI/카메라 없음. 모든 수치는 UI 개발용 Demo 값.
+   정상 범위는 "연구용 초기 기준(DEMO/RESEARCH BASELINE)".
+   ================================================================ */
+
+/* ---- 정상 범위(연구용 초기 기준 — 검증된 값 아님) ---- */
+const BASELINE = { normalRangeMin: 30, normalRangeMax: 35, label: '연구용 초기 기준' };
+const RANGE_LOW = 26, RANGE_HIGH = 40;
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const r1=v=>Math.round(v*10)/10;
+const two=n=>String(n).padStart(2,'0');
+const DASH='--';
+
+/* ---- 4단계 상태 ---- */
+const STATUS = {
+  normal:       { key:'NORMAL',            label:'정상',      cls:'st-normal',       color:'var(--good)',    tint:'var(--good-tint)',    icon:'i-check' },
+  caution:      { key:'CAUTION',           label:'주의',      cls:'st-caution',      color:'var(--caution)', tint:'var(--caution-tint)', icon:'i-alert' },
+  anomaly:      { key:'ANOMALY',           label:'이상 신호', cls:'st-anomaly',      color:'var(--anomaly)', tint:'var(--anomaly-tint)', icon:'i-alert' },
+  insufficient: { key:'INSUFFICIENT_DATA', label:'판정 불가', cls:'st-insufficient', color:'var(--neutral)', tint:'var(--neutral-tint)', icon:'i-help'  },
 };
-function calcEff(inV,outV){ if(inV==null||outV==null||inV<=0)return 0; const e=((inV-outV)/inV)*100; return Number.isFinite(e)?Math.round(Math.min(100,Math.max(0,e))*10)/10:0; }
-const clamp=(v,a,b)=>Math.min(b,Math.max(a,v)); const drift=s=>(Math.random()*2-1)*s; const r1=v=>Math.round(v*10)/10;
-
-/* ---- 상태 ---- */
-let sim={ sensorFault:false };
-let reading=initReading();
-let connection='demo';
-let lastUpdated=Date.now();
-let current='dashboard';
-const settings=loadSettings();
-
-const DEMO_TARGET_EFF=35;                 // Demo 목표 정화효율(안정 유지)
-function initReading(){ return sanitize({deviceId:'MOSS-001',pm25In:40,pm25Out:26,temperature:24.2,humidity:61,waterLevel:76,light:5200,airflow:2,fanMode:'auto',pressure:42,fan:'on',pump:'on',led:'off'}); }
-function step(p){
-  /* 유입은 천천히 변동, 배출은 목표 정화효율을 기준으로 계산 → 효율이 안정적으로 유지되고
-     모든 페이지가 동일한 reading을 사용하므로 값이 페이지마다 달라지지 않음 */
-  const inV=clamp(Math.round((p.pm25In??40)+drift(1.5)),18,55);
-  const outV=clamp(Math.round(inV*(1-DEMO_TARGET_EFF/100)+drift(1)),3,inV-2);
-  const light=clamp(Math.round((p.light??5000)+drift(300)),0,12000);
-  const water=clamp(Math.round((p.waterLevel??76)-Math.random()*0.5),0,100);
-  return sanitize({deviceId:'MOSS-001',pm25In:inV,pm25Out:outV,
-    temperature:clamp(r1((p.temperature??24)+drift(.15)),16,32),
-    humidity:clamp(Math.round((p.humidity??60)+drift(1)),30,85),
-    waterLevel:water,light,airflow:p.airflow??2,fanMode:p.fanMode??'auto',
-    pressure:clamp(Math.round((p.pressure??42)+drift(2)),10,200),
-    fan:'on',pump:water<=0?'off':'on',led:light<THRESH.lightLow?'on':'off'});
+/* 판정: 데이터/품질이 부족하면 절대 자동 정상 처리하지 않음 */
+function classify(peak, quality){
+  if(peak==null) return 'insufficient';
+  if(quality==='low') return 'insufficient';   // 품질 낮음 → 확정 판정 불가
+  const {normalRangeMin:lo, normalRangeMax:hi}=BASELINE;
+  if(peak>=lo && peak<=hi) return 'normal';
+  if(peak>=lo-3 && peak<=hi+3) return 'caution';
+  return 'anomaly';
 }
-function sanitize(r){
-  const b=(v,a,c)=> v==null||Number.isNaN(v)||v<a||v>c?null:v;
+function matchPercent(peak){ if(peak==null) return null;
+  const c=(BASELINE.normalRangeMin+BASELINE.normalRangeMax)/2, half=(BASELINE.normalRangeMax-BASELINE.normalRangeMin)/2;
+  return Math.max(20,Math.min(97,Math.round(100-Math.max(0,Math.abs(peak-c)-half)*12))); }
+
+/* ---- 이끼 종류(확장 구조 · 실제 데이터 없으므로 기본 1종만) ---- */
+const MOSS_SPECIES = { id:'default', name:'기본 이끼 (종 미지정)', referenceImage:'moss-default',
+  description:'현재 측정 대상 이끼. 연구 진행 시 종별 정상 범위·시각 자료로 확장.',
+  normalRange:[BASELINE.normalRangeMin,BASELINE.normalRangeMax] };
+let currentSpecies = MOSS_SPECIES;
+
+/* ================= 이끼 Botanical Visual (공식 Asset · 전 화면 동일) ================= */
+function _frond(x,baseY,h,lean,cStem,cLeaf){
+  const topX=x+lean,topY=baseY-h,cx=x+lean*0.4,cy=baseY-h*0.55;
+  const bez=t=>[(1-t)*(1-t)*x+2*(1-t)*t*cx+t*t*topX,(1-t)*(1-t)*baseY+2*(1-t)*t*cy+t*t*topY];
+  const stem=`M${x} ${baseY} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${topX.toFixed(1)} ${topY.toFixed(1)}`;
+  let lf='';const n=Math.max(4,Math.round(h/8));
+  for(let i=1;i<=n;i++){const t=i/(n+0.7),[bx,by]=bez(t),L=2.5+7*(1-t);
+    lf+=`<path d="M${bx.toFixed(1)} ${by.toFixed(1)} q${(-L*0.55).toFixed(1)} ${(-L*0.15).toFixed(1)} ${(-L*0.75).toFixed(1)} ${(-L*0.78).toFixed(1)}" fill="none" stroke="${cLeaf}" stroke-width="1.5" stroke-linecap="round"/>`;
+    lf+=`<path d="M${bx.toFixed(1)} ${by.toFixed(1)} q${(L*0.55).toFixed(1)} ${(-L*0.15).toFixed(1)} ${(L*0.75).toFixed(1)} ${(-L*0.78).toFixed(1)}" fill="none" stroke="${cLeaf}" stroke-width="1.5" stroke-linecap="round"/>`;}
+  lf+=`<circle cx="${topX.toFixed(1)}" cy="${topY.toFixed(1)}" r="2.4" fill="${cLeaf}"/>`;
+  return `<path d="${stem}" fill="none" stroke="${cStem}" stroke-width="2" stroke-linecap="round"/>${lf}`;
+}
+let _mossCache=null;
+function mossArtwork(){ if(_mossCache) return _mossCache;
+  const C={1:'var(--moss-1)',2:'var(--moss-2)',3:'var(--moss-3)',4:'var(--moss-4)'};let s='';
+  s+=`<ellipse cx="122" cy="176" rx="92" ry="24" fill="var(--moss-base-a)"/>`;
+  s+=`<ellipse cx="122" cy="171" rx="72" ry="15" fill="var(--moss-base-b)"/>`;
+  let ss=42;const rnd=()=>{ss=(ss*9301+49297)%233280;return ss/233280;};
+  for(let i=0;i<16;i++){const dx=44+rnd()*156,dy=166+rnd()*15,r=1+rnd()*1.5;s+=`<circle cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="${r.toFixed(1)}" fill="var(--moss-2)" opacity="0.33"/>`;}
+  [[106,172,120,-6],[140,172,126,7]].forEach(([x,by,h,lean])=>{const tx=x+lean,ty=by-h;
+    s+=`<path d="M${x} ${by} Q${(x+lean*0.5).toFixed(1)} ${(by-h*0.5).toFixed(1)} ${tx} ${ty}" fill="none" stroke="var(--moss-seta)" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/>`;
+    s+=`<ellipse cx="${tx}" cy="${(ty-2).toFixed(1)}" rx="3" ry="4.3" fill="var(--moss-cap)" transform="rotate(${(lean*1.4).toFixed(1)} ${tx} ${(ty-2).toFixed(1)})"/>`;});
+  [[58,168,44,-20,4,4],[186,168,46,20,4,4],[74,170,66,-14,2,4],[170,170,68,14,2,4],[100,172,72,-12,3,4],[144,172,74,12,3,4],[92,172,90,-8,2,3],[152,172,92,8,2,3],[108,173,104,-4,1,3],[136,173,106,4,1,2],[122,174,120,0,1,2]]
+    .forEach(([x,by,h,lean,cs,cl])=>{s+=_frond(x,by,h,lean,C[cs],C[cl]);});
+  _mossCache=s;return s;
+}
+function mossVisual(status,opts){const o=opts||{},size=o.size||150;
+  const cls=status==='caution'?'is-caution':status==='anomaly'?'is-anomaly':status==='insufficient'?'is-insufficient':'is-normal';
+  const col=STATUS[status].color;let ring='';
+  if(o.ring){const r=92,c=2*Math.PI*r,pct=Math.max(0,Math.min(100,o.pct||0)),off=c*(1-pct/100);
+    ring=`<circle cx="100" cy="100" r="${r}" fill="none" stroke="var(--divider)" stroke-width="6"/><circle class="mo-arc" cx="100" cy="100" r="${r}" fill="none" stroke="${col}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 100 100)"/>`;}
+  return `<div class="moss-visual ${cls}" style="width:${size}px;height:${size}px"><svg viewBox="0 0 200 200" role="img" aria-label="이끼 상태 시각화: ${STATUS[status].label}">${ring}<svg x="24" y="42" width="152" height="126" viewBox="0 0 244 210" preserveAspectRatio="xMidYMax meet">${mossArtwork()}</svg></svg><span class="moss-dot" style="background:${col}"></span></div>`;
+}
+
+/* ================= 상태(단일 소스) ================= */
+const sim = { sensorFault:false, lowQuality:false, noData:false };
+const settings = loadSettings();      // demoMode, productName, productId, notify...
+let sensorConnected = false;
+let connection = 'demo';              // demo | connected | disconnected | error
+let currentView = 'dashboard';
+let analysisTab = 'wave';
+let history = [];
+let lastMeasurement = null;
+
+/* ---- 환경/기기 데모 reading (실시간 갱신) ---- */
+function initReading(){ return sanitizeEnv({temperature:24.2,humidity:61,moisture:76,light:5200,pm25In:40,pm25Out:26,
+  airflow:2,fanMode:'auto',pressure:42,fan:'on',pump:'on',led:'off'}); }
+let reading = initReading();
+function stepReading(p){ return sanitizeEnv({
+  temperature:clamp(r1((p.temperature??24)+(Math.random()*2-1)*.15),16,32),
+  humidity:clamp(Math.round((p.humidity??60)+(Math.random()*2-1)),30,85),
+  moisture:clamp(Math.round((p.moisture??76)-Math.random()*.4),0,100),
+  light:clamp(Math.round((p.light??5000)+(Math.random()*2-1)*300),0,12000),
+  pm25In:clamp(Math.round((p.pm25In??40)+(Math.random()*2-1)*1.5),18,55),
+  pm25Out:(()=>{const i=clamp(Math.round((p.pm25In??40)),18,55);return clamp(Math.round(i*0.65+(Math.random()*2-1)),3,i-2);})(),
+  airflow:p.airflow??2,fanMode:p.fanMode??'auto',pressure:clamp(Math.round((p.pressure??42)+(Math.random()*2-1)*2),10,200),
+  fan:'on',pump:(p.moisture??76)<=0?'off':'on',led:(p.light??5000)<300?'on':'off'}); }
+function sanitizeEnv(r){ const b=(v,a,c)=>v==null||Number.isNaN(v)||v<a||v>c?null:v;
   if(sim.sensorFault){ r={...r,pm25In:null,pm25Out:null}; }
-  const inV=b(r.pm25In,0,1000), outV=b(r.pm25Out,0,1000);
-  return {...r,pm25In:inV,pm25Out:outV,temperature:b(r.temperature,-20,60),humidity:b(r.humidity,0,100),
-    waterLevel:b(r.waterLevel,0,100),light:b(r.light,0,200000),pressure:b(r.pressure,0,1000),
-    efficiency:calcEff(inV,outV),ts:new Date().toISOString()};
-}
+  return {...r,temperature:b(r.temperature,-20,60),humidity:b(r.humidity,0,100),moisture:b(r.moisture,0,100),
+    light:b(r.light,0,200000),pm25In:b(r.pm25In,0,1000),pm25Out:b(r.pm25Out,0,1000),pressure:b(r.pressure,0,1000)}; }
 
-/* ---- 통계 기록(고정 시드) ---- */
-const SERIES=(()=>{ let s=20260912; const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;}; const now=Date.now(); const out=[];
-  for(let t=now-30*864e5;t<=now;t+=3600e3){ const day=(now-t)/864e5;
-    const pmIn=Math.max(16,Math.round(40+Math.sin(t/(864e5/2))*8+(rnd()-.5)*6));
-    const effTarget=clamp(BASELINE-day*0.10+(rnd()-.5)*3,0,80);   // 초기 대비 완만한 하락
-    const pmOut=Math.max(2,Math.round(pmIn*(1-effTarget/100)));
-    const eff=calcEff(pmIn,pmOut);                                 // 화면과 동일한 공식으로 산출
-    out.push({t,pmIn,pmOut,eff,water:8+rnd()*6}); } return out; })();
-function cutoff(p){ const n=Date.now(); return p==='today'?n-864e5:p==='7d'?n-7*864e5:n-30*864e5; }
-function eff7d(){ const a=SERIES.filter(p=>p.t>=cutoff('7d')).map(p=>p.eff); return a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*10)/10:BASELINE; }
-function effTrend(){ /* 7일을 앞·뒤 절반으로 나눈 평균 차이(추세). 음수=하락 */
-  const a=SERIES.filter(p=>p.t>=cutoff('7d')).map(p=>p.eff); if(a.length<4) return 0;
-  const h=Math.floor(a.length/2); const head=a.slice(0,h),tail=a.slice(-h);
-  const m=x=>x.reduce((s,y)=>s+y,0)/x.length; return Math.round((m(tail)-m(head))*10)/10; }
-function usage(p){ const pts=SERIES.filter(x=>x.t>=cutoff(p)); const pmO=pts.map(x=>x.pmOut),ef=pts.map(x=>x.eff);
-  const avg=a=>a.length?Math.round(a.reduce((x,y)=>x+y,0)/a.length*10)/10:null;
-  let ser=pts.map(x=>({t:x.t,pmIn:x.pmIn,pmOut:x.pmOut,eff:x.eff})); if(ser.length>60){const n=Math.ceil(ser.length/60);ser=ser.filter((_,i)=>i%n===0);}
-  return {label:p==='today'?'오늘':p==='7d'?'최근 7일':'최근 30일',period:p,avgPm:avg(pmO),avgEff:avg(ef),
-    maxPm:pmO.length?Math.max(...pmO):null,minPm:pmO.length?Math.min(...pmO):null,hours:pts.length,
-    water:Math.round(pts.reduce((s,x)=>s+x.water,0)),ser}; }
-
-/* ---- 필터 판단 (카메라 없이 센서 데이터만) ----
-   우선순위: 물 부족 → 풍량 → 센서 → 환경 → (모두 정상일 때) 정화효율 추세 */
-function evalFilter(r){
-  const avg=eff7d(), drop=BASELINE-avg, trend=effTrend();
-  const sensorOk=!(r.pm25In==null||r.pm25Out==null);
-  const moisture=r.waterLevel==null?'neutral':r.waterLevel<=THRESH.waterCrit?'replace':r.waterLevel<=THRESH.waterLow?'warning':'good';
-  const airflow=r.airflow==null?'neutral':r.airflow<THRESH.airflowMin?'warning':'good';
-  const light=r.light==null?'neutral':r.light<THRESH.lightLow?'warning':'good';
-  const sensor=sensorOk?'good':'warning';
-  const perf=!sensorOk?'neutral':drop>=THRESH.effDrop?'replace':drop>=THRESH.effDrop/2?'warning':'good';
-  /* 판단 근거 체크리스트 */
-  const checks=[
-    {label:'정화 성능', status:perf,   ok:'정상', bad:perf==='replace'?'저하':'다소 낮음'},
-    {label:'공기 흐름', status:airflow, ok:'정상', bad:'약함'},
-    {label:'수분 상태', status:moisture,ok:'정상', bad:moisture==='replace'?'부족':'낮음'},
-    {label:'빛 상태',   status:light,   ok:'정상', bad:'부족'},
-    {label:'센서',      status:sensor,  ok:'정상', bad:'이상'},
+/* ---- 센서 자체 정상 여부 ---- */
+function sensorHealth(){ const r=reading,f=sim.sensorFault;
+  return [
+    {label:'초음파 센서', ok:!f&&(sensorConnected||connection==='demo')},
+    {label:'온습도 센서', ok:r.temperature!=null&&r.humidity!=null},
+    {label:'수분 센서', ok:r.moisture!=null},
+    {label:'조도 센서', ok:r.light!=null},
+    {label:'PM2.5 센서(보조)', ok:r.pm25In!=null&&r.pm25Out!=null},
   ];
-  const mk=(st,reason,rep=false)=>({current:r.efficiency,baseline:BASELINE,avg7d:avg,trend,airflow,moisture,light,sensor,perf,checks,status:st,reason,replace:rep});
-  if(r.waterLevel!=null&&r.waterLevel<=THRESH.waterCrit) return mk('warning','물탱크의 물이 부족합니다. 먼저 물을 보충해주세요. (필터 교체 아님)');
-  if(r.airflow!=null&&r.airflow<THRESH.airflowMin) return mk('inspect','공기 흐름이 약합니다. 흡입구·배출구 막힘을 확인해주세요.');
-  if(!sensorOk) return mk('inspect','센서 값이 정상 수신되지 않아 성능을 판단할 수 없습니다. 센서를 점검해주세요.');
-  if(drop>=THRESH.effDrop) return mk('replace',`최근 7일 정화 효율이 초기(${BASELINE}%)보다 지속 감소(최근 ${avg}%). 환경·풍량·수분·센서가 정상인데도 성능 저하가 이어져 이끼 필터 점검·교체를 권장합니다.`,true);
-  if(drop>=THRESH.effDrop/2) return mk('warning','정화 효율이 초기보다 다소 낮아졌습니다. 추세를 지켜봐 주세요.');
-  return mk('good','현재 조건에서 특이 이상 없이 정상 작동 중입니다.');
-}
-/* ---- 필터 예상 수명 ----
-   실제 사용 이력이 충분하지 않으므로 임의의 교체일을 표시하지 않는다.
-   충분한 데이터가 쌓이면 효율 추세(trend) 기반으로 계산할 수 있는 구조만 준비한다. */
-const FILTER_LIFE_MIN_DAYS=14;   // 예상 수명 계산에 필요한 최소 관측 일수
-function filterLife(){
-  const observedDays=Math.round((Date.now()-SERIES[0].t)/864e5);
-  const trend=effTrend();  // 7일 앞뒤 절반 평균 차이(음수=하락)
-  if(observedDays<FILTER_LIFE_MIN_DAYS||trend>=0){
-    return {enough:false, text:'데이터 수집 중', note:'충분한 데이터가 확보되면 효율 추세를 바탕으로 예상 교체 시점을 계산합니다.'};
-  }
-  /* 구조 예시: 현재 효율이 임계(교체권장 기준)까지 떨어지는 데 걸리는 일수 추정 */
-  const perWeek=-trend; const perDay=perWeek/7;
-  const margin=eff7d()-(BASELINE-THRESH.effDrop);
-  const days=perDay>0?Math.round(margin/perDay):null;
-  return {enough:true, text:days!=null&&days>0?`약 ${days}일 후 점검 권장`:'점검 권장', note:'효율 추세 기반 추정값(참고용)입니다.'};
 }
 
-/* ---- 알림 ---- */
-function alerts(){
-  if(!settings.notifications) return [];
-  const r=reading, out=[]; const f=evalFilter(r);
-  const on={water_low:settings.alertWater,filter_replace:settings.alertFilter,disconnected:settings.alertDisconnect};
-  const push=a=>{ if(on[a.kind]!==false) out.push(a); };
-  if(connection==='disconnected'){ if(on.disconnected!==false) out.push({kind:'disconnected',level:'replace',title:'제품 연결이 끊어졌습니다.',cause:'제품과의 통신이 중단되었습니다.',action:'전원과 네트워크 상태를 확인한 뒤 다시 연결해주세요.'}); return out; }
-  if(r.pm25In==null||r.pm25Out==null) push({kind:'sensor_error',level:'warning',title:'센서 신호에 이상이 있습니다.',cause:'일부 센서 값이 정상 수신되지 않았습니다.',action:'센서 연결 상태를 확인하고 잠시 후 다시 시도해주세요.'});
-  if(r.waterLevel!=null&&r.waterLevel<=THRESH.waterCrit) push({kind:'water_low',level:'replace',title:'물탱크의 물이 부족합니다.',cause:`물탱크 잔량이 ${r.waterLevel}% 입니다.`,action:'물을 보충해주세요. 수분이 부족하면 정화 성능이 낮아질 수 있습니다.'});
-  else if(r.waterLevel!=null&&r.waterLevel<=THRESH.waterLow) push({kind:'water_low',level:'warning',title:'물탱크의 물이 곧 부족해집니다.',cause:`물탱크 잔량이 ${r.waterLevel}% 입니다.`,action:'가까운 시일 내에 물을 보충해주세요.'});
-  if(r.airflow!=null&&r.airflow<THRESH.airflowMin) push({kind:'airflow_abnormal',level:'warning',title:'공기 흐름이 약합니다.',cause:'풍량이 정상보다 낮습니다.',action:'흡입구·배출구가 막히지 않았는지 확인해주세요.'});
-  const waterOk=r.waterLevel==null||r.waterLevel>THRESH.waterLow;
-  if(waterOk&&BASELINE-eff7d()>=THRESH.effDrop) push({kind:'efficiency_drop',level:'warning',title:'정화 효율이 낮아지고 있습니다.',cause:`최근 7일 평균(${eff7d()}%)이 초기(${BASELINE}%)보다 낮습니다.`,action:'환경과 필터 상태를 점검해주세요.'});
-  if(f.replace) push({kind:'filter_replace',level:'replace',title:'이끼 필터 교체가 권장됩니다.',cause:'환경·풍량·센서가 정상인데도 정화 성능 저하가 지속되고 있습니다.',action:'이끼 필터의 성능 저하 가능성이 높습니다. 필터 점검·교체를 권장합니다.'});
+/* ================= 측정 세션 ================= */
+function buildMeasurement(peak,duration,quality){
+  const q=quality||(Math.random()>0.2?'high':'low');
+  const st=classify(peak,q);
+  const now=new Date();
+  return { measurementId:'m_'+now.getTime(), timestamp:now, mossType:currentSpecies.name, sensorId:'US-01',
+    temperature:reading.temperature, humidity:reading.humidity, moisture:reading.moisture,
+    measurementDuration:duration, frequencyPeak:peak, signalStrength: peak==null?null:60+Math.round(Math.random()*30),
+    waveform:makeWave(64,(peak||30)*10|0), measurementQuality:q,
+    normalRangeMin:BASELINE.normalRangeMin, normalRangeMax:BASELINE.normalRangeMax,
+    status:st, match: st==='insufficient'?null:matchPercent(peak) };
+}
+function makeWave(n,seed){let s=seed||7;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};const p=[];
+  for(let i=0;i<n;i++)p.push(Math.sin(i/3.1)*.55+Math.sin(i/7.7)*.28+(rnd()-.5)*.5);return p;}
+
+/* ---- 기록 시드 ---- */
+function seed(y,mo,d,hh,mm,peak,q){const m=buildMeasurement(peak,30,q||'high');m.timestamp=new Date(y,mo-1,d,hh,mm);m.measurementId='seed_'+m.timestamp.getTime();return m;}
+function seedHistory(){ history.push(
+  seed(2026,9,11,14,32,32.5,'high'), seed(2026,9,10,10,15,37.4,'high'),
+  seed(2026,9,8,9,40,31.8,'high'), seed(2026,9,6,18,5,33.4,'high'),
+  seed(2026,9,4,11,20,29.2,'low')); }
+function latest(){ return history.length?[...history].sort((a,b)=>b.timestamp-a.timestamp)[0]:null; }
+
+/* ---- 통계용 시계열(고정 시드) ---- */
+const SERIES=(()=>{let s=20260912;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};const now=Date.now();const o=[];
+  for(let t=now-30*864e5;t<=now;t+=6*3600e3){const c=(BASELINE.normalRangeMin+BASELINE.normalRangeMax)/2;
+    const peak=r1(c+Math.sin(t/(864e5/1.7))*1.6-0.02*((now-t)/864e5)+(rnd()-.5)*1.4);
+    o.push({t,peak,match:matchPercent(peak),status:classify(peak,'high')});}return o;})();
+function cutoff(p){const n=Date.now();return p==='7d'?n-7*864e5:p==='30d'?n-30*864e5:n-864e5;}
+
+/* ================= 알림(문제→원인→권장) ================= */
+function alerts(){ if(!settings.notifications) return []; const out=[]; const r=reading; const l=latest();
+  if(connection==='disconnected'){ out.push({level:'anomaly',title:'센서 연결이 끊어졌습니다.',cause:'측정 장치와의 통신이 중단되었습니다.',action:'연결 상태를 확인한 뒤 다시 시도해주세요.'}); return out; }
+  if(sim.sensorFault){ out.push({level:'caution',title:'센서 신호에 이상이 있습니다.',cause:'일부 센서 값이 정상 수신되지 않았습니다.',action:'센서 연결·위치를 확인하고 다시 측정해주세요.'}); }
+  if(r.moisture!=null&&r.moisture<=15){ out.push({level:'anomaly',title:'수분(물탱크)이 부족합니다.',cause:`현재 수위 ${r.moisture}% 입니다.`,action:'물을 보충해주세요. 수분 부족은 측정에 영향을 줄 수 있습니다.'}); }
+  else if(r.humidity!=null&&r.humidity>=80){ out.push({level:'caution',title:'과습 주의',cause:`현재 습도 ${r.humidity}% 로 높습니다.`,action:'수분 공급 상태와 환기를 확인해주세요.'}); }
+  if(l){ if(l.status==='anomaly') out.push({level:'anomaly',title:'정상 범위를 벗어난 신호가 감지되었습니다.',cause:`최근 측정 주요 주파수 ${num(l.frequencyPeak,1)} kHz (정상 ${BASELINE.normalRangeMin}~${BASELINE.normalRangeMax}).`,action:'수분·환경을 확인하고 다시 측정해주세요. 반복되면 상태를 점검하세요.'});
+    else if(l.status==='caution') out.push({level:'caution',title:'평소와 다른 초음파 패턴이 감지되었습니다.',cause:'정상 범위 경계 부근의 신호입니다.',action:'환경을 확인한 뒤 다시 측정해주세요.'});
+    else if(l.status==='insufficient') out.push({level:'insufficient',title:'최근 측정 품질이 낮습니다.',cause:'신호가 불안정하여 상태를 확정할 수 없습니다.',action:'센서 위치를 조정한 뒤 다시 측정해주세요.'}); }
   return out;
 }
 
-/* ---- helpers ---- */
-const DASH='--';
-const num=(v,d=0)=> v==null||Number.isNaN(v)?DASH:v.toFixed(d);
-const airLabel=a=>a==null?DASH:['정지','약','보통','강'][a]??DASH;
-const actLabel=s=>s==='on'?'작동 중':s==='off'?'꺼짐':'오류';
-const actLevel=s=>s==='on'?'good':s==='error'?'replace':'neutral';
-const connLabel=c=>({connected:'연결됨',connecting:'연결 중',disconnected:'연결 끊김',error:'오류',demo:'Demo Mode'}[c]||DASH);
-function ago(){ const s=Math.floor((Date.now()-lastUpdated)/1000); return s<5?'방금':s<60?s+'초 전':Math.floor(s/60)+'분 전'; }
-function badge(level,label){ const m=STATUS[level]; return `<span class="badge" style="background:${m.tint};color:${m.color}"><span class="dot" style="background:${m.color}"></span>${label??m.label}</span>`; }
-function metric(icon,label,{value,unit,word,status}={}){ const disp=word!=null?`<span class="word">${word}</span>`:(value==null||value===''?DASH:value)+(unit?`<span class="u">${unit}</span>`:'');
-  return `<div class="metric"><div class="lbl"><svg><use href="#i-${icon}"/></svg>${label}</div><div class="val">${disp}</div>${status?`<div class="foot">${badge(status)}</div>`:''}</div>`; }
-function alertCard(a){ const m=STATUS[a.level]; return `<div class="alert" style="border-color:color-mix(in srgb, ${m.color} 30%, var(--border))"><div class="ico" style="background:${m.tint};color:${m.color}"><svg><use href="#i-${a.level==='good'?'check':'alert'}"/></svg></div><div style="flex:1"><div class="t" style="color:${m.color}">${a.title}</div><div class="c">${a.cause}</div><div class="a" style="color:${m.color}">권장: ${a.action}</div></div></div>`; }
-function lineChart(vals,{color='var(--primary)',band}={}){ if(!vals.length)return '<div style="color:var(--muted);padding:20px">데이터 없음</div>'; const w=640,h=150,pad=10;
-  const lo=band?band.lo:Math.min(...vals),hi=band?band.hi:Math.max(...vals),range=(hi-lo)||1;
-  const x=i=>pad+i*(w-pad*2)/Math.max(1,vals.length-1),y=v=>pad+(h-pad*2)*(1-(v-lo)/range);
+/* ================= helpers ================= */
+const num=(v,d=0)=>v==null||Number.isNaN(v)?DASH:v.toFixed(d);
+function badge(status,label){const m=STATUS[status];return `<span class="badge ${m.cls}"><span class="dot"></span>${label??m.label}</span>`;}
+function metric(icon,label,{value,unit,word,status}={}){const disp=word!=null?`<span class="word">${word}</span>`:(value==null||value===''?DASH:value)+(unit?`<span class="u">${unit}</span>`:'');
+  return `<div class="metric"><div class="lbl"><svg><use href="#${icon}"/></svg>${label}</div><div class="val">${disp}</div>${status?`<div class="foot">${badge(status)}</div>`:''}</div>`;}
+function alertCard(a){const m=STATUS[a.level];return `<div class="alert" style="border-color:color-mix(in srgb, ${m.color} 30%, var(--border))"><div class="ico" style="background:${m.tint};color:${m.color}"><svg><use href="#${a.level==='normal'?'i-check':a.level==='insufficient'?'i-help':'i-alert'}"/></svg></div><div style="flex:1"><div class="t" style="color:${m.color}">${a.title}</div><div class="c">원인: ${a.cause}</div><div class="a" style="color:${m.color}">권장: ${a.action}</div></div></div>`;}
+function fmtDur(s){return `${two(Math.floor(s/60))}:${two(s%60)}`;}
+function dateLabel(dt){return `${dt.getFullYear()}.${two(dt.getMonth()+1)}.${two(dt.getDate())}`;}
+function tLabel(t,p){const d=new Date(t);return p==='today'?two(d.getHours())+':'+two(d.getMinutes()):(d.getMonth()+1)+'/'+d.getDate();}
+
+/* Range bar */
+function rangeBar(peak,status){ if(peak==null) return `<div style="color:var(--muted);font-size:13px;padding:10px 0">측정값이 없어 표시할 수 없습니다.</div>`;
+  const span=RANGE_HIGH-RANGE_LOW,nL=((BASELINE.normalRangeMin-RANGE_LOW)/span)*100,nW=((BASELINE.normalRangeMax-BASELINE.normalRangeMin)/span)*100;
+  const pos=Math.max(2,Math.min(98,((peak-RANGE_LOW)/span)*100)),col=STATUS[status].color;
+  return `<div class="rb"><div class="rb-track"><div class="rb-normal" style="left:${nL}%;width:${nW}%"></div></div><div class="rb-mark" style="left:${pos}%"></div><div class="rb-dot" style="left:${pos}%;background:${col}"></div><div class="rb-cap" style="left:${pos}%">${peak.toFixed(1)} kHz</div></div>
+    <div class="rb-ends"><span>낮음 · ${RANGE_LOW}</span><span>정상 ${BASELINE.normalRangeMin}~${BASELINE.normalRangeMax}</span><span>${RANGE_HIGH} · 높음</span></div>`;
+}
+/* Line chart(파형) */
+function lineChart(vals,{color='var(--primary)',h=110,fill=true}={}){ if(!vals.length)return '';const w=640,pad=8;
+  const mn=Math.min(...vals),mx=Math.max(...vals),rg=(mx-mn)||1;const x=i=>pad+i*(w-pad*2)/(vals.length-1),y=v=>pad+(h-pad*2)*(1-(v-mn)/rg);
   const path=vals.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
   const area=`${path} L ${x(vals.length-1).toFixed(1)} ${h-pad} L ${pad} ${h-pad} Z`;
-  return `<div class="chart"><svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="height:${h}px"><defs><linearGradient id="lg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".16"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>${band?`<rect x="0" y="${y(band.max)}" width="${w}" height="${Math.max(0,y(band.min)-y(band.max))}" fill="var(--good)" opacity=".14"/>`:''}<path d="${area}" fill="url(#lg)"/><path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`; }
-function header(title,sub){ const cls=connection==='disconnected'?'conn err':'conn';
-  return `<div class="topbar"><div><h1>${title}</h1>${sub?`<div class="sub">${sub}</div>`:''}</div><div class="${cls}"><span class="dot"></span>${connLabel(connection)}<span class="ago">· ${ago()}</span></div></div>`; }
-function airStatus(v){ return v==null?'neutral':v<=THRESH.pmNormal?'good':v<=THRESH.pmBad?'warning':'replace'; }
-function two(n){ return String(n).padStart(2,'0'); }
-function airCmh(level){ return level==null?null:([0,90,140,185][level]); }         // Demo 환산값(가상)
-function fanModeLabel(m){ return ({auto:'자동',low:'약',mid:'보통',high:'강',off:'꺼짐'}[m])||'자동'; }
-function airflowStatus(level){ return level==null?'neutral':level<THRESH.airflowMin?'warning':'good'; }
-function tLabel(t,period){ const d=new Date(t); return period==='today'?two(d.getHours())+':'+two(d.getMinutes()):(d.getMonth()+1)+'/'+d.getDate(); }
-/* 시간축·단위·hover(전단/후단/효율)를 갖춘 추세 그래프 */
+  return `<div class="chart"><svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="height:${h}px"><defs><linearGradient id="wg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".16"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>${fill?`<path d="${area}" fill="url(#wg)"/>`:''}<path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+}
+/* 추세 chart(정상 범위 밴드 + hover) */
 let _cid=0;
-function trendChart(series,{metric='eff',color='var(--primary)',unit='',band=null,period='7d'}={}){
-  if(!series||!series.length) return '<div style="color:var(--muted);padding:20px">데이터 없음</div>';
-  const id='lg'+(++_cid); const vals=series.map(s=>s[metric]);
-  const W=640,H=150,padX=8,padTop=16;
-  const lo=band?band.lo:Math.min(...vals), hi=band?band.hi:Math.max(...vals), range=(hi-lo)||1;
-  const x=i=>padX+i*(W-padX*2)/Math.max(1,vals.length-1);
-  const y=v=>padTop+(H-padTop-6)*(1-(v-lo)/range);
+function trendChart(series,{period='7d'}={}){ if(!series.length) return '<div style="color:var(--muted);padding:20px">데이터 없음</div>';
+  const id='tg'+(++_cid),vals=series.map(s=>s.peak),W=640,H=150,padX=8,padTop=14;
+  const lo=RANGE_LOW,hi=RANGE_HIGH,rg=hi-lo;const x=i=>padX+i*(W-padX*2)/Math.max(1,vals.length-1),y=v=>padTop+(H-padTop-6)*(1-(clamp(v,lo,hi)-lo)/rg);
   const path=vals.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
-  const area=`${path} L ${x(vals.length-1).toFixed(1)} ${H} L ${padX} ${H} Z`;
-  const bandRect=(band&&band.min!=null)?`<rect x="0" y="${y(band.max).toFixed(1)}" width="${W}" height="${Math.max(0,y(band.min)-y(band.max)).toFixed(1)}" fill="var(--good)" opacity=".14"/>`:'';
-  const pts=series.map(s=>({tl:tLabel(s.t,period),pmIn:s.pmIn,pmOut:s.pmOut,eff:s.eff}));
+  const bt=y(BASELINE.normalRangeMax),bb=y(BASELINE.normalRangeMin);
+  const pts=series.map(s=>({tl:tLabel(s.t,period),peak:r1(s.peak),st:STATUS[s.status].label}));
   const ax=[pts[0].tl,pts[Math.floor(pts.length/2)].tl,pts[pts.length-1].tl];
-  return `<div class="chart2" data-pts='${JSON.stringify(pts)}'>
-    <div class="c-unit">${unit}</div>
-    <div class="c-plot" style="height:${H}px">
-      <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="height:${H}px" role="img" aria-label="추세 그래프 (${unit})">
-        <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".16"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>
-        ${bandRect}<path d="${area}" fill="url(#${id})"/>
-        <path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      <div class="c-guide"></div><div class="c-tip"></div>
-    </div>
-    <div class="c-axis"><span>${ax[0]}</span><span>${ax[1]}</span><span>${ax[2]}</span></div>
-  </div>`;
+  return `<div class="chart2" data-pts='${JSON.stringify(pts)}'><div class="c-unit">kHz</div><div class="c-plot" style="height:${H}px">
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="height:${H}px" role="img" aria-label="초음파 추세(정상 범위 표시)">
+    <rect x="0" y="${bt.toFixed(1)}" width="${W}" height="${Math.max(0,bb-bt).toFixed(1)}" fill="var(--secondary)" opacity=".16"/>
+    <line x1="0" y1="${bt.toFixed(1)}" x2="${W}" y2="${bt.toFixed(1)}" stroke="var(--secondary)" stroke-width="1" stroke-dasharray="4 4" opacity=".6"/>
+    <line x1="0" y1="${bb.toFixed(1)}" x2="${W}" y2="${bb.toFixed(1)}" stroke="var(--secondary)" stroke-width="1" stroke-dasharray="4 4" opacity=".6"/>
+    <path d="${path}" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div class="c-guide"></div><div class="c-tip"></div></div>
+    <div class="c-axis"><span>${ax[0]}</span><span>${ax[1]}</span><span>${ax[2]}</span></div></div>`;
+}
+/* Spectrogram(mock) */
+function spectrogram(seed){let s=seed||3;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};let h='<div class="spectro">';
+  for(let r=0;r<6;r++){h+='<div class="r">';for(let c=0;c<24;c++){const band=Math.exp(-Math.pow(r-2.2,2)/2.2),v=Math.min(1,band*(.55+rnd()*.7));h+=`<div class="cell" style="background:color-mix(in srgb, var(--primary) ${Math.round(v*100)}%, var(--surface-alt))"></div>`;}h+='</div>';}
+  return h+'</div>';}
+
+/* ================= Moss Status Component (대표 UI) ================= */
+function mossStatusComponent(m,{size=200}={}){
+  const st=m?m.status:'insufficient';const s=STATUS[st];
+  const peak=m?m.frequencyPeak:null;const match=m?m.match:null;const q=m?m.measurementQuality:null;
+  const msg={ normal:'현재 감지된 초음파 신호가 정상 범위 안에 있으며, 특별한 이상 신호가 감지되지 않았습니다.',
+    caution:'평소와 다른 초음파 패턴이 감지되었습니다. 이상으로 확정할 수는 없어 추가 측정이 필요합니다.',
+    anomaly:'정상 범위를 벗어난 신호가 감지되었습니다. 환경을 확인하고 다시 측정해주세요.',
+    insufficient:'판정에 필요한 데이터가 부족합니다. 센서를 연결하고 측정을 진행해주세요.' }[st];
+  return `<div class="card moss-status">
+    <div>${mossVisual(st,{size,ring:true,pct:match||0})}</div>
+    <div>
+      <div class="ms-eyebrow">이끼 초음파 상태</div>
+      <div class="ms-state" style="color:${s.color}">${s.label}</div>
+      <div class="ms-msg">${msg}</div>
+      <div class="ms-grid">
+        <div><div class="k">현재 주요 주파수</div><div class="v">${num(peak,1)}${peak!=null?' kHz':''}</div></div>
+        <div><div class="k">정상 범위 <span style="color:var(--faint)">(${BASELINE.label})</span></div><div class="v">${BASELINE.normalRangeMin}~${BASELINE.normalRangeMax} kHz</div></div>
+        <div><div class="k">측정 품질</div><div class="v" style="font-size:15px;font-family:var(--font);color:${q==='low'?'var(--caution)':q?'var(--good)':'var(--muted)'}">${q==='high'?'높음':q==='low'?'낮음':'—'}</div></div>
+      </div>
+      <div style="margin-top:16px">${rangeBar(peak,st)}</div>
+    </div></div>`;
 }
 
-/* ---- 화면 ---- */
-let period={air:'7d',stats:'7d'};
-function render(){
-  const v=document.getElementById('view');
-  if(current==='dashboard') v.innerHTML=viewDashboard();
-  else if(current==='air') v.innerHTML=viewAir();
-  else if(current==='filter') v.innerHTML=viewFilter();
-  else if(current==='statistics') v.innerHTML=viewStats();
-  else v.innerHTML=viewSettings();
+/* ================= VIEWS ================= */
+const BAR={dashboard:'대시보드',measure:'측정',analysis:'분석',history:'기록',environment:'환경',device:'기기',settings:'설정'};
+function render(){ const v=document.getElementById('view');
+  ({dashboard:viewDashboard,measure:viewMeasure,analysis:viewAnalysis,history:viewHistory,environment:viewEnvironment,device:viewDevice,settings:viewSettings}[currentView]||viewDashboard)(v);
+  document.getElementById('h-title').textContent=BAR[currentView];
   bind();
 }
-function viewDashboard(){
-  const r=reading, f=evalFilter(r), al=alerts(), as=airStatus(r.pm25Out);
-  const removed=(r.pm25In!=null&&r.pm25Out!=null)?Math.max(0,r.pm25In-r.pm25Out):null;
-  const heroMsg=as==='good'?'MOSS AIR가 정상적으로 공기를 순환·정화하고 있습니다.':(al[0]?.cause||'일부 지표에서 변화가 감지되었습니다.');
-  return header('대시보드',`${settings.productName} · ${settings.productId}`)
-    + (al[0]?`<div style="margin-bottom:16px">${alertCard(al[0])}</div>`:'')
-    + `<div class="hero" style="background:${STATUS[as].tint}"><div style="min-width:130px"><div class="eyebrow" style="color:${STATUS[as].color}">정화 효율</div><div class="big" style="color:${STATUS[as].color}">${num(r.efficiency)}<span style="font-size:16px"> %</span></div><div style="font-size:12px;color:var(--muted);margin-top:6px">유입 ${num(r.pm25In)} → 배출 ${num(r.pm25Out)} µg/m³</div></div><div>${badge(as,as==='good'?'좋음':as==='warning'?'보통':'주의')}<div style="font-size:20px;font-weight:700;margin-top:8px">실내 공기 ${as==='good'?'좋음':as==='warning'?'보통':'주의'}</div><div class="msg">${heroMsg}</div></div></div>`
-    + `<div class="section-head"><h2>정화 현황</h2><span class="hint">전단 · 후단 · 효율</span></div><div class="grid cols-3">
-        ${metric('air','PM2.5 전단(유입)',{value:num(r.pm25In),unit:'µg/m³'})}
-        ${metric('air','PM2.5 후단(배출)',{value:num(r.pm25Out),unit:'µg/m³',status:as})}
-        ${metric('gauge','정화 효율',{value:num(r.efficiency),unit:'%'})}</div>`
-    + `<div class="section-head"><h2>환경</h2></div><div class="grid cols-4">
-        ${metric('temp','온도',{value:num(r.temperature,1),unit:'°C'})}
-        ${metric('humidity','습도',{value:num(r.humidity),unit:'%'})}
-        ${metric('water','물탱크',{value:num(r.waterLevel),unit:'%',status:f.moisture})}
-        ${metric('light','조도',{value:num(r.light),unit:'lux'})}</div>`
-    + `<div class="section-head"><h2>공기 흐름 · 필터</h2></div><div class="grid cols-4">
-        ${metric('fan','팬 모드',{word:fanModeLabel(r.fanMode)})}
-        ${metric('wind','풍량',{word:STATUS[airflowStatus(r.airflow)].label,status:airflowStatus(r.airflow)})}
-        ${metric('gauge','차압',{value:num(r.pressure),unit:'Pa'})}
-        ${metric('filter','필터 상태',{word:STATUS[f.status].label,status:f.status})}</div>`
-    + `<div class="section-head"><h2>장치 상태</h2><span class="hint">Demo · 실제 신호 없음</span></div><div class="grid cols-3">
-        ${metric('fan','팬',{word:actLabel(r.fan),status:actLevel(r.fan)})}
-        ${metric('pump','펌프',{word:actLabel(r.pump),status:actLevel(r.pump)})}
-        ${metric('bulb','LED',{word:actLabel(r.led),status:actLevel(r.led)})}</div>`
-    + `<p class="disclaimer">${r.led==='on'?'조도가 낮아 보조 LED가 작동 중입니다. 펌프는 이끼 필터에 수분을 공급합니다.':'펌프는 이끼 필터에 수분을 공급합니다.'} 풍량·차압은 Demo(가상) 값입니다.</p>`
-    + `<div class="section-head"><h2>최근 알림</h2><span class="hint">${al.length}건</span></div>`
-    + (al.length?`<div class="grid" style="gap:12px">${al.map(alertCard).join('')}</div>`:`<div class="card pad" style="display:flex;gap:10px;align-items:center">${badge('good','정상')} 현재 특이 알림이 없습니다.</div>`)
-    + `<p class="disclaimer">Demo Mode(가상 센서) 기준입니다. 모든 페이지는 동일한 센서 데이터와 동일한 정화효율 공식을 사용합니다. 수치는 참고용이며 실제 성능은 검증 전까지 확정 표기하지 않습니다.</p>`;
-}
-function viewAir(){
-  const r=reading, u=usage(period.air), as=airStatus(r.pm25Out);
-  const removed=r.pm25In!=null&&r.pm25Out!=null?Math.max(0,r.pm25In-r.pm25Out):null;
-  return header('공기','유입·배출 공기질과 정화 성능')
-    +`<div class="grid cols-4">${metric('air','PM2.5 전단(유입)',{value:num(r.pm25In),unit:'µg/m³'})}${metric('air','PM2.5 후단(배출)',{value:num(r.pm25Out),unit:'µg/m³',status:as})}${metric('gauge','PM2.5 제거량',{value:num(removed),unit:'µg/m³'})}${metric('gauge','정화 효율',{value:num(r.efficiency),unit:'%'})}</div>`
-    +`<div class="section-head"><h2>기간별 추세</h2>${seg('air')}</div>`
-    +`<div class="card pad"><div style="font-size:13px;font-weight:700;margin-bottom:8px">PM2.5 배출 — ${u.label} <span style="font-weight:400;color:var(--faint);font-size:11.5px">(그래프에 마우스를 올리면 상세값)</span></div>${trendChart(u.ser,{metric:'pmOut',color:'var(--accent)',unit:'µg/m³',period:u.period})}<div class="cap">기록된 Demo 데이터 기반</div></div>`
-    +`<div class="card pad" style="margin-top:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">정화 효율 — ${u.label}</div>${trendChart(u.ser,{metric:'eff',color:'var(--primary)',unit:'%',band:{min:30,max:45,lo:0,hi:60},period:u.period})}<div class="cap">연한 영역은 참고용 정상권(30~45%) · 공식 성능 기준 아님</div></div>`
-    +`<p class="disclaimer">현재 MOSS AIR는 유입 공기보다 낮은 PM2.5 농도의 공기를 배출하고 있습니다(정화 효율 ${num(r.efficiency)}%). 수치는 Demo 값이며 실제 성능은 시험 후 확정합니다.</p>`;
-}
-function viewFilter(){
-  const f=evalFilter(reading), m=STATUS[f.status], life=filterLife();
-  const ck=c=>{ const ok=c.status==='good', neu=c.status==='neutral'; const col=ok?'var(--good)':neu?'var(--muted)':STATUS[c.status].color;
-    const tint=ok?'var(--good-tint)':neu?'var(--surface-alt)':STATUS[c.status].tint; const icon=ok?'check':'alert';
-    return `<div class="ci"><span class="ck" style="background:${tint};color:${col}"><svg><use href="#i-${icon}"/></svg></span><span class="cl">${c.label}</span><span class="cv" style="color:${col}">${ok?c.ok:neu?'—':c.bad}</span></div>`; };
-  return header('필터','이끼 필터 상태 및 교체 판단')
-    +`<div class="hero" style="background:${m.tint}"><div style="min-width:120px"><div class="eyebrow" style="color:${m.color}">이끼 필터 상태</div><div class="big" style="color:${m.color}">${m.label}</div></div><div>${badge(f.status)}<div class="msg" style="margin-top:10px">${f.reason}</div></div></div>`
-    +`<div class="section-head"><h2>판단 근거</h2><span class="hint">카메라 없이 센서 데이터로 판단</span></div><div class="card pad"><div class="checklist">${f.checks.map(ck).join('')}</div></div>`
-    +`<div class="section-head"><h2>정화 성능</h2></div><div class="grid cols-3">${metric('gauge','현재 정화 효율',{value:num(f.current),unit:'%'})}${metric('gauge','초기 정화 효율',{value:num(f.baseline),unit:'%'})}${metric('stats','최근 7일 평균',{value:num(f.avg7d),unit:'%'})}</div>`
-    +`<div class="section-head"><h2>예상 수명</h2></div><div class="card pad"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div style="font-size:20px;font-weight:700">${life.text}</div><div style="font-size:12.5px;color:var(--muted);margin-top:4px">${life.note}</div></div>${life.enough?badge('warning','참고용'):badge('neutral','수집 중')}</div></div>`
-    +(f.replace?`<div class="section-head"><h2>교체 권장</h2></div>${alertCard({level:'replace',title:'필터 교체 권장',cause:f.reason,action:'이끼 필터의 성능 저하 가능성이 높습니다. 필터 점검·교체를 진행해 주세요.'})}`:'')
-    +`<p class="disclaimer">판단 순서: 물 부족 → 풍량 → 센서 이상 → 환경 → (모두 정상일 때) 정화 효율 추세. 한 번의 낮은 값이 아니라 지속 추세로 판단합니다. "이끼가 죽었다" 같은 확정 표현은 사용하지 않으며, 성능 저하 가능성·점검 권장으로 안내합니다.</p>`;
-}
-function viewStats(){
-  const u=usage(period.stats);
-  return header('통계','사용 기록 및 공기질 추세')
-    +`<div class="section-head"><h2>${u.label}</h2>${seg('stats')}</div>`
-    +`<div class="grid cols-3">${metric('air','평균 PM2.5',{value:num(u.avgPm),unit:'µg/m³'})}${metric('gauge','평균 정화 효율',{value:num(u.avgEff),unit:'%'})}${metric('stats','총 작동 시간',{value:num(u.hours),unit:'시간'})}${metric('air','최고 PM2.5',{value:num(u.maxPm),unit:'µg/m³'})}${metric('air','최저 PM2.5',{value:num(u.minPm),unit:'µg/m³'})}${metric('water','물 사용량',{value:num(u.water),unit:'mL'})}</div>`
-    +`<div class="card pad" style="margin-top:20px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">PM2.5 배출 추세 <span style="font-weight:400;color:var(--faint);font-size:11.5px">(마우스 오버 시 상세값)</span></div>${trendChart(u.ser,{metric:'pmOut',color:'var(--accent)',unit:'µg/m³',period:u.period})}</div>`
-    +`<div class="card pad" style="margin-top:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">정화 효율 추세</div>${trendChart(u.ser,{metric:'eff',color:'var(--primary)',unit:'%',band:{min:30,max:45,lo:0,hi:60},period:u.period})}</div>`
-    +`<p class="disclaimer">기록된 Demo 데이터를 동일한 정화효율 공식으로 계산합니다. 하드코딩된 값이 아닙니다.</p>`;
-}
-function viewSettings(){
-  const connected=connection==='connected'||connection==='demo';
-  const sw=(id,on)=>`<label class="switch"><input type="checkbox" data-set="${id}" ${on?'checked':''}><span class="tk"></span><span class="th"></span></label>`;
-  return header('설정')
-    +`<div class="section-head"><h2>제품 정보</h2></div><div class="card pad">
-      <div class="row"><span class="k">제품 이름</span><input class="name" id="pname" value="${settings.productName}"></div>
-      <div class="row"><span class="k">제품 ID</span><span class="v data">${settings.productId}</span></div>
-      <div class="row"><span class="k">연결 상태</span>${badge(connected?'good':'replace',connLabel(connection))}</div>
-      <div style="display:flex;gap:10px;margin-top:12px"><button class="btn ghost" data-conn="demo">연결(데모)</button><button class="btn ghost" data-conn="disconnected">연결 끊김 시뮬레이션</button></div></div>`
-    +`<div class="section-head"><h2>모드</h2></div><div class="card pad"><div class="row"><span class="k">Demo Mode</span>${sw('demoMode',settings.demoMode)}</div><p class="disclaimer" style="margin-top:8px">실제 하드웨어가 없어 Demo Mode를 유지합니다.</p></div>`
-    +`<div class="section-head"><h2>알림</h2></div><div class="card pad">
-      <div class="row"><span class="k">알림 사용</span>${sw('notifications',settings.notifications)}</div>
-      <div class="row"><span class="k">물 부족 알림</span>${sw('alertWater',settings.alertWater)}</div>
-      <div class="row"><span class="k">필터 알림</span>${sw('alertFilter',settings.alertFilter)}</div>
-      <div class="row"><span class="k">연결 끊김 알림</span>${sw('alertDisconnect',settings.alertDisconnect)}</div></div>`
-    +`<div class="section-head"><h2>장치 제어</h2><span class="hint">데모 · 실제 신호 없음</span></div><div class="card pad"><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn ghost" data-ctl="팬">팬 제어</button><button class="btn ghost" data-ctl="펌프">펌프 제어</button><button class="btn ghost" data-ctl="LED">LED 제어</button></div><p class="disclaimer" id="ctl-note"></p></div>`
-    +`<div class="section-head"><h2>데모 상태 테스트</h2></div><div class="card pad"><div class="row"><span class="k">센서 이상 시뮬레이션</span>${sw('sensorFault',sim.sensorFault)}</div><div class="row"><span class="k">물탱크 부족 시뮬레이션</span>${sw('waterLow',reading.waterLevel!=null&&reading.waterLevel<=THRESH.waterCrit)}</div></div>`
-    +`<p class="disclaimer">설정은 이 브라우저에 저장됩니다. 카메라·이미지 분석 기능은 없습니다.</p>`;
-}
-function seg(key){ const opts=[['today','오늘'],['7d','7일'],['30d','30일']];
-  return `<div class="seg">${opts.map(o=>`<button data-period="${key}:${o[0]}" aria-pressed="${period[key]===o[0]}">${o[1]}</button>`).join('')}</div>`; }
+function shell(html){ return html; }
 
-/* ---- 이벤트 ---- */
+/* ---- 대시보드 ---- */
+function viewDashboard(v){ const m=latest(); const al=alerts(); const r=reading;
+  v.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between"><div><div class="page-title">이끼 상태</div><div class="page-sub">${currentSpecies.name} · ${m?('최근 측정 '+m.timestamp.toLocaleString('ko-KR',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})):'측정 기록 없음'}</div></div><span class="badge st-caution"><span class="dot"></span>DEMO 데이터</span></div>`
+    +(al[0]?`<div style="margin-top:16px">${alertCard(al[0])}</div>`:'')
+    +`<div style="margin-top:16px">${mossStatusComponent(m,{size:210})}</div>`
+    +`<div class="sec"><h2>환경 데이터</h2><span class="hint">보조 지표 · Demo</span></div><div class="grid c4">
+        ${metric('i-temp','온도',{value:num(r.temperature,1),unit:'°C'})}
+        ${metric('i-humid','습도',{value:num(r.humidity),unit:'%'})}
+        ${metric('i-drop','수분',{value:num(r.moisture),unit:'%',status:moisture().status})}
+        ${metric('i-light','조도',{value:num(r.light),unit:'lux'})}</div>`
+    +`<div class="sec"><h2>최근 측정</h2><button class="btn soft" data-nav="history" style="min-height:36px;padding:0 12px">전체 보기</button></div>`
+    +recentTable(3)
+    +`<div class="sec"><h2>다음 단계</h2></div><div class="grid c3">
+        <button class="card pad" data-nav="measure" style="text-align:left;border:0;cursor:pointer"><div class="metric" style="border:0;box-shadow:none;padding:0"><div class="lbl"><svg><use href="#i-mic"/></svg>측정 시작</div><div style="font-size:13px;color:var(--muted);margin-top:8px">이끼에 센서를 대고 초음파를 측정합니다.</div></div></button>
+        <button class="card pad" data-nav="analysis" style="text-align:left;border:0;cursor:pointer"><div class="metric" style="border:0;box-shadow:none;padding:0"><div class="lbl"><svg><use href="#i-analyze"/></svg>분석 보기</div><div style="font-size:13px;color:var(--muted);margin-top:8px">최근 측정의 파형·스펙트로그램·AI 분석.</div></div></button>
+        <button class="card pad" data-nav="device" style="text-align:left;border:0;cursor:pointer"><div class="metric" style="border:0;box-shadow:none;padding:0"><div class="lbl"><svg><use href="#i-device"/></svg>기기 관리</div><div style="font-size:13px;color:var(--muted);margin-top:8px">팬·펌프·LED·필터·물탱크 상태.</div></div></button></div>`
+    +`<p class="disclaimer">Demo Mode(가상 센서) 기준입니다. 정상 범위는 <b>${BASELINE.label}</b>이며 과학적으로 검증된 값이 아닙니다. 데이터가 부족하면 자동으로 정상 처리하지 않습니다.</p>`;
+}
+function recentTable(n){ const rows=[...history].sort((a,b)=>b.timestamp-a.timestamp).slice(0,n);
+  if(!rows.length) return `<div class="card"><div class="empty"><div class="ei"><svg><use href="#i-history"/></svg></div><div>아직 측정 기록이 없습니다.</div></div></div>`;
+  return `<div class="card tbl-wrap"><table class="tbl"><thead><tr><th></th><th>측정일</th><th>상태</th><th>주요 주파수</th><th>신호 강도</th><th>품질</th></tr></thead><tbody>
+    ${rows.map(m=>`<tr data-mid="${m.measurementId}"><td><span class="thumb">${mossVisual(m.status,{size:34})}</span></td><td class="mono">${dateLabel(m.timestamp)} ${two(m.timestamp.getHours())}:${two(m.timestamp.getMinutes())}</td><td>${badge(m.status)}</td><td class="mono">${num(m.frequencyPeak,1)} kHz</td><td class="mono">${num(m.signalStrength)}%</td><td>${m.measurementQuality==='high'?'높음':m.measurementQuality==='low'?'낮음':'—'}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+/* ---- 측정 ---- */
+const measure={phase:'idle',elapsed:0,timer:null,wave:[],waveTimer:null};
+function viewMeasure(v){ const sh=sensorHealth();
+  v.innerHTML=`<div class="page-title">초음파 측정</div><div class="page-sub">이끼를 초음파로 측정하고 정상 범위와 비교합니다.</div>`
+    +`<div class="card pad" style="margin-top:16px"><div class="measure-wrap">
+        <div style="font-size:14px;font-weight:600;color:var(--muted);margin-bottom:4px">측정 대상 · 이끼</div>
+        <div class="moss-measure" id="moss-measure"><span class="pulse"></span><span class="pulse p2"></span>${mossVisual('normal',{size:180})}</div>
+        <div style="margin-top:14px">${badge(sensorConnected||connection==='demo'?'normal':'insufficient', sensorConnected?'센서 연결됨':connection==='demo'?'센서 미연결 (Demo 측정 가능)':'센서 연결 필요')}</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:10px;max-width:360px">${sensorConnected?'센서를 이끼 가까이에 위치시켜 주세요.':'실제 센서가 없어 Demo 측정으로 화면을 체험합니다. 실제 측정은 센서 연결 후 가능합니다.'}</div>
+        <button class="mbtn" id="mbtn"><svg><use href="#i-mic"/></svg><span id="mbtn-t">측정 시작</span></button>
+        <div id="mstate" style="font-size:13px;color:var(--muted);margin-top:14px"></div>
+        <div class="live" id="mlive" hidden></div>
+        <div id="mdone" hidden style="margin-top:18px"><button class="btn primary" id="analyze-go">분석 시작 <svg><use href="#i-arrow"/></svg></button></div>
+      </div></div>`
+    +`<div class="sec"><h2>센서 상태</h2><span class="hint">센서 값이 아닌 센서 자체 정상 여부</span></div><div class="card pad"><div class="checklist">${sh.map(c=>ck(c.label,c.ok)).join('')}</div></div>`
+    +`<p class="disclaimer">Web 환경의 실제 센서 연결(Web Audio / Web Bluetooth / Web Serial / WebUSB)은 사용할 하드웨어 확정 후 적용됩니다. 지원하지 않는 브라우저에서는 그 사실을 안내하며, 연결 실패를 임의의 정상 데이터로 대체하지 않습니다.</p>`;
+}
+function ck(label,ok,okT,badT){ const col=ok?'var(--good)':'var(--caution)',tint=ok?'var(--good-tint)':'var(--caution-tint)';
+  return `<div class="ci"><span class="ck" style="background:${tint};color:${col}"><svg><use href="#${ok?'i-check':'i-alert'}"/></svg></span><span class="cl">${label}</span><span class="cv" style="color:${col}">${ok?(okT||'정상'):(badT||'점검 필요')}</span></div>`;}
+function resetMeasure(){clearInterval(measure.timer);clearInterval(measure.waveTimer);measure.phase='idle';measure.elapsed=0;measure.wave=[];}
+function toggleMeasure(){ if(measure.phase==='measuring') stopMeasure(); else startMeasure(); }
+function startMeasure(){ measure.phase='measuring';measure.elapsed=0;measure.wave=makeWave(56,7);
+  const mm=document.getElementById('moss-measure'); if(mm) mm.classList.add('measuring');
+  document.getElementById('mbtn').classList.add('rec'); document.getElementById('mbtn-t').textContent='측정 중지';
+  document.getElementById('mdone').hidden=true; const live=document.getElementById('mlive'); live.hidden=false;
+  renderLive(); document.getElementById('mstate').textContent='측정 중입니다. 움직이지 마세요.';
+  measure.timer=setInterval(()=>{measure.elapsed++;const t=document.getElementById('mtime');if(t)t.textContent=fmtDur(measure.elapsed);if(measure.elapsed>=20)stopMeasure();},1000);
+  measure.waveTimer=setInterval(()=>{let ph=measure.elapsed;measure.wave.push(Math.sin(ph)*.5+(Math.random()-.5)*.4);measure.wave.shift();const c=document.getElementById('mwave');if(c)c.innerHTML=lineChart(measure.wave,{color:'var(--anomaly)',h:90,fill:false});},140);
+}
+function renderLive(){ const live=document.getElementById('mlive');
+  live.innerHTML=`<div id="mwave">${lineChart(measure.wave,{color:'var(--anomaly)',h:90,fill:false})}</div>
+    <div class="row3">${metric('i-analyze','측정 시간',{word:'<span id="mtime">00:00</span>'})}${metric('i-gauge','현재 주파수',{word:'—'})}${metric('i-check','신호 강도',{word:'측정 중'})}</div>`;
+}
+function stopMeasure(){ clearInterval(measure.timer);clearInterval(measure.waveTimer);measure.phase='done';
+  const dur=Math.max(3,measure.elapsed||20);
+  const peak= sim.noData?null : r1(BASELINE.normalRangeMin-2+Math.random()*(BASELINE.normalRangeMax-BASELINE.normalRangeMin+6));
+  const q= sim.lowQuality?'low':(Math.random()>0.2?'high':'low');
+  lastMeasurement=buildMeasurement(peak,dur,q);
+  const mm=document.getElementById('moss-measure'); if(mm){mm.classList.remove('measuring');mm.innerHTML=`<span class="pulse"></span><span class="pulse p2"></span>${mossVisual(lastMeasurement.status,{size:180})}`;}
+  const b=document.getElementById('mbtn'); b.classList.remove('rec'); document.getElementById('mbtn-t').textContent='다시 측정';
+  document.getElementById('mstate').innerHTML=`측정 완료 · ${fmtDur(dur)} · 품질 ${q==='high'?'높음':'낮음'}${q==='low'?' <span style="color:var(--caution)">(신호 불안정 — 확정 판정 불가)</span>':''}`;
+  document.getElementById('mdone').hidden=false;
+}
+
+/* ---- 분석 ---- */
+function viewAnalysis(v){ const m=lastMeasurement||latest();
+  if(!m){ v.innerHTML=`<div class="page-title">분석</div><div class="card" style="margin-top:16px"><div class="empty"><div class="ei"><svg><use href="#i-analyze"/></svg></div><div>분석할 측정이 없습니다.</div><button class="btn primary" data-nav="measure" style="margin-top:6px">측정하러 가기</button></div></div>`; return; }
+  const s=STATUS[m.status];const info=aiText(m);
+  v.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between"><div><div class="page-title">분석 결과</div><div class="page-sub">측정 시간 ${fmtDur(m.measurementDuration)} · ${m.timestamp.toLocaleString('ko-KR',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div></div><span class="badge st-caution"><span class="dot"></span>DEMO 분석</span></div>`
+    +`<div style="margin-top:16px">${mossStatusComponent(m,{size:190})}</div>`
+    +`<div class="grid c3" style="margin-top:16px">${metric('i-gauge','주요 주파수',{value:num(m.frequencyPeak,1),unit:'kHz'})}${metric('i-check','신호 강도',{value:num(m.signalStrength),unit:'%'})}${metric('i-analyze','측정 품질',{word:m.measurementQuality==='high'?'높음':m.measurementQuality==='low'?'낮음':'—',status:m.measurementQuality==='low'?'caution':'normal'})}</div>`
+    +`<div class="tabs" role="tablist"><button class="tab" data-tab="wave" role="tab">Waveform</button><button class="tab" data-tab="spectro" role="tab">Spectrogram</button><button class="tab" data-tab="freq" role="tab">주파수 분석</button></div><div id="tabpanel" style="margin-top:12px"></div>`
+    +`<div class="sec"><h2>AI 분석 <span class="hint" style="font-weight:400">· 연구용(Demo) · 확정 진단 아님</span></h2></div><div class="card pad">
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:10px;background:${s.tint};color:${s.color};display:grid;place-items:center"><svg style="width:19px;height:19px"><use href="#${s.icon}"/></svg></div><div><div style="font-size:13px;color:var(--muted)">현재 초음파 상태</div><div style="font-size:18px;font-weight:700;color:${s.color}">${s.label}</div></div></div>
+        ${info.causes.length?`<div style="margin-top:14px"><div style="font-size:13px;font-weight:700">가능성</div><ul style="margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.8">${info.causes.map(c=>`<li>${c}</li>`).join('')}</ul></div>`:''}
+        <div style="margin-top:14px"><div style="font-size:13px;font-weight:700">분석 근거</div><div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.65">${info.basis}</div></div>
+        <div style="margin-top:14px"><div style="font-size:13px;font-weight:700">권장 행동</div><div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.65">${info.rec}</div></div></div>`
+    +`<div class="btn-row" style="display:flex;gap:10px;margin-top:16px"><button class="btn soft" id="save-btn"><svg><use href="#i-check"/></svg>측정 결과 저장</button><button class="btn ghost" data-nav="measure">다시 측정</button></div>`
+    +`<p class="disclaimer">AI 분석은 실제 학습 모델이 아닌 Demo 로직입니다. "가능성·추정" 수준의 참고 정보이며 확정 진단이 아닙니다. 품질이 낮은 측정은 확정 판정 근거로 사용하지 않습니다.</p>`;
+  renderTab(m);
+}
+function aiText(m){ if(m.status==='insufficient') return {causes:[],basis:'측정 신호가 불안정하거나 데이터가 부족하여 상태를 확정할 수 없습니다.',rec:'센서 위치를 조정한 뒤 다시 측정해주세요.'};
+  if(m.status==='normal') return {causes:[],basis:'측정 주파수가 정상 기준 범위 안에 있으며 평소 패턴과 큰 차이가 없습니다.',rec:'특별한 조치는 필요하지 않습니다. 주기적으로 측정하여 변화를 관찰하세요.'};
+  const high=m.frequencyPeak>BASELINE.normalRangeMax;
+  return {causes:high?['수분 상태 변화 가능성','환경 변화 가능성']:['수분 부족 가능성','환경 변화 가능성'],
+    basis:`정상 범위(${BASELINE.normalRangeMin}~${BASELINE.normalRangeMax} kHz)보다 ${high?'높은':'낮은'} 주파수 신호가 감지되었습니다. 반복 측정으로 일시적 노이즈 여부를 확인하세요.`,
+    rec:'이끼의 수분 상태와 주변 환경을 확인하고 일정 시간 후 다시 측정하세요.'};
+}
+function renderTab(m){ const p=document.getElementById('tabpanel'); if(!p)return;
+  document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===analysisTab)));
+  if(analysisTab==='wave') p.innerHTML=`<div class="card pad">${lineChart(m.waveform,{color:'var(--primary)',h:130})}</div><div class="tab-note">파형(Waveform): 시간에 따른 신호 진폭 변화입니다.</div>`;
+  else if(analysisTab==='spectro') p.innerHTML=`<div class="card pad">${spectrogram((m.frequencyPeak||30)*10|0)}</div><div class="tab-note">스펙트로그램: 주파수 대역별 신호 세기(진할수록 강함). 실제 측정 데이터 구조와 연결 가능한 형태입니다.</div>`;
+  else{ let s=(m.frequencyPeak||30)*7|0;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};let h='<div style="display:flex;align-items:flex-end;gap:5px;height:130px;padding:10px 4px">';
+    for(let i=0;i<14;i++){const band=Math.exp(-Math.pow(i-7,2)/6),hh=Math.max(8,Math.round((band*.7+rnd()*.35)*100));h+=`<div style="flex:1;height:${hh}%;border-radius:4px 4px 0 0;background:${i===7?'var(--primary)':'var(--moss-4)'}"></div>`;}h+='</div>';
+    p.innerHTML=`<div class="card pad">${h}<div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint)"><span>${RANGE_LOW}kHz</span><span>주파수 분포</span><span>${RANGE_HIGH}kHz</span></div></div><div class="tab-note">주파수 분석: 신호가 집중된 주파수 대역을 보여줍니다.</div>`;}
+}
+
+/* ---- 기록 ---- */
+function viewHistory(v){ const rows=[...history].sort((a,b)=>b.timestamp-a.timestamp);
+  v.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between"><div><div class="page-title">측정 기록</div><div class="page-sub">총 ${rows.length}회 측정</div></div><button class="btn soft" id="csv-btn" style="min-height:38px;padding:0 14px"><svg><use href="#i-download"/></svg>CSV 다운로드</button></div>`
+    +(rows.length?`<div class="card tbl-wrap" style="margin-top:16px"><table class="tbl"><thead><tr><th></th><th>측정일</th><th>이끼</th><th>상태</th><th>주요 주파수</th><th>정상 범위</th><th>신호 강도</th><th>품질</th></tr></thead><tbody>
+      ${rows.map(m=>`<tr data-mid="${m.measurementId}"><td><span class="thumb">${mossVisual(m.status,{size:34})}</span></td><td class="mono">${dateLabel(m.timestamp)} ${two(m.timestamp.getHours())}:${two(m.timestamp.getMinutes())}</td><td>${m.mossType}</td><td>${badge(m.status)}</td><td class="mono">${num(m.frequencyPeak,1)} kHz</td><td class="mono">${m.normalRangeMin}~${m.normalRangeMax}</td><td class="mono">${num(m.signalStrength)}%</td><td>${m.measurementQuality==='high'?'높음':m.measurementQuality==='low'?'낮음':'—'}</td></tr>`).join('')}
+      </tbody></table></div>`:`<div class="card" style="margin-top:16px"><div class="empty"><div class="ei"><svg><use href="#i-history"/></svg></div><div>아직 측정 기록이 없습니다.</div></div></div>`)
+    +`<div class="sec"><h2>통계</h2><span class="hint">기록 데이터 기반</span></div>${statsBlock()}`
+    +`<p class="disclaimer">행을 클릭하면 분석 화면으로 이동합니다. 통계는 기록된 Demo 데이터로 계산되며 하드코딩이 아닙니다.</p>`;
+}
+let statsPeriod='7d';
+function statsBlock(){ const pts=SERIES.filter(x=>x.t>=cutoff(statsPeriod)); const peaks=pts.map(p=>p.peak);
+  const n=peaks.length, normalN=pts.filter(p=>p.status==='normal').length, cautionN=pts.filter(p=>p.status==='caution').length, anomalyN=pts.filter(p=>p.status==='anomaly').length;
+  const avg=peaks.length?r1(peaks.reduce((a,b)=>a+b,0)/peaks.length):null;
+  const seg=[['today','오늘'],['7d','7일'],['30d','30일']].map(o=>`<button class="tab" data-stat="${o[0]}" aria-selected="${statsPeriod===o[0]}" style="padding:8px 14px">${o[1]}</button>`).join('');
+  return `<div class="tabs" style="max-width:280px;margin-top:0">${seg}</div>
+    <div class="grid c4" style="margin-top:14px">
+      ${metric('i-analyze','측정 횟수',{value:n,unit:'회'})}
+      ${metric('i-check','정상 비율',{value:n?Math.round(normalN/n*100):DASH,unit:'%'})}
+      ${metric('i-alert','주의',{value:cautionN,unit:'회'})}
+      ${metric('i-alert','이상 신호',{value:anomalyN,unit:'회'})}
+      ${metric('i-gauge','평균 주요 주파수',{value:num(avg,1),unit:'kHz'})}</div>
+    <div class="card pad" style="margin-top:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">초음파 추세 <span style="font-weight:400;color:var(--faint);font-size:11.5px">(마우스 오버 시 상세값 · 연한 영역=정상 범위)</span></div>${trendChart(pts,{period:statsPeriod})}</div>`;
+}
+
+/* ---- 환경 ---- */
+function viewEnvironment(v){ const r=reading; const mo=moisture();
+  v.innerHTML=`<div class="page-title">환경</div><div class="page-sub">측정 상태에 영향을 주는 보조 환경 데이터입니다.</div>`
+    +`<div class="grid c4" style="margin-top:16px">
+        ${metric('i-temp','온도',{value:num(r.temperature,1),unit:'°C'})}
+        ${metric('i-humid','습도',{value:num(r.humidity),unit:'%',status:r.humidity!=null&&r.humidity>=80?'caution':'normal'})}
+        ${metric('i-drop','수분(물탱크)',{value:num(r.moisture),unit:'%',status:mo.status})}
+        ${metric('i-light','조도',{value:num(r.light),unit:'lux'})}</div>`
+    +`<div class="sec"><h2>수분·안전 상태</h2></div><div class="card pad"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div style="font-size:20px;font-weight:700;color:${STATUS[mo.status].color}">${mo.label}</div>${mo.action?`<div style="font-size:13px;color:var(--muted);margin-top:4px">권장: ${mo.action}</div>`:''}</div>${badge(mo.status)}</div><p class="disclaimer" style="margin-top:12px">과습/부족 임계값은 확정된 공식 기준이 아니라 참고용 Demo 기준입니다.</p></div>`
+    +`<div class="sec"><h2>공기질 (보조)</h2><span class="hint">진단 핵심 아님 · Demo</span></div><div class="grid c3">
+        ${metric('i-air','PM2.5 전단(유입)',{value:num(r.pm25In),unit:'µg/m³'})}
+        ${metric('i-air','PM2.5 후단(배출)',{value:num(r.pm25Out),unit:'µg/m³'})}
+        ${metric('i-gauge','정화 효율',{value:num(calcEff(r.pm25In,r.pm25Out),1),unit:'%'})}</div>`
+    +`<p class="disclaimer">공기질은 이끼 상태 진단의 보조 데이터입니다. 수치는 Demo 값이며 실제 성능은 검증 전까지 확정하지 않습니다.</p>`;
+}
+function moisture(){ const r=reading;
+  if(r.moisture!=null&&r.moisture<=15) return {status:'anomaly',label:'부족',action:'물을 보충해주세요.'};
+  if(r.moisture!=null&&r.moisture<=30) return {status:'caution',label:'낮음',action:'가까운 시일 내 물을 보충해주세요.'};
+  if(r.humidity!=null&&r.humidity>=80) return {status:'caution',label:'과습 주의',action:'수분 공급 상태와 환기를 확인해주세요.'};
+  return {status:'normal',label:'정상',action:''};
+}
+function calcEff(inV,outV){ if(inV==null||outV==null||inV<=0) return 0; const e=((inV-outV)/inV)*100; return Number.isFinite(e)?Math.round(Math.min(100,Math.max(0,e))*10)/10:0; }
+
+/* ---- 기기 ---- */
+function viewDevice(v){ const r=reading; const act=s=>s==='on'?'작동 중':s==='off'?'꺼짐':'오류'; const lv=s=>s==='on'?'normal':s==='error'?'anomaly':'insufficient';
+  const airLabel=['정지','약','보통','강'][r.airflow]??'—'; const cmh=[0,90,140,185][r.airflow]??null;
+  v.innerHTML=`<div class="page-title">기기 관리</div><div class="page-sub">MOSS AIR 하드웨어 상태 · Demo(실제 신호 없음)</div>`
+    +`<div class="grid c3" style="margin-top:16px">
+        ${metric('i-fan','팬 모드',{word:({auto:'자동',low:'약',mid:'보통',high:'강'}[r.fanMode])||'자동'})}
+        ${metric('i-air','실제 풍량',{value:cmh==null?DASH:cmh,unit:'m³/h'})}
+        ${metric('i-gauge','풍량 단계',{word:airLabel})}</div>`
+    +`<div class="grid c3" style="margin-top:16px">
+        ${metric('i-fan','팬',{word:act(r.fan),status:lv(r.fan)})}
+        ${metric('i-pump','펌프',{word:act(r.pump),status:lv(r.pump)})}
+        ${metric('i-bulb','LED',{word:act(r.led),status:lv(r.led)})}</div>`
+    +`<div class="grid c3" style="margin-top:16px">
+        ${metric('i-drop','물탱크',{value:num(r.moisture),unit:'%',status:moisture().status})}
+        ${metric('i-gauge','차압',{value:num(r.pressure),unit:'Pa'})}
+        ${metric('i-filter','이끼 필터',{word:'정상',status:'normal'})}</div>`
+    +`<div class="sec"><h2>유지관리 기록</h2><span class="hint">Demo · 향후 실제 이력 저장</span></div><div class="card tbl-wrap"><table class="tbl"><thead><tr><th>날짜</th><th>항목</th><th>내용</th></tr></thead><tbody>
+        ${MAINT.map(x=>`<tr style="cursor:default"><td class="mono">${x.date}</td><td>${x.type}</td><td style="color:var(--muted)">${x.note}</td></tr>`).join('')}</tbody></table></div>`
+    +`<p class="disclaimer">실제 풍량(m³/h)은 Demo 환산값입니다. 팬 모드와 실제 풍량은 분리되어 있으며, 실제 풍량 센서 연결 시 그대로 교체할 수 있습니다. 물탱크·차압·필터 판단은 카메라 없이 센서 데이터로만 처리합니다.</p>`;
+}
+const MAINT=[{date:'2026.09.11',type:'물 보충',note:'물탱크 보충'},{date:'2026.09.06',type:'필터 점검',note:'정화 성능 점검(이상 없음)'},{date:'2026.08.15',type:'필터 교체',note:'이끼 필터 교체'}];
+
+/* ---- 설정 ---- */
+function viewSettings(v){ const sw=(id,on)=>`<label class="switch"><input type="checkbox" data-set="${id}" ${on?'checked':''}><span class="tk"></span><span class="th"></span></label>`;
+  v.innerHTML=`<div class="page-title">설정</div>`
+    +`<div class="sec"><h2>제품</h2></div><div class="card pad">
+        <div class="row"><span class="k">제품 이름</span><input class="txt" id="pname" value="${escapeHtml(settings.productName)}"></div>
+        <div class="row"><span class="k">제품 ID</span><span class="v data">${settings.productId}</span></div>
+        <div class="row"><span class="k">측정 대상 종</span><span class="v">${currentSpecies.name}</span></div>
+        <div class="row"><span class="k">연결 상태</span>${badge(connection==='disconnected'?'anomaly':sensorConnected?'normal':'insufficient', connLabel())}</div>
+        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap"><button class="btn ghost" data-conn="demo">Demo 연결</button><button class="btn ghost" data-conn="connected">센서 연결(시뮬)</button><button class="btn ghost" data-conn="disconnected">연결 끊김(시뮬)</button></div></div>`
+    +`<div class="sec"><h2>모드</h2></div><div class="card pad"><div class="row"><span class="k">Demo Mode</span>${sw('demoMode',settings.demoMode)}</div><p class="disclaimer" style="margin-top:8px">실제 하드웨어가 없어 Demo Mode를 유지합니다. Demo 데이터는 실제 측정값과 분리되어 있으며 화면에 DEMO로 표시됩니다.</p></div>`
+    +`<div class="sec"><h2>정상 범위 (연구용 초기 기준)</h2></div><div class="card pad">
+        <div class="row"><span class="k">정상 하한</span><span class="v data">${BASELINE.normalRangeMin} kHz</span></div>
+        <div class="row"><span class="k">정상 상한</span><span class="v data">${BASELINE.normalRangeMax} kHz</span></div>
+        <p class="disclaimer" style="margin-top:8px">현재 값은 <b>${BASELINE.label}</b>으로 과학적으로 검증된 기준이 아닙니다. 실제 연구 데이터가 축적되면 이 값을 교체할 수 있는 구조입니다.</p></div>`
+    +`<div class="sec"><h2>알림</h2></div><div class="card pad"><div class="row"><span class="k">알림 사용</span>${sw('notifications',settings.notifications)}</div></div>`
+    +`<div class="sec"><h2>데모 상태 테스트</h2></div><div class="card pad">
+        <div class="row"><span class="k">센서 이상 시뮬레이션</span>${sw('sensorFault',sim.sensorFault)}</div>
+        <div class="row"><span class="k">저품질 측정 시뮬레이션</span>${sw('lowQuality',sim.lowQuality)}</div>
+        <div class="row"><span class="k">데이터 없음 시뮬레이션</span>${sw('noData',sim.noData)}</div></div>`
+    +`<p class="disclaimer">설정은 이 브라우저에 저장됩니다. 카메라·이미지 분석 기능은 없습니다. 데이터가 부족하면 "판정 불가"로 표시하며 자동으로 정상 처리하지 않습니다.</p>`;
+}
+function connLabel(){return {demo:'Demo Mode',connected:'연결됨',disconnected:'연결 끊김',error:'오류'}[connection]||'—';}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+/* ================= CSV ================= */
+function seriesCsv(){ const rows=[['time','peak_kHz','status','normal_min','normal_max']];
+  SERIES.forEach(p=>rows.push([new Date(p.t).toISOString(),p.peak,STATUS[p.status].key,BASELINE.normalRangeMin,BASELINE.normalRangeMax]));
+  history.forEach(m=>rows.push([m.timestamp.toISOString(),num(m.frequencyPeak,1),STATUS[m.status].key,m.normalRangeMin,m.normalRangeMax]));
+  return rows.map(r=>r.join(',')).join('\n'); }
+function downloadCsv(name,text){ try{const blob=new Blob([text],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},100);return true;}catch(e){return false;} }
+
+/* ================= events ================= */
 function bind(){
-  document.querySelectorAll('[data-period]').forEach(b=>b.onclick=()=>{const[k,p]=b.dataset.period.split(':');period[k]=p;render();});
-  document.querySelectorAll('[data-conn]').forEach(b=>b.onclick=()=>{connection=b.dataset.conn;lastUpdated=Date.now();render();});
-  document.querySelectorAll('[data-ctl]').forEach(b=>b.onclick=()=>{const n=document.getElementById('ctl-note');if(n){n.style.color='var(--warning)';n.textContent=`데모 모드: "${b.dataset.ctl}" 제어 신호는 실제로 전송되지 않습니다.`;}});
-  const pn=document.getElementById('pname'); if(pn) pn.onchange=()=>{settings.productName=pn.value;saveSettings();};
-  document.querySelectorAll('[data-set]').forEach(b=>b.onchange=()=>{ const k=b.dataset.set;
-    if(k==='sensorFault'){sim.sensorFault=b.checked; reading=sanitize(reading);}
-    else if(k==='waterLow'){ reading={...reading, waterLevel:b.checked?10:76}; reading=sanitize({...reading,pm25In:reading.pm25In,pm25Out:reading.pm25Out}); }
-    else { settings[k]=b.checked; saveSettings(); }
-    render();
-  });
-  /* 그래프 hover — 시간/전단/후단/효율 상세값 */
-  document.querySelectorAll('.chart2').forEach(c=>{
-    const plot=c.querySelector('.c-plot'), tip=c.querySelector('.c-tip'), guide=c.querySelector('.c-guide');
-    let pts=[]; try{ pts=JSON.parse(c.dataset.pts); }catch(e){ pts=[]; }
-    if(!pts.length||!plot) return;
-    const move=e=>{ const rect=plot.getBoundingClientRect(); let rel=(e.clientX-rect.left)/rect.width; rel=Math.max(0,Math.min(1,rel));
-      const i=Math.round(rel*(pts.length-1)), p=pts[i], xp=(pts.length>1?i/(pts.length-1):0)*100;
-      guide.style.left=xp+'%'; guide.style.display='block';
-      tip.style.display='block'; tip.style.left=Math.max(12,Math.min(88,xp))+'%';
-      tip.innerHTML=`<div class="tt">${p.tl}</div><div class="tr"><span>전단</span><b>${p.pmIn} µg/m³</b></div><div class="tr"><span>후단</span><b>${p.pmOut} µg/m³</b></div><div class="tr"><span>정화효율</span><b>${p.eff}%</b></div>`; };
-    plot.addEventListener('mousemove',move);
-    plot.addEventListener('mouseleave',()=>{ tip.style.display='none'; guide.style.display='none'; });
-  });
+  document.querySelectorAll('[data-mid]').forEach(el=>el.onclick=()=>{const m=history.find(x=>x.measurementId===el.dataset.mid);if(m){lastMeasurement=m;go('analysis');}});
+  const mb=document.getElementById('mbtn'); if(mb) mb.onclick=toggleMeasure;
+  const ag=document.getElementById('analyze-go'); if(ag) ag.onclick=()=>go('analysis');
+  const sb=document.getElementById('save-btn'); if(sb) sb.onclick=e=>{const m=lastMeasurement;if(m&&!history.find(h=>h.measurementId===m.measurementId)){history.unshift(m);persist();}e.currentTarget.innerHTML='<svg><use href="#i-check"/></svg>저장됨';e.currentTarget.disabled=true;e.currentTarget.style.opacity='.7';};
+  document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{analysisTab=b.dataset.tab;renderTab(lastMeasurement||latest());});
+  document.querySelectorAll('[data-stat]').forEach(b=>b.onclick=()=>{statsPeriod=b.dataset.stat;render();});
+  document.querySelectorAll('[data-conn]').forEach(b=>b.onclick=()=>{connection=b.dataset.conn;sensorConnected=(b.dataset.conn==='connected');updateHeader();render();});
+  const pn=document.getElementById('pname'); if(pn) pn.onchange=()=>{settings.productName=pn.value.slice(0,40);persist();};
+  const csv=document.getElementById('csv-btn'); if(csv) csv.onclick=()=>{const ok=downloadCsv('moss_ultrasound_demo.csv',seriesCsv());csv.innerHTML=ok?'<svg><use href="#i-check"/></svg>다운로드됨':'다운로드 불가';};
+  document.querySelectorAll('[data-set]').forEach(b=>b.onchange=()=>{const k=b.dataset.set;
+    if(k in sim){ sim[k]=b.checked; reading=sanitizeEnv(reading); } else { settings[k]=b.checked; persist(); }
+    render();});
+  document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>go(b.dataset.nav));
+  bindCharts();
 }
-document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>{ current=b.dataset.nav;
-  document.querySelectorAll('.navlink').forEach(n=>n.classList.toggle('active',n.dataset.nav===current)); render(); });
+function bindCharts(){ document.querySelectorAll('.chart2').forEach(c=>{const plot=c.querySelector('.c-plot'),tip=c.querySelector('.c-tip'),guide=c.querySelector('.c-guide');let pts=[];try{pts=JSON.parse(c.dataset.pts);}catch(e){}if(!pts.length||!plot)return;
+  const mv=e=>{const rc=plot.getBoundingClientRect();let rel=(e.clientX-rc.left)/rc.width;rel=Math.max(0,Math.min(1,rel));const i=Math.round(rel*(pts.length-1)),p=pts[i],xp=(pts.length>1?i/(pts.length-1):0)*100;
+    guide.style.left=xp+'%';guide.style.display='block';tip.style.display='block';tip.style.left=Math.max(12,Math.min(88,xp))+'%';
+    tip.innerHTML=`<div class="tt">${p.tl}</div><div class="tr"><span>주파수</span><b>${p.peak} kHz</b></div><div class="tr"><span>상태</span><b>${p.st}</b></div>`;};
+  plot.addEventListener('mousemove',mv);plot.addEventListener('mouseleave',()=>{tip.style.display='none';guide.style.display='none';});});}
 
-function loadSettings(){ const d={productName:'MOSS AIR',productId:'MOSS-001',demoMode:true,notifications:true,alertWater:true,alertFilter:true,alertDisconnect:true};
-  try{const r=localStorage.getItem('moss_air_web');return r?{...d,...JSON.parse(r)}:d;}catch(e){return d;} }
-function saveSettings(){ try{localStorage.setItem('moss_air_web',JSON.stringify(settings));}catch(e){} }
+/* nav */
+const NAVKEYS=Object.keys(BAR);
+function go(name){ if(!NAVKEYS.includes(name)) name='dashboard'; currentView=name;
+  document.querySelectorAll('.navlink').forEach(n=>n.classList.toggle('active',n.dataset.nav===name));
+  if(name!=='measure') resetMeasure();
+  try{ if(location.hash!=='#'+name) history_pushState(name); }catch(e){}
+  document.querySelector('.main').scrollTop=0; render();
+}
+function history_pushState(name){ try{window.history.pushState({v:name},'','#'+name);}catch(e){} }
+window.addEventListener('popstate',()=>{ const h=(location.hash||'#dashboard').slice(1); currentView=NAVKEYS.includes(h)?h:'dashboard';
+  document.querySelectorAll('.navlink').forEach(n=>n.classList.toggle('active',n.dataset.nav===currentView)); render(); });
 
-/* ---- 실시간(3초) ---- */
-setInterval(()=>{ if(connection==='disconnected')return; reading=step(reading); lastUpdated=Date.now();
-  /* 대시보드만 실시간 갱신 → 공기/필터/통계에서 값이 읽는 중 출렁이거나 그래프 hover가 끊기지 않음 */
-  if(current==='dashboard') render(); }, 3000);
+/* header/theme/collapse */
+function updateHeader(){ const c=document.getElementById('h-conn'),t=document.getElementById('h-conn-t');
+  c.className='chip'+(connection==='disconnected'?' err':''); t.textContent=connLabel();
+  document.getElementById('h-mode').textContent=settings.demoMode?'DEMO MODE':'REAL DATA';
+  document.getElementById('h-mode').style.display=settings.demoMode?'':'none'; }
+document.getElementById('theme-btn').onclick=()=>{const root=document.documentElement,pd=window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches,cur=root.getAttribute('data-theme')||(pd?'dark':'light'),nx=cur==='dark'?'light':'dark';root.setAttribute('data-theme',nx);document.getElementById('theme-i').setAttribute('href',nx==='dark'?'#i-sun':'#i-moon');try{localStorage.setItem('moss_dx_theme',nx);}catch(e){}};
+document.getElementById('collapse').onclick=()=>document.getElementById('sidebar').classList.toggle('mini');
 
-render();
+/* storage */
+function loadSettings(){const d={productName:'거실 MOSS AIR',productId:'MOSS-001',demoMode:true,notifications:true};try{const r=localStorage.getItem('moss_dx');return r?{...d,...JSON.parse(r)}:d;}catch(e){return d;}}
+function persist(){try{localStorage.setItem('moss_dx',JSON.stringify(settings));}catch(e){}}
+try{const t=localStorage.getItem('moss_dx_theme');if(t){document.documentElement.setAttribute('data-theme',t);document.getElementById('theme-i').setAttribute('href',t==='dark'?'#i-sun':'#i-moon');}}catch(e){}
+
+/* 실시간 환경 갱신(대시보드/환경/기기에서만) */
+setInterval(()=>{ if(connection==='disconnected')return; reading=stepReading(reading);
+  if(['dashboard','environment','device'].includes(currentView)) render(); },3000);
+
+/* init */
+seedHistory(); lastMeasurement=latest();
+const h0=(location.hash||'').slice(1); if(NAVKEYS.includes(h0)) currentView=h0;
+updateHeader(); go(currentView);
 </script>
