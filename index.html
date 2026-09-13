@@ -109,6 +109,22 @@
   .ms-msg{font-size:13.5px;color:var(--muted);margin-top:8px;line-height:1.6;max-width:560px}
   .ms-grid{display:flex;gap:30px;flex-wrap:wrap;margin-top:18px}
   .ms-grid .k{font-size:12px;color:var(--muted)}.ms-grid .v{font-family:var(--mono);font-size:18px;font-weight:600;margin-top:3px}
+  /* ---- Moss Hero (대시보드: 시안형 가로 사진 배치) ---- */
+  .moss-hero{display:grid;grid-template-columns:264px 1.15fr .95fr;gap:28px;align-items:center;padding:24px 26px}
+  .mh-photo{width:100%;aspect-ratio:4/3;border-radius:20px;overflow:hidden;background:var(--light);box-shadow:inset 0 0 0 1px var(--border)}
+  .mh-photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .mh-eyebrow{font-size:13px;color:var(--muted);font-weight:600}
+  .mh-state{display:flex;align-items:center;gap:12px;margin-top:12px}
+  .mh-check{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none}
+  .mh-check svg{width:23px;height:23px}
+  .mh-label{font-size:32px;font-weight:700;letter-spacing:-.5px}
+  .mh-msg{font-size:14px;color:var(--muted);margin-top:14px;line-height:1.6;max-width:34ch}
+  .mh-metrics{display:flex;flex-direction:column;gap:18px;border-left:1px solid var(--border);padding-left:26px}
+  .mh-metrics .k{font-size:12.5px;color:var(--muted)}
+  .mh-metrics .v{font-family:var(--mono);font-size:20px;font-weight:600;margin-top:4px}
+  .mh-metrics .v.q{font-family:var(--font);font-size:16px}
+  @media(max-width:900px){.moss-hero{grid-template-columns:200px 1fr}.mh-metrics{grid-column:1/-1;border-left:none;border-top:1px solid var(--border);padding-left:0;padding-top:18px;flex-direction:row;flex-wrap:wrap;gap:28px}}
+  @media(max-width:560px){.moss-hero{grid-template-columns:1fr;text-align:left}}
 
   /* ---- Range bar ---- */
   .rb{position:relative;height:52px;margin-top:6px}
@@ -499,6 +515,28 @@ function spectrogram(seed){let s=seed||3;const rnd=()=>{s=(s*9301+49297)%233280;
   for(let r=0;r<6;r++){h+='<div class="r">';for(let c=0;c<24;c++){const band=Math.exp(-Math.pow(r-2.2,2)/2.2),v=Math.min(1,band*(.55+rnd()*.7));h+=`<div class="cell" style="background:color-mix(in srgb, var(--primary) ${Math.round(v*100)}%, var(--surface-alt))"></div>`;}h+='</div>';}
   return h+'</div>';}
 
+/* ================= Moss Hero (대시보드: 시안형 가로 사진 배치) ================= */
+function mossHero(m){
+  const st=m?m.status:'insufficient';const s=STATUS[st];
+  const peak=m?m.frequencyPeak:null;const q=m?m.measurementQuality:null;
+  const msg={ normal:'현재 이끼는 건강한 상태를 유지하고 있습니다.',
+    caution:'평소와 다른 초음파 패턴이 감지되었습니다. 추가 측정을 권장합니다.',
+    anomaly:'정상 범위를 벗어난 신호가 감지되었습니다. 환경을 확인하고 다시 측정해주세요.',
+    insufficient:'판정에 필요한 데이터가 부족합니다. 센서를 연결하고 측정을 진행해주세요.' }[st];
+  return `<div class="card moss-hero">
+    <div class="mh-photo"><img src="${MOSS_PHOTO}" alt="이끼 (측정 대상)"></div>
+    <div>
+      <div class="mh-eyebrow">오늘의 이끼 상태</div>
+      <div class="mh-state"><span class="mh-check" style="background:${s.tint};color:${s.color}"><svg><use href="#${s.icon}"/></svg></span><span class="mh-label" style="color:${s.color}">${s.label}</span></div>
+      <div class="mh-msg">${msg}</div>
+    </div>
+    <div class="mh-metrics">
+      <div><div class="k">주요 주파수</div><div class="v">${num(peak,1)}${peak!=null?' kHz':''}</div></div>
+      <div><div class="k">정상 범위 <span style="color:var(--faint)">(${BASELINE.label})</span></div><div class="v">${BASELINE.normalRangeMin}.0 ~ ${BASELINE.normalRangeMax}.0 kHz</div></div>
+      <div><div class="k">측정 품질</div><div class="v q" style="color:${q==='low'?'var(--caution)':q?'var(--good)':'var(--muted)'}">${q==='high'?'높음':q==='low'?'낮음':'—'}</div></div>
+    </div></div>`;
+}
+
 /* ================= Moss Status Component (대표 UI) ================= */
 function mossStatusComponent(m,{size=200}={}){
   const st=m?m.status:'insufficient';const s=STATUS[st];
@@ -548,7 +586,8 @@ function aiCard(m){
 function viewDashboard(v){ const m=latest(); const al=alerts(); const r=reading;
   v.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between"><div><div class="page-title">이끼 상태</div><div class="page-sub">${currentSpecies.name} · ${m?('최근 측정 '+m.timestamp.toLocaleString('ko-KR',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})):'측정 기록 없음'}</div></div><span class="badge st-caution"><span class="dot"></span>DEMO 데이터</span></div>`
     +(al[0]?`<div style="margin-top:16px">${alertCard(al[0])}</div>`:'')
-    +`<div style="margin-top:16px">${mossStatusComponent(m,{size:210})}</div>`
+    +`<div style="margin-top:16px">${mossHero(m)}</div>`
+    +`<div class="card pad" style="margin-top:16px">${rangeBar(m?m.frequencyPeak:null,m?m.status:'insufficient')}</div>`
     +`<div class="sec"><h2>환경 데이터</h2><span class="hint">보조 지표 · Demo · 마지막 업데이트 ${agoText()}</span></div><div class="grid c4">
         ${metric('i-temp','온도',{value:num(r.temperature,1),unit:'°C'})}
         ${metric('i-humid','습도',{value:num(r.humidity),unit:'%'})}
