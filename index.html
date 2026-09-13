@@ -209,6 +209,7 @@
   <symbol id="i-env" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></symbol>
   <symbol id="i-device" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3"/><path d="M12 4v2M12 18v2"/></symbol>
   <symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M4.5 4.5l2 2M17.5 17.5l2 2M3 12h3M18 12h3M4.5 19.5l2-2M17.5 6.5l2-2"/></symbol>
+  <symbol id="i-test" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v7l-4.5 8a2 2 0 0 0 1.8 3h9.4a2 2 0 0 0 1.8-3L14 10V3"/><path d="M7.5 15h9"/></symbol>
   <symbol id="i-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20C6 20 4 16 4 11c6 0 10 1 12 5"/><path d="M20 4c0 8-4 13-9 15"/></symbol>
   <symbol id="i-temp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13.5V5a2 2 0 1 1 4 0v8.5a4 4 0 1 1-4 0Z"/></symbol>
   <symbol id="i-humid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></symbol>
@@ -240,6 +241,7 @@
     <button class="navlink" data-nav="history"><svg><use href="#i-history"/></svg><span>기록</span></button>
     <button class="navlink" data-nav="environment"><svg><use href="#i-env"/></svg><span>환경</span></button>
     <button class="navlink" data-nav="device"><svg><use href="#i-device"/></svg><span>기기</span></button>
+    <button class="navlink" data-nav="perf"><svg><use href="#i-test"/></svg><span>성능 시험</span></button>
     <button class="navlink" data-nav="settings"><svg><use href="#i-settings"/></svg><span>설정</span></button>
     <div class="spacer"></div>
     <button class="collapse-btn" id="collapse"><svg style="width:16px;height:16px"><use href="#i-menu"/></svg><span>접기</span></button>
@@ -516,9 +518,9 @@ function mossStatusComponent(m,{size=200}={}){
 }
 
 /* ================= VIEWS ================= */
-const BAR={dashboard:'대시보드',measure:'측정',analysis:'분석',history:'기록',environment:'환경',device:'기기',settings:'설정'};
+const BAR={dashboard:'대시보드',measure:'측정',analysis:'분석',history:'기록',environment:'환경',device:'기기',perf:'성능 시험',settings:'설정'};
 function render(){ const v=document.getElementById('view');
-  ({dashboard:viewDashboard,measure:viewMeasure,analysis:viewAnalysis,history:viewHistory,environment:viewEnvironment,device:viewDevice,settings:viewSettings}[currentView]||viewDashboard)(v);
+  ({dashboard:viewDashboard,measure:viewMeasure,analysis:viewAnalysis,history:viewHistory,environment:viewEnvironment,device:viewDevice,perf:viewPerf,settings:viewSettings}[currentView]||viewDashboard)(v);
   document.getElementById('h-title').textContent=BAR[currentView];
   bind();
 }
@@ -643,6 +645,36 @@ function renderTab(m){ const p=document.getElementById('tabpanel'); if(!p)return
     p.innerHTML=`<div class="card pad">${h}<div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint)"><span>${RANGE_LOW}kHz</span><span>주파수 분포</span><span>${RANGE_HIGH}kHz</span></div></div><div class="tab-note">주파수 분석: 신호가 집중된 주파수 대역을 보여줍니다.</div>`;}
 }
 
+/* ---- 성능 시험 (제품 개발용 · Demo · 검증 전) ---- */
+let PERF=[
+  {no:'#001', name:'거실 3평 시험', date:'2026.09.10', space:'3평(약10㎡)', mins:'30', filter:'이끼 필터 A', moss:'기본 이끼', area:'0.3㎡', water:'자동', fan:'보통', inS:120,outS:120, inE:120,outE:74, airflow:'보통', pressure:44, temp:24, humidity:60, demo:true},
+  {no:'#002', name:'거실 4평 시험', date:'2026.09.03', space:'4평(약13㎡)', mins:'40', filter:'이끼 필터 A', moss:'기본 이끼', area:'0.3㎡', water:'자동', fan:'강', inS:150,outS:150, inE:150,outE:95, airflow:'강', pressure:47, temp:24, humidity:58, demo:true},
+];
+function perfEff(p){ return calcEff(p.inE, p.outE); }   // 필터 통과 정화효율 = ((종료 전단-후단)/전단)×100
+function viewPerf(v){
+  const fld=(id,label,val)=>`<label style="display:block;font-size:12px;color:var(--muted);margin-bottom:12px">${label}<input class="txt" id="pf-${id}" value="${escapeHtml(val||'')}" style="display:block;width:100%;margin-top:4px"></label>`;
+  v.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between"><div><div class="page-title">성능 시험</div><div class="page-sub">시제품 제작 후 센서 데이터로 제품 성능을 기록·비교합니다.</div></div><span class="badge st-caution"><span class="dot"></span>DEMO 시험</span></div>`
+    +`<div class="sec"><h2>새 시험 입력</h2><span class="hint">Demo · 검증된 실제 성능 아님</span></div>
+      <div class="card pad"><div class="grid c3">
+        ${fld('name','시험 이름','거실 시험')}${fld('date','시험 날짜','2026.09.13')}${fld('space','시험 공간','3평(약10㎡)')}
+        ${fld('mins','시험 시간(분)','30')}${fld('filter','필터 종류','이끼 필터 A')}${fld('moss','이끼 종류','기본 이끼')}
+        ${fld('area','이끼 면적','0.3㎡')}${fld('water','관수 조건','자동')}${fld('fan','팬 모드','보통')}
+      </div>
+      <div class="sec" style="margin:12px 2px 8px"><h2 style="font-size:14px">측정값</h2></div><div class="grid c4">
+        ${fld('inS','시작 전단(µg/m³)','120')}${fld('outS','시작 후단(µg/m³)','120')}${fld('inE','종료 전단(µg/m³)','120')}${fld('outE','종료 후단(µg/m³)','74')}
+        ${fld('airflow','평균 풍량','보통')}${fld('pressure','차압(Pa)','44')}${fld('temp','온도(℃)','24')}${fld('humidity','습도(%)','60')}
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:14px;border-top:1px solid var(--divider);gap:12px;flex-wrap:wrap">
+        <div><div style="font-size:12px;color:var(--muted)">자동 계산 · 필터 통과 정화효율</div><div id="pf-eff" style="font-family:var(--mono);font-size:22px;font-weight:600">—</div></div>
+        <div style="display:flex;gap:10px"><button class="btn ghost" id="pf-calc">계산</button><button class="btn primary" id="pf-save">Demo 시험 저장</button></div>
+      </div></div>`
+    +`<div class="sec"><h2>저장된 시험</h2><button class="btn soft" id="pf-csv" style="min-height:36px;padding:0 12px"><svg><use href="#i-download"/></svg>CSV 다운로드</button></div>`
+    +`<div class="card tbl-wrap"><table class="tbl"><thead><tr><th>번호</th><th>이름</th><th>날짜</th><th>공간</th><th>시간</th><th>종료 전단→후단</th><th>정화효율</th><th></th></tr></thead><tbody>
+        ${PERF.map(p=>`<tr style="cursor:default"><td class="mono">${p.no}</td><td>${escapeHtml(p.name)}</td><td class="mono">${p.date}</td><td>${escapeHtml(p.space)}</td><td class="mono">${p.mins}분</td><td class="mono">${p.inE}→${p.outE}</td><td class="mono">${perfEff(p)}%</td><td>${p.demo?badge('caution','Demo'):''}</td></tr>`).join('')}
+      </tbody></table></div>`
+    +`<p class="disclaimer">모든 시험은 <b>Demo(검증 전)</b>입니다. 검증되지 않은 값을 실제 성능으로 표기하지 않습니다. CADR(청정공기공급률)은 실제 시험 데이터가 충분히 축적된 후 계산할 수 있도록 구조만 준비되어 있습니다.</p>`;
+}
+
 /* ---- 기록 ---- */
 function viewHistory(v){ const rows=[...history].sort((a,b)=>b.timestamp-a.timestamp);
   v.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between"><div><div class="page-title">측정 기록</div><div class="page-sub">총 ${rows.length}회 측정</div></div><button class="btn soft" id="csv-btn" style="min-height:38px;padding:0 14px"><svg><use href="#i-download"/></svg>CSV 다운로드</button></div>`
@@ -763,6 +795,12 @@ function bind(){
     if(k in sim){ sim[k]=b.checked; reading=sanitizeEnv(reading); } else { settings[k]=b.checked; persist(); }
     render();});
   document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>go(b.dataset.nav));
+  /* 성능 시험 */
+  const pfg=id=>{const el=document.getElementById('pf-'+id);return el?el.value:'';};
+  const pc=document.getElementById('pf-calc'); if(pc) pc.onclick=()=>{const e=calcEff(parseFloat(pfg('inE')),parseFloat(pfg('outE')));const el=document.getElementById('pf-eff');if(el)el.textContent=Number.isFinite(e)?e+'%':'—';};
+  const ps=document.getElementById('pf-save'); if(ps) ps.onclick=()=>{ const n='#'+String(PERF.length+1).padStart(3,'0');
+    PERF.unshift({no:n,name:pfg('name')||'무제 시험',date:pfg('date'),space:pfg('space'),mins:pfg('mins'),filter:pfg('filter'),moss:pfg('moss'),area:pfg('area'),water:pfg('water'),fan:pfg('fan'),inS:+pfg('inS'),outS:+pfg('outS'),inE:+pfg('inE'),outE:+pfg('outE'),airflow:pfg('airflow'),pressure:+pfg('pressure'),temp:+pfg('temp'),humidity:+pfg('humidity'),demo:true}); render(); };
+  const pcsv=document.getElementById('pf-csv'); if(pcsv) pcsv.onclick=()=>{ const rows=[['no','name','date','space','mins','pmIn_end','pmOut_end','efficiency_%']]; PERF.forEach(p=>rows.push([p.no,p.name,p.date,p.space,p.mins,p.inE,p.outE,perfEff(p)])); const ok=downloadCsv('moss_perf_demo.csv',rows.map(r=>r.join(',')).join('\n')); pcsv.innerHTML=ok?'<svg><use href="#i-check"/></svg>다운로드됨':'다운로드 불가'; };
   bindCharts();
 }
 function bindCharts(){ document.querySelectorAll('.chart2').forEach(c=>{const plot=c.querySelector('.c-plot'),tip=c.querySelector('.c-tip'),guide=c.querySelector('.c-guide');let pts=[];try{pts=JSON.parse(c.dataset.pts);}catch(e){}if(!pts.length||!plot)return;
