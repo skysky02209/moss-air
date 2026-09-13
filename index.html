@@ -355,21 +355,53 @@ function stepReading(p){ return sanitizeEnv({
   pm25Out:(()=>{const i=clamp(Math.round((p.pm25In??40)),18,55);return clamp(Math.round(i*0.65+(Math.random()*2-1)),3,i-2);})(),
   airflow:p.airflow??2,fanMode:p.fanMode??'auto',pressure:clamp(Math.round((p.pressure??42)+(Math.random()*2-1)*2),10,200),
   fan:'on',pump:(p.moisture??76)<=0?'off':'on',led:(p.light??5000)<300?'on':'off'}); }
+/* SensorReading 정규화 — Demo/Real 모두 동일 구조.
+   캐논 필드: pm25In,pm25Out,temperature,humidity,waterLevel,light,airflow,pressure,
+              fanStatus,pumpStatus,ledStatus,timestamp (+efficiency 파생). moisture=waterLevel 호환. */
 function sanitizeEnv(r){ const b=(v,a,c)=>v==null||Number.isNaN(v)||v<a||v>c?null:v;
   if(sim.sensorFault){ r={...r,pm25In:null,pm25Out:null}; }
-  return {...r,temperature:b(r.temperature,-20,60),humidity:b(r.humidity,0,100),moisture:b(r.moisture,0,100),
-    light:b(r.light,0,200000),pm25In:b(r.pm25In,0,1000),pm25Out:b(r.pm25Out,0,1000),pressure:b(r.pressure,0,1000)}; }
+  const water=b(r.moisture!=null?r.moisture:r.waterLevel,0,100);
+  const inV=b(r.pm25In,0,1000), outV=b(r.pm25Out,0,1000);
+  return {...r,temperature:b(r.temperature,-20,60),humidity:b(r.humidity,0,100),
+    moisture:water, waterLevel:water, light:b(r.light,0,200000),
+    pm25In:inV,pm25Out:outV,pressure:b(r.pressure,0,1000),
+    fanStatus:r.fan,pumpStatus:r.pump,ledStatus:r.led,
+    efficiency:calcEff(inV,outV), timestamp:new Date().toISOString()}; }
 
-/* ---- 센서 자체 정상 여부 ---- */
-function sensorHealth(){ const r=reading,f=sim.sensorFault;
+/* ================= 공통 제품 구조 · Demo/Real Provider =================
+   Device(ESP32+센서/구동부) · SensorReading(위) · DeviceStatus · FilterStatus · Alert.
+   실제 ESP32 연결 시 DemoProvider 대신 HardwareProvider 주입 → 화면 코드 변경 불필요. */
+const DEVICE_SPEC={ controller:'ESP32', connectivity:'Wi-Fi',
+  sensors:['PM2.5 전단','PM2.5 후단','DHT22 온습도','수위','풍량','차압','조도'],
+  actuators:['팬','12V 펌프','LED'] };
+const DemoProvider={ id:'demo', isLive:false, init(){ return initReading(); }, next(prev){ return stepReading(prev); } };
+const HardwareProvider={ id:'hardware', isLive:true, init(){ return null; }, next(){ return null; } }; // 실제 통신 미구현(위장 금지)
+let activeProvider=DemoProvider;
+let lastUpdated=Date.now();
+function agoText(){ const s=Math.floor((Date.now()-lastUpdated)/1000); return s<5?'방금 전':s<60?s+'초 전':Math.floor(s/60)+'분 전'; }
+function deviceStatus(r){ return { fan:r.fan, pump:r.pump, led:r.led, connection }; }
+
+/* ---- 센서 자체 정상 여부 (4단계: 정상/주의/오류/연결 안 됨) + 현재값·마지막 수신 ----
+   센서 값 문제(오류)와 연결 문제(연결 안 됨)를 구분. 필터 문제와 혼동하지 않음. */
+function sensorStatusOf(present, warn){
+  if(connection==='disconnected') return 'off';
+  if(!present) return 'error';
+  return warn?'warn':'ok';
+}
+const SENSOR_LABEL={ ok:'정상', warn:'주의', error:'오류', off:'연결 안 됨' };
+const SENSOR_STATUS={ ok:'normal', warn:'caution', error:'anomaly', off:'insufficient' };
+function sensorList(){ const r=reading;
   return [
-    {label:'초음파 센서', ok:!f&&(sensorConnected||connection==='demo')},
-    {label:'온습도 센서', ok:r.temperature!=null&&r.humidity!=null},
-    {label:'수분 센서', ok:r.moisture!=null},
-    {label:'조도 센서', ok:r.light!=null},
-    {label:'PM2.5 센서(보조)', ok:r.pm25In!=null&&r.pm25Out!=null},
+    {label:'PM2.5 전단 센서', v:num(r.pm25In), u:'µg/m³', s:sensorStatusOf(r.pm25In!=null,false)},
+    {label:'PM2.5 후단 센서', v:num(r.pm25Out), u:'µg/m³', s:sensorStatusOf(r.pm25Out!=null,false)},
+    {label:'DHT22 온습도 센서', v:(r.temperature!=null?num(r.temperature,1)+'℃ / ':'')+num(r.humidity)+'%', u:'', s:sensorStatusOf(r.temperature!=null&&r.humidity!=null, r.humidity!=null&&r.humidity>=80)},
+    {label:'수위 센서', v:num(r.moisture), u:'%', s:sensorStatusOf(r.moisture!=null, r.moisture!=null&&r.moisture<=30)},
+    {label:'풍량 센서', v:'Demo', u:'', s:sensorStatusOf(r.airflow!=null, r.airflow!=null&&r.airflow<1)},
+    {label:'차압 센서', v:num(r.pressure), u:'Pa', s:sensorStatusOf(r.pressure!=null, r.pressure!=null&&r.pressure>=120)},
+    {label:'조도 센서', v:num(r.light), u:'lux', s:sensorStatusOf(r.light!=null,false)},
   ];
 }
+function sensorHealth(){ return sensorList().map(x=>({label:x.label, ok:x.s==='ok'})); } /* 하위호환 */
 
 /* ================= 측정 세션 ================= */
 function buildMeasurement(peak,duration,quality){
@@ -492,16 +524,33 @@ function render(){ const v=document.getElementById('view');
 }
 function shell(html){ return html; }
 
+/* AI 분석 카드 (대시보드/공통) — 확정 진단이 아닌 가능성·권장 */
+function aiCard(m){
+  if(!m) return `<div class="card pad" style="display:flex;gap:10px;align-items:center">${badge('insufficient','판정 불가')}<span>측정 기록이 없어 분석할 데이터가 없습니다.</span><button class="btn soft" data-nav="measure" style="margin-left:auto;min-height:36px;padding:0 12px">측정하기</button></div>`;
+  const s=STATUS[m.status], info=aiText(m);
+  return `<div class="card pad">
+    <div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:10px;background:${s.tint};color:${s.color};display:grid;place-items:center"><svg style="width:19px;height:19px"><use href="#${s.icon}"/></svg></div><div><div style="font-size:13px;color:var(--muted)">현재 초음파 상태</div><div style="font-size:18px;font-weight:700;color:${s.color}">${s.label}</div></div></div>
+    <div style="font-size:13px;color:var(--muted);margin-top:12px;line-height:1.65">${info.basis}</div>
+    ${info.causes.length?`<div style="font-size:13px;margin-top:10px"><b>가능성:</b> ${info.causes.join(', ')}</div>`:''}
+    <div style="font-size:13px;margin-top:8px"><b>권장:</b> ${info.rec}</div>
+    <button class="btn soft" data-nav="analysis" style="margin-top:14px;min-height:40px">상세 분석 보기 <svg><use href="#i-arrow"/></svg></button>
+  </div>`;
+}
+
 /* ---- 대시보드 ---- */
 function viewDashboard(v){ const m=latest(); const al=alerts(); const r=reading;
   v.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between"><div><div class="page-title">이끼 상태</div><div class="page-sub">${currentSpecies.name} · ${m?('최근 측정 '+m.timestamp.toLocaleString('ko-KR',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})):'측정 기록 없음'}</div></div><span class="badge st-caution"><span class="dot"></span>DEMO 데이터</span></div>`
     +(al[0]?`<div style="margin-top:16px">${alertCard(al[0])}</div>`:'')
     +`<div style="margin-top:16px">${mossStatusComponent(m,{size:210})}</div>`
-    +`<div class="sec"><h2>환경 데이터</h2><span class="hint">보조 지표 · Demo</span></div><div class="grid c4">
+    +`<div class="sec"><h2>환경 데이터</h2><span class="hint">보조 지표 · Demo · 마지막 업데이트 ${agoText()}</span></div><div class="grid c4">
         ${metric('i-temp','온도',{value:num(r.temperature,1),unit:'°C'})}
         ${metric('i-humid','습도',{value:num(r.humidity),unit:'%'})}
         ${metric('i-drop','수분',{value:num(r.moisture),unit:'%',status:moisture().status})}
         ${metric('i-light','조도',{value:num(r.light),unit:'lux'})}</div>`
+    +`<div class="sec"><h2>최근 7일 초음파 변화</h2><span class="hint">연한 영역 = 정상 범위 ${BASELINE.normalRangeMin}~${BASELINE.normalRangeMax} kHz</span></div>`
+    +`<div class="card pad">${trendChart(SERIES.filter(x=>x.t>=cutoff('7d')),{period:'7d'})}</div>`
+    +`<div class="sec"><h2>AI 분석 결과 <span class="hint" style="font-weight:400">· 연구용(Demo) · 확정 진단 아님</span></h2></div>`
+    +aiCard(m)
     +`<div class="sec"><h2>최근 측정</h2><button class="btn soft" data-nav="history" style="min-height:36px;padding:0 12px">전체 보기</button></div>`
     +recentTable(3)
     +`<div class="sec"><h2>다음 단계</h2></div><div class="grid c3">
@@ -657,6 +706,11 @@ function viewDevice(v){ const r=reading; const act=s=>s==='on'?'작동 중':s===
         ${metric('i-drop','물탱크',{value:num(r.moisture),unit:'%',status:moisture().status})}
         ${metric('i-gauge','차압',{value:num(r.pressure),unit:'Pa'})}
         ${metric('i-filter','이끼 필터',{word:'정상',status:'normal'})}</div>`
+    +`<div class="sec"><h2>센서 상태</h2><span class="hint">값 문제(오류) vs 연결 문제(연결 안 됨) 구분 · 마지막 수신 ${agoText()}</span></div>
+      <div class="card tbl-wrap"><table class="tbl"><thead><tr><th>센서</th><th>현재 값</th><th>상태</th></tr></thead><tbody>
+        ${sensorList().map(x=>`<tr style="cursor:default"><td>${x.label}</td><td class="mono">${x.v}${x.u?' '+x.u:''}</td><td>${badge(SENSOR_STATUS[x.s],SENSOR_LABEL[x.s])}</td></tr>`).join('')}
+      </tbody></table></div>
+      <p class="disclaimer">센서 데이터 문제는 필터 문제와 별개로 표시합니다. 센서 오류 시 필터 상태로 오인하지 않습니다.</p>`
     +`<div class="sec"><h2>유지관리 기록</h2><span class="hint">Demo · 향후 실제 이력 저장</span></div><div class="card tbl-wrap"><table class="tbl"><thead><tr><th>날짜</th><th>항목</th><th>내용</th></tr></thead><tbody>
         ${MAINT.map(x=>`<tr style="cursor:default"><td class="mono">${x.date}</td><td>${x.type}</td><td style="color:var(--muted)">${x.note}</td></tr>`).join('')}</tbody></table></div>`
     +`<p class="disclaimer">실제 풍량(m³/h)은 Demo 환산값입니다. 팬 모드와 실제 풍량은 분리되어 있으며, 실제 풍량 센서 연결 시 그대로 교체할 수 있습니다. 물탱크·차압·필터 판단은 카메라 없이 센서 데이터로만 처리합니다.</p>`;
@@ -742,8 +796,11 @@ function loadSettings(){const d={productName:'거실 MOSS AIR',productId:'MOSS-0
 function persist(){try{localStorage.setItem('moss_dx',JSON.stringify(settings));}catch(e){}}
 try{const t=localStorage.getItem('moss_dx_theme');if(t){document.documentElement.setAttribute('data-theme',t);document.getElementById('theme-i').setAttribute('href',t==='dark'?'#i-sun':'#i-moon');}}catch(e){}
 
-/* 실시간 환경 갱신(대시보드/환경/기기에서만) */
-setInterval(()=>{ if(connection==='disconnected')return; reading=stepReading(reading);
+/* 실시간 환경 갱신(대시보드/환경/기기에서만) — Provider 경유, 마지막 수신시간 기록 */
+setInterval(()=>{ if(connection==='disconnected')return;
+  const next=activeProvider.next(reading);
+  if(next==null) return;            // 실제 Provider 미연결 시 데이터 없음(위장 금지)
+  reading=next; lastUpdated=Date.now();
   if(['dashboard','environment','device'].includes(currentView)) render(); },3000);
 
 /* init */
