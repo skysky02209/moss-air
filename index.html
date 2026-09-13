@@ -125,6 +125,21 @@
   .mh-metrics .v.q{font-family:var(--font);font-size:16px}
   @media(max-width:900px){.moss-hero{grid-template-columns:200px 1fr}.mh-metrics{grid-column:1/-1;border-left:none;border-top:1px solid var(--border);padding-left:0;padding-top:18px;flex-direction:row;flex-wrap:wrap;gap:28px}}
   @media(max-width:560px){.moss-hero{grid-template-columns:1fr;text-align:left}}
+  /* ---- Connected devices list (시안형) ---- */
+  .dev-row{display:flex;align-items:center;gap:14px;padding:16px 6px;border-bottom:1px solid var(--divider)}
+  .dev-row:last-child{border-bottom:none}
+  .dev-ic{width:44px;height:44px;border-radius:13px;background:var(--light);color:var(--primary);display:grid;place-items:center;flex:none}
+  .dev-ic svg{width:22px;height:22px}
+  .dev-meta{min-width:0}
+  .dev-name{font-weight:600;font-size:15px}
+  .dev-id{font-size:12.5px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+  .dev-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+  .dev-chev{color:var(--faint);display:flex}.dev-chev svg{width:18px;height:18px}
+  /* ---- Filter chips (기록) ---- */
+  .fchips{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+  .fchip{font:inherit;font-size:13px;padding:7px 15px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:.15s}
+  .fchip:hover{border-color:var(--secondary)}
+  .fchip.on{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
 
   /* ---- Range bar ---- */
   .rb{position:relative;height:52px;margin-top:6px}
@@ -615,7 +630,7 @@ function recentTable(n){ const rows=[...history].sort((a,b)=>b.timestamp-a.times
 /* ---- 측정 ---- */
 const measure={phase:'idle',elapsed:0,timer:null,wave:[],waveTimer:null};
 function viewMeasure(v){ const sh=sensorHealth();
-  v.innerHTML=`<div class="page-title">초음파 측정</div><div class="page-sub">이끼를 초음파로 측정하고 정상 범위와 비교합니다.</div>`
+  v.innerHTML=`<div class="page-title">초음파 측정</div><div class="page-sub">이끼에 가까이 마이크를 위치시켜 주세요.</div>`
     +`<div class="card pad" style="margin-top:16px"><div class="measure-wrap">
         <div style="font-size:14px;font-weight:600;color:var(--muted);margin-bottom:4px">측정 대상 · 이끼</div>
         <div class="moss-measure" id="moss-measure"><span class="pulse"></span><span class="pulse p2"></span>${mossVisual('normal',{size:180})}</div>
@@ -626,6 +641,7 @@ function viewMeasure(v){ const sh=sensorHealth();
         <div class="live" id="mlive" hidden></div>
         <div id="mdone" hidden style="margin-top:18px"><button class="btn primary" id="analyze-go">분석 시작 <svg><use href="#i-arrow"/></svg></button></div>
       </div></div>`
+    +`<div class="grid c4" style="margin-top:16px">${metric('i-analyze','측정 시간',{word:'00:00'})}${metric('i-check','신호 강도',{word:'—'})}${metric('i-gauge','주파수 범위',{word:'20~50 kHz'})}${metric('i-analyze','품질',{word:'—'})}</div>`
     +`<div class="sec"><h2>센서 상태</h2><span class="hint">센서 값이 아닌 센서 자체 정상 여부</span></div><div class="card pad"><div class="checklist">${sh.map(c=>ck(c.label,c.ok)).join('')}</div></div>`
     +`<p class="disclaimer">Web 환경의 실제 센서 연결(Web Audio / Web Bluetooth / Web Serial / WebUSB)은 사용할 하드웨어 확정 후 적용됩니다. 지원하지 않는 브라우저에서는 그 사실을 안내하며, 연결 실패를 임의의 정상 데이터로 대체하지 않습니다.</p>`;
 }
@@ -660,16 +676,16 @@ function stopMeasure(){ clearInterval(measure.timer);clearInterval(measure.waveT
 function viewAnalysis(v){ const m=lastMeasurement||latest();
   if(!m){ v.innerHTML=`<div class="page-title">분석</div><div class="card" style="margin-top:16px"><div class="empty"><div class="ei"><svg><use href="#i-analyze"/></svg></div><div>분석할 측정이 없습니다.</div><button class="btn primary" data-nav="measure" style="margin-top:6px">측정하러 가기</button></div></div>`; return; }
   const s=STATUS[m.status];const info=aiText(m);
-  v.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between"><div><div class="page-title">분석 결과</div><div class="page-sub">측정 시간 ${fmtDur(m.measurementDuration)} · ${m.timestamp.toLocaleString('ko-KR',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})}</div></div><span class="badge st-caution"><span class="dot"></span>DEMO 분석</span></div>`
+  v.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div class="page-title">초음파 분석</div><div class="page-sub">측정 시간 ${fmtDur(m.measurementDuration)} · ${m.timestamp.toLocaleString('ko-KR',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})} · <span class="badge st-caution" style="vertical-align:middle"><span class="dot"></span>DEMO 분석</span></div></div><button class="btn ghost" id="save-btn" style="min-height:38px"><svg><use href="#i-check"/></svg>결과 저장</button></div>`
     +`<div style="margin-top:16px">${mossStatusComponent(m,{size:190})}</div>`
-    +`<div class="grid c3" style="margin-top:16px">${metric('i-gauge','주요 주파수',{value:num(m.frequencyPeak,1),unit:'kHz'})}${metric('i-check','신호 강도',{value:num(m.signalStrength),unit:'%'})}${metric('i-analyze','측정 품질',{word:m.measurementQuality==='high'?'높음':m.measurementQuality==='low'?'낮음':'—',status:m.measurementQuality==='low'?'caution':'normal'})}</div>`
+    +`<div class="grid c4" style="margin-top:16px">${metric('i-gauge','주요 주파수',{value:num(m.frequencyPeak,1),unit:'kHz'})}${metric('i-check','신호 강도',{value:num(m.signalStrength),unit:'%'})}${metric('i-analyze','정상 범위',{word:BASELINE.normalRangeMin+'~'+BASELINE.normalRangeMax+' kHz'})}${metric('i-gauge','일치도',{value:m.match!=null?num(m.match):DASH,unit:'%'})}</div>`
     +`<div class="tabs" role="tablist"><button class="tab" data-tab="wave" role="tab">Waveform</button><button class="tab" data-tab="freq" role="tab">Spectrum</button><button class="tab" data-tab="spectro" role="tab">Spectrogram</button></div><div id="tabpanel" style="margin-top:12px"></div>`
     +`<div class="sec"><h2>AI 분석 <span class="hint" style="font-weight:400">· 연구용(Demo) · 확정 진단 아님</span></h2></div><div class="card pad">
         <div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:10px;background:${s.tint};color:${s.color};display:grid;place-items:center"><svg style="width:19px;height:19px"><use href="#${s.icon}"/></svg></div><div><div style="font-size:13px;color:var(--muted)">현재 초음파 상태</div><div style="font-size:18px;font-weight:700;color:${s.color}">${s.label}</div></div></div>
         ${info.causes.length?`<div style="margin-top:14px"><div style="font-size:13px;font-weight:700">가능성</div><ul style="margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.8">${info.causes.map(c=>`<li>${c}</li>`).join('')}</ul></div>`:''}
         <div style="margin-top:14px"><div style="font-size:13px;font-weight:700">분석 근거</div><div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.65">${info.basis}</div></div>
         <div style="margin-top:14px"><div style="font-size:13px;font-weight:700">권장 행동</div><div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.65">${info.rec}</div></div></div>`
-    +`<div class="btn-row" style="display:flex;gap:10px;margin-top:16px"><button class="btn soft" id="save-btn"><svg><use href="#i-check"/></svg>측정 결과 저장</button><button class="btn ghost" data-nav="measure">다시 측정</button></div>`
+    +`<div class="btn-row" style="display:flex;gap:10px;margin-top:16px"><button class="btn ghost" data-nav="measure"><svg><use href="#i-mic"/></svg>다시 측정</button></div>`
     +`<p class="disclaimer">AI 분석은 실제 학습 모델이 아닌 Demo 로직입니다. "가능성·추정" 수준의 참고 정보이며 확정 진단이 아닙니다. 품질이 낮은 측정은 확정 판정 근거로 사용하지 않습니다.</p>`;
   renderTab(m);
 }
@@ -720,11 +736,15 @@ function viewPerf(v){
 }
 
 /* ---- 기록 ---- */
-function viewHistory(v){ const rows=[...history].sort((a,b)=>b.timestamp-a.timestamp);
-  v.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between"><div><div class="page-title">측정 기록</div><div class="page-sub">총 ${rows.length}회 측정</div></div><button class="btn soft" id="csv-btn" style="min-height:38px;padding:0 14px"><svg><use href="#i-download"/></svg>CSV 다운로드</button></div>`
+let historyFilter='all';
+function viewHistory(v){ const all=[...history].sort((a,b)=>b.timestamp-a.timestamp);
+  const rows=historyFilter==='all'?all:all.filter(m=>m.status===historyFilter);
+  const chip=(k,l)=>`<button class="fchip${historyFilter===k?' on':''}" data-hfilter="${k}">${l}</button>`;
+  v.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between"><div><div class="page-title">측정 기록</div><div class="page-sub">총 ${all.length}회 측정${historyFilter!=='all'?` · ${rows.length}건 표시 중`:''}</div></div><button class="btn soft" id="csv-btn" style="min-height:38px;padding:0 14px"><svg><use href="#i-download"/></svg>CSV 다운로드</button></div>`
+    +`<div class="fchips">${chip('all','전체')}${chip('normal','정상')}${chip('caution','주의')}${chip('anomaly','이상')}${chip('insufficient','판정 불가')}</div>`
     +(rows.length?`<div class="card tbl-wrap" style="margin-top:16px"><table class="tbl"><thead><tr><th></th><th>측정일</th><th>이끼</th><th>상태</th><th>주요 주파수</th><th>정상 범위</th><th>신호 강도</th><th>품질</th></tr></thead><tbody>
       ${rows.map(m=>`<tr data-mid="${m.measurementId}"><td><span class="thumb">${mossVisual(m.status,{size:34})}</span></td><td class="mono">${dateLabel(m.timestamp)} ${two(m.timestamp.getHours())}:${two(m.timestamp.getMinutes())}</td><td>${m.mossType}</td><td>${badge(m.status)}</td><td class="mono">${num(m.frequencyPeak,1)} kHz</td><td class="mono">${m.normalRangeMin}~${m.normalRangeMax}</td><td class="mono">${num(m.signalStrength)}%</td><td>${m.measurementQuality==='high'?'높음':m.measurementQuality==='low'?'낮음':'—'}</td></tr>`).join('')}
-      </tbody></table></div>`:`<div class="card" style="margin-top:16px"><div class="empty"><div class="ei"><svg><use href="#i-history"/></svg></div><div>아직 측정 기록이 없습니다.</div></div></div>`)
+      </tbody></table></div>`:`<div class="card" style="margin-top:16px"><div class="empty"><div class="ei"><svg><use href="#i-history"/></svg></div><div>${all.length?'해당 상태의 기록이 없습니다.':'아직 측정 기록이 없습니다.'}</div></div></div>`)
     +`<div class="sec"><h2>통계</h2><span class="hint">기록 데이터 기반</span></div>${statsBlock()}`
     +`<p class="disclaimer">행을 클릭하면 분석 화면으로 이동합니다. 통계는 기록된 Demo 데이터로 계산되며 하드코딩이 아닙니다.</p>`;
 }
@@ -745,7 +765,7 @@ function statsBlock(){ const pts=SERIES.filter(x=>x.t>=cutoff(statsPeriod)); con
 
 /* ---- 환경 ---- */
 function viewEnvironment(v){ const r=reading; const mo=moisture();
-  v.innerHTML=`<div class="page-title">환경</div><div class="page-sub">측정 상태에 영향을 주는 보조 환경 데이터입니다.</div>`
+  v.innerHTML=`<div class="page-title">환경 데이터</div><div class="page-sub">환경 데이터는 초음파 분석의 보조 정보로 사용됩니다.</div>`
     +`<div class="grid c4" style="margin-top:16px">
         ${metric('i-temp','온도',{value:num(r.temperature,1),unit:'°C'})}
         ${metric('i-humid','습도',{value:num(r.humidity),unit:'%',status:r.humidity!=null&&r.humidity>=80?'caution':'normal'})}
@@ -769,7 +789,13 @@ function calcEff(inV,outV){ if(inV==null||outV==null||inV<=0) return 0; const e=
 /* ---- 기기 ---- */
 function viewDevice(v){ const r=reading; const act=s=>s==='on'?'작동 중':s==='off'?'꺼짐':'오류'; const lv=s=>s==='on'?'normal':s==='error'?'anomaly':'insufficient';
   const airLabel=['정지','약','보통','강'][r.airflow]??'—'; const cmh=[0,90,140,185][r.airflow]??null;
-  v.innerHTML=`<div class="page-title">기기 관리</div><div class="page-sub">MOSS AIR 하드웨어 상태 · Demo(실제 신호 없음)</div>`
+  const devSt = connection==='disconnected'?'insufficient':connection==='error'?'anomaly':'normal';
+  const devLabel = connection==='disconnected'?'연결 안 됨':connection==='error'?'오류':'연결됨';
+  const DEVS=[{ic:'i-mic',name:'초음파 마이크',id:'MOSS-UM-001'},{ic:'i-env',name:'환경 센서',id:'MOSS-ENV-001'},{ic:'i-drop',name:'수분 센서',id:'MOSS-MOIST-001'}];
+  v.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div class="page-title">연결된 장치</div><div class="page-sub">MOSS AIR 하드웨어 · Demo(실제 신호 없음) · 마지막 수신 ${agoText()}</div></div><button class="btn ghost" data-nav="settings" style="min-height:38px"><svg><use href="#i-settings"/></svg>설정</button></div>`
+    +`<div class="card pad" style="margin-top:16px">${DEVS.map(d=>`<div class="dev-row"><span class="dev-ic"><svg><use href="#${d.ic}"/></svg></span><div class="dev-meta"><div class="dev-name">${d.name}</div><div class="dev-id">${d.id}</div></div><div class="dev-right">${badge(devSt,devLabel)}<span class="dev-chev"><svg><use href="#i-arrow"/></svg></span></div></div>`).join('')}</div>`
+    +`<div class="sec"><h2>장치 관리</h2></div><div class="card pad"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px"><div style="font-weight:600">센서 연결 상태를 확인하고, 설정을 관리할 수 있습니다.</div><div style="font-size:13px;color:var(--muted);margin-top:4px">현재 연결: ${connLabel()}</div></div><button class="btn soft" data-nav="settings" style="min-height:42px">장치 관리하기 <svg><use href="#i-arrow"/></svg></button></div></div>`
+    +`<div class="sec"><h2>하드웨어 상태</h2><span class="hint">Demo(실제 신호 없음)</span></div>`
     +`<div class="grid c3" style="margin-top:16px">
         ${metric('i-fan','팬 모드',{word:({auto:'자동',low:'약',mid:'보통',high:'강'}[r.fanMode])||'자동'})}
         ${metric('i-air','실제 풍량',{value:cmh==null?DASH:cmh,unit:'m³/h'})}
@@ -832,6 +858,7 @@ function bind(){
   const sb=document.getElementById('save-btn'); if(sb) sb.onclick=e=>{const m=lastMeasurement;if(m&&!history.find(h=>h.measurementId===m.measurementId)){history.unshift(m);persist();}e.currentTarget.innerHTML='<svg><use href="#i-check"/></svg>저장됨';e.currentTarget.disabled=true;e.currentTarget.style.opacity='.7';};
   document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{analysisTab=b.dataset.tab;renderTab(lastMeasurement||latest());});
   document.querySelectorAll('[data-stat]').forEach(b=>b.onclick=()=>{statsPeriod=b.dataset.stat;render();});
+  document.querySelectorAll('[data-hfilter]').forEach(b=>b.onclick=()=>{historyFilter=b.dataset.hfilter;render();});
   document.querySelectorAll('[data-conn]').forEach(b=>b.onclick=()=>{connection=b.dataset.conn;sensorConnected=(b.dataset.conn==='connected');updateHeader();render();});
   const pn=document.getElementById('pname'); if(pn) pn.onchange=()=>{settings.productName=pn.value.slice(0,40);persist();};
   const csv=document.getElementById('csv-btn'); if(csv) csv.onclick=()=>{const ok=downloadCsv('moss_ultrasound_demo.csv',seriesCsv());csv.innerHTML=ok?'<svg><use href="#i-check"/></svg>다운로드됨':'다운로드 불가';};
