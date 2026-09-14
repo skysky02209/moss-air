@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MOSS AIR — 내 제품 관리</title>
+<meta name="description" content="MOSS AIR — 살아있는 이끼의 초음파 신호로 공기 질과 공간 상태를 실시간 진단하는 데이터 기반 모니터링 서비스.">
+<link rel="canonical" href="https://skysky02209.github.io/moss-air/app/">
+<meta name="theme-color" content="#1B5E3B">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231B5E3B'/%3E%3Cpath d='M9 22c8 0 13-5 14-13-8 0-13 5-14 13z' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="MOSS AIR">
+<meta property="og:title" content="MOSS AIR — 내 제품 관리">
+<meta property="og:description" content="살아있는 이끼의 초음파 신호로 공기 질과 공간 상태를 실시간 진단합니다.">
+<meta property="og:url" content="https://skysky02209.github.io/moss-air/app/">
+<meta property="og:image" content="https://skysky02209.github.io/moss-air/og-image.jpg">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="MOSS AIR — 내 제품 관리">
+<meta name="twitter:description" content="살아있는 이끼의 초음파 신호로 공기 질과 공간 상태를 실시간 진단합니다.">
+<meta name="twitter:image" content="https://skysky02209.github.io/moss-air/og-image.jpg">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"MOSS AIR","applicationCategory":"HealthApplication","operatingSystem":"Web","description":"살아있는 이끼의 초음파 신호로 공기 질과 공간 상태를 실시간 진단하는 데이터 기반 모니터링 서비스.","url":"https://skysky02209.github.io/moss-air/app/","inLanguage":"ko","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"},"publisher":{"@type":"Organization","name":"MOSS AIR","url":"https://skysky02209.github.io/moss-air/app/"}}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  /* ============================================================
+     MOSS AIR — 이끼 초음파 기반 상태 진단 (Desktop Web)
+     모던 인포그래픽 / 화이트·딥그린 / 데스크톱 사이드바
+     ============================================================ */
+  :root{
+    --bg:#F7F9F7; --surface:#FFFFFF; --surface-alt:#EEF3EE; --border:#DDE7E0; --divider:#EAEFEA;
+    --primary:#1B5E3B; --primary-dark:#14472C; --secondary:#4CAF7A; --light:#EAF4EC;
+    --ink:#1F2924; --muted:#68736D; --faint:#95A29B; --on-primary:#fff;
+    --good:#1B5E3B; --good-tint:#E7F2EB; --caution:#C6801F; --caution-tint:#FaF0DE;
+    --anomaly:#C0453B; --anomaly-tint:#F8E7E5; --neutral:#7A857F; --neutral-tint:#EDF1ED;
+    --moss-1:#1B5E3B; --moss-2:#2F7D50; --moss-3:#4CAF7A; --moss-4:#84C89D;
+    --moss-base-a:#CFE7D5; --moss-base-b:#A9D4B6; --moss-seta:#9FB08C; --moss-cap:#C8AA6C;
+    --r:16px; --r-sm:10px; --r-lg:22px;
+    --shadow:0 1px 2px rgba(20,40,30,.04),0 8px 22px rgba(20,40,30,.05);
+    --font:'Noto Sans KR','Apple SD Gothic Neo','Malgun Gothic',system-ui,sans-serif;
+    --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,'Apple SD Gothic Neo',monospace;
+  }
+  :root[data-theme="dark"]{
+    --bg:#10150F; --surface:#171E17; --surface-alt:#1C271E; --border:#26312A; --divider:#202A22;
+    --primary:#6FCB98; --primary-dark:#4CAF7A; --secondary:#4CAF7A; --light:#1C271E;
+    --ink:#ECF2EC; --muted:#9DAAA0; --faint:#6B776E; --on-primary:#08110B;
+    --good:#6FCB98; --good-tint:#17271C; --caution:#E0A254; --caution-tint:#2A2013;
+    --anomaly:#E27469; --anomaly-tint:#2B1614; --neutral:#9DAAA0; --neutral-tint:#1C271E;
+    --moss-1:#5FC08E; --moss-2:#4CAF7A; --moss-3:#72CD9A; --moss-4:#93DBB0;
+    --moss-base-a:#23372A; --moss-base-b:#2E4636; --moss-seta:#6F7F5F; --moss-cap:#AC9159;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+    --bg:#10150F; --surface:#171E17; --surface-alt:#1C271E; --border:#26312A; --divider:#202A22;
+    --primary:#6FCB98; --primary-dark:#4CAF7A; --secondary:#4CAF7A; --light:#1C271E;
+    --ink:#ECF2EC; --muted:#9DAAA0; --faint:#6B776E; --on-primary:#08110B;
+    --good:#6FCB98; --good-tint:#17271C; --caution:#E0A254; --caution-tint:#2A2013;
+    --anomaly:#E27469; --anomaly-tint:#2B1614; --neutral:#9DAAA0; --neutral-tint:#1C271E;
+    --moss-1:#5FC08E; --moss-2:#4CAF7A; --moss-3:#72CD9A; --moss-4:#93DBB0;
+    --moss-base-a:#23372A; --moss-base-b:#2E4636; --moss-seta:#6F7F5F; --moss-cap:#AC9159;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);
+  }}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;line-height:1.5}
+  h1,h2,h3,p{margin:0} button{font-family:inherit;cursor:pointer}
+  [hidden]{display:none!important}
+
+  /* ---- Shell ---- */
+  .shell{display:flex;min-height:100vh}
+  .sidebar{width:236px;flex:none;position:sticky;top:0;height:100vh;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 14px;gap:4px;transition:width .18s}
+  .brand{display:flex;align-items:center;gap:11px;padding:6px 8px 16px}
+  .brand .mark{width:36px;height:36px;border-radius:11px;background:var(--primary);color:var(--on-primary);display:grid;place-items:center;flex:none}
+  .brand .mark svg{width:21px;height:21px}
+  .brand .bt{font-size:16px;font-weight:700;letter-spacing:-.2px}.brand .bs{font-size:11px;color:var(--muted)}
+  .navlink{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:11px;color:var(--muted);font-size:14px;font-weight:600;border:0;background:none;width:100%;text-align:left;transition:background .14s,color .14s}
+  .navlink svg{width:20px;height:20px;flex:none}
+  .navlink:hover{background:var(--surface-alt);color:var(--ink)}
+  .navlink.active{background:var(--light);color:var(--primary)}
+  .sidebar .spacer{flex:1}
+  .side-foot{font-size:11px;color:var(--muted);padding:8px 10px;border:1px dashed var(--border);border-radius:10px;text-align:center}
+  .collapse-btn{border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:9px;padding:8px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;font-weight:600}
+  .content{flex:1;min-width:0;display:flex;flex-direction:column}
+  .header{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--bg) 85%,transparent);backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid var(--divider);padding:14px 30px;display:flex;align-items:center;gap:16px}
+  .header .htitle{font-size:15px;font-weight:700}
+  .header .hspace{flex:1}
+  .header .chip{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:600;padding:6px 11px;border-radius:999px;background:var(--surface);border:1px solid var(--border)}
+  .header .chip .dot{width:8px;height:8px;border-radius:999px;background:var(--good)} .header .chip.err .dot{background:var(--anomaly)}
+  .header .mode{font-size:11px;font-weight:700;letter-spacing:.3px;padding:5px 10px;border-radius:999px;background:var(--caution-tint);color:var(--caution)}
+  .header .iconbtn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--ink);display:grid;place-items:center}
+  .header .iconbtn svg{width:18px;height:18px}
+  .main{flex:1;padding:26px 30px 70px}
+  .inner{max-width:1200px;margin:0 auto}
+  .page-title{font-size:24px;font-weight:700;letter-spacing:-.4px}
+  .page-sub{font-size:13.5px;color:var(--muted);margin-top:3px}
+  .sec{display:flex;align-items:baseline;justify-content:space-between;margin:26px 2px 12px}
+  .sec h2{font-size:15px;font-weight:700}.sec .hint{font-size:12px;color:var(--muted)}
+
+  .grid{display:grid;gap:16px}
+  .c2{grid-template-columns:repeat(2,1fr)}.c3{grid-template-columns:repeat(3,1fr)}.c4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
+  .card.pad{padding:20px}
+  .metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:16px 18px}
+  .metric .lbl{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;font-weight:600}.metric .lbl svg{width:16px;height:16px}
+  .metric .val{font-family:var(--mono);font-size:25px;font-weight:600;margin-top:8px;letter-spacing:-.5px}
+  .metric .val .u{font-family:var(--font);font-size:12px;color:var(--muted);margin-left:4px}.metric .val .word{font-family:var(--font);font-size:17px}
+  .metric .foot{margin-top:9px}
+
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;padding:5px 11px;border-radius:999px}
+  .badge .dot{width:8px;height:8px;border-radius:999px}
+  .st-normal{color:var(--good);background:var(--good-tint)} .st-normal .dot{background:var(--good)}
+  .st-caution{color:var(--caution);background:var(--caution-tint)} .st-caution .dot{background:var(--caution)}
+  .st-anomaly{color:var(--anomaly);background:var(--anomaly-tint)} .st-anomaly .dot{background:var(--anomaly)}
+  .st-insufficient{color:var(--neutral);background:var(--neutral-tint)} .st-insufficient .dot{background:var(--neutral)}
+
+  /* ---- Moss Status Component (대표 UI) ---- */
+  .moss-status{display:grid;grid-template-columns:220px 1fr;gap:26px;align-items:center;padding:26px 28px}
+  @media(max-width:720px){.moss-status{grid-template-columns:1fr;text-align:center;justify-items:center}}
+  .moss-visual{position:relative;display:inline-grid;place-items:center;line-height:0}
+  .moss-visual>svg.mo-ring{position:absolute;inset:0;width:100%;height:100%;display:block;overflow:visible}
+  .moss-visual .mo-arc{transition:stroke-dashoffset .8s ease}
+  .moss-photo{position:absolute;border-radius:50%;object-fit:cover;background:#fff;box-shadow:0 1px 3px rgba(20,40,30,.12)}
+  .moss-visual.is-caution{filter:saturate(.72) brightness(.99)}
+  .moss-visual.is-anomaly{filter:saturate(.5) brightness(.95)}
+  .moss-visual.is-insufficient{filter:saturate(.2) brightness(1) opacity(.92)}
+  .moss-dot{position:absolute;top:5%;right:7%;width:12px;height:12px;border-radius:999px;box-shadow:0 0 0 3px var(--surface)}
+  .ms-eyebrow{font-size:12.5px;color:var(--muted);font-weight:600}
+  .ms-state{font-size:30px;font-weight:700;letter-spacing:-.5px;margin-top:2px}
+  .ms-msg{font-size:13.5px;color:var(--muted);margin-top:8px;line-height:1.6;max-width:560px}
+  .ms-grid{display:flex;gap:30px;flex-wrap:wrap;margin-top:18px}
+  .ms-grid .k{font-size:12px;color:var(--muted)}.ms-grid .v{font-family:var(--mono);font-size:18px;font-weight:600;margin-top:3px}
+  /* ---- Moss Hero (대시보드: 시안형 가로 사진 배치) ---- */
+  .moss-hero{display:grid;grid-template-columns:264px 1.15fr .95fr;gap:28px;align-items:center;padding:24px 26px}
+  .mh-photo{width:100%;aspect-ratio:4/3;border-radius:20px;overflow:hidden;background:var(--light);box-shadow:inset 0 0 0 1px var(--border)}
+  .mh-photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .mh-eyebrow{font-size:13px;color:var(--muted);font-weight:600}
+  .mh-state{display:flex;align-items:center;gap:12px;margin-top:12px}
+  .mh-check{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;flex:none}
+  .mh-check svg{width:23px;height:23px}
+  .mh-label{font-size:32px;font-weight:700;letter-spacing:-.5px}
+  .mh-msg{font-size:14px;color:var(--muted);margin-top:14px;line-height:1.6;max-width:34ch}
+  .mh-metrics{display:flex;flex-direction:column;gap:18px;border-left:1px solid var(--border);padding-left:26px}
+  .mh-metrics .k{font-size:12.5px;color:var(--muted)}
+  .mh-metrics .v{font-family:var(--mono);font-size:20px;font-weight:600;margin-top:4px}
+  .mh-metrics .v.q{font-family:var(--font);font-size:16px}
+  @media(max-width:900px){.moss-hero{grid-template-columns:200px 1fr}.mh-metrics{grid-column:1/-1;border-left:none;border-top:1px solid var(--border);padding-left:0;padding-top:18px;flex-direction:row;flex-wrap:wrap;gap:28px}}
+  @media(max-width:560px){.moss-hero{grid-template-columns:1fr;text-align:left}}
+  /* ---- Connected devices list (시안형) ---- */
+  .dev-row{display:flex;align-items:center;gap:14px;padding:16px 6px;border-bottom:1px solid var(--divider)}
+  .dev-row:last-child{border-bottom:none}
+  .dev-ic{width:44px;height:44px;border-radius:13px;background:var(--light);color:var(--primary);display:grid;place-items:center;flex:none}
+  .dev-ic svg{width:22px;height:22px}
+  .dev-meta{min-width:0}
+  .dev-name{font-weight:600;font-size:15px}
+  .dev-id{font-size:12.5px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+  .dev-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+  .dev-chev{color:var(--faint);display:flex}.dev-chev svg{width:18px;height:18px}
+  /* ---- Filter chips (기록) ---- */
+  .fchips{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+  .fchip{font:inherit;font-size:13px;padding:7px 15px;border-radius:999px;border:1px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;transition:.15s}
+  .fchip:hover{border-color:var(--secondary)}
+  .fchip.on{background:var(--primary);border-color:var(--primary);color:#fff;font-weight:600}
+  /* ---- Auth / Login ---- */
+  .hidden{display:none!important}
+  .login-screen{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:24px}
+  .login-card{width:100%;max-width:400px;background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:40px 32px;box-shadow:0 10px 44px rgba(20,50,35,.10);text-align:center}
+  .login-brand{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:6px}
+  .login-brand .mark{width:46px;height:46px;border-radius:14px;background:var(--primary);color:#fff;display:grid;place-items:center}
+  .login-brand .mark svg{width:25px;height:25px}
+  .lb-name{font-size:27px;font-weight:800;letter-spacing:-.5px;color:var(--ink)}
+  .login-tag{font-size:15px;color:var(--muted);line-height:1.65;margin:16px 0 28px}
+  .oauth-btn{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;height:52px;border-radius:12px;font:inherit;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px;border:1px solid transparent;transition:.15s}
+  .oauth-btn:disabled{opacity:.6;cursor:not-allowed}
+  .oauth-btn .oa-ic{display:flex;align-items:center}
+  .oauth-btn.google{background:#fff;color:#3c4043;border-color:#dadce0}
+  .oauth-btn.google:hover:not(:disabled){background:#f8f9fa;box-shadow:0 1px 3px rgba(60,64,67,.18)}
+  .oauth-btn.naver{background:#03C75A;color:#fff}
+  .oauth-btn.naver:hover:not(:disabled){background:#02b350}
+  .oauth-btn.naver .oa-ic{font-weight:900;font-size:19px;font-family:Arial,Helvetica,sans-serif;line-height:1}
+  .login-div{display:flex;align-items:center;gap:12px;color:var(--faint);font-size:12px;margin:16px 0}
+  .login-div::before,.login-div::after{content:"";flex:1;height:1px;background:var(--border)}
+  .demo-enter{width:100%;height:46px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--muted);font:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:.15s}
+  .demo-enter:hover{border-color:var(--secondary);color:var(--primary)}
+  .login-err{background:#fdECEC;color:#c0392b;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:16px;text-align:left;line-height:1.5}
+  .login-note{font-size:12px;color:var(--faint);margin-top:18px;line-height:1.55}
+  .user-chip{display:flex;align-items:center;gap:8px;height:36px;padding:0 13px 0 8px;border-radius:999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font:inherit;font-size:13px;font-weight:600;color:var(--ink)}
+  .user-chip img{width:24px;height:24px;border-radius:50%;object-fit:cover}
+  .user-chip:hover{border-color:var(--secondary)}
+
+  /* ---- Range bar ---- */
+  .rb{position:relative;height:52px;margin-top:6px}
+  .rb-track{position:absolute;top:22px;left:0;right:0;height:8px;border-radius:999px;background:var(--divider);overflow:hidden}
+  .rb-normal{position:absolute;top:0;height:100%;background:var(--secondary);opacity:.5}
+  .rb-mark{position:absolute;top:13px;width:3px;height:26px;border-radius:3px;background:var(--ink);transform:translateX(-50%)}
+  .rb-dot{position:absolute;top:10px;width:16px;height:16px;border-radius:999px;border:3px solid var(--surface);transform:translateX(-50%);box-shadow:0 1px 4px rgba(0,0,0,.2)}
+  .rb-cap{position:absolute;top:39px;font-size:10.5px;color:var(--faint);transform:translateX(-50%);white-space:nowrap;font-family:var(--mono)}
+  .rb-ends{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);margin-top:2px}
+
+  /* ---- Measurement ---- */
+  .measure-wrap{display:flex;flex-direction:column;align-items:center;text-align:center;padding:16px 0}
+  .moss-measure{position:relative;width:180px;height:180px;display:grid;place-items:center;margin:4px auto}
+  .moss-measure .pulse{position:absolute;inset:4px;border-radius:999px;border:1.5px solid var(--secondary);opacity:0;pointer-events:none}
+  .moss-measure.measuring .pulse{animation:mp 2.6s ease-out infinite}
+  .moss-measure.measuring .pulse.p2{animation-delay:1.3s}
+  @keyframes mp{0%{transform:scale(.72);opacity:.4}100%{transform:scale(1.26);opacity:0}}
+  @media(prefers-reduced-motion:reduce){.moss-measure .pulse{animation:none!important;display:none}}
+  .mbtn{margin-top:18px;min-height:52px;padding:0 26px;border-radius:14px;border:0;background:var(--primary);color:var(--on-primary);font-size:15px;font-weight:700;display:inline-flex;align-items:center;gap:9px}
+  .mbtn.rec{background:var(--anomaly)}
+  .mbtn svg{width:18px;height:18px}
+  .live{width:100%;max-width:640px;margin-top:20px}
+  .live .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:0 18px;border-radius:var(--r-sm);border:0;font-size:14px;font-weight:600}
+  .btn svg{width:18px;height:18px}
+  .btn.primary{background:var(--primary);color:var(--on-primary)}.btn.primary:hover{background:var(--primary-dark)}
+  .btn.ghost{background:var(--surface);color:var(--primary);border:1.5px solid var(--primary)}.btn.ghost:hover{background:var(--light)}
+  .btn.soft{background:var(--light);color:var(--primary)}
+
+  /* ---- Tabs ---- */
+  .tabs{display:flex;gap:6px;background:var(--surface-alt);border-radius:12px;padding:4px;margin-top:16px;max-width:520px}
+  .tab{flex:1;border:0;background:transparent;color:var(--muted);font-size:13px;font-weight:600;padding:9px 4px;border-radius:9px}
+  .tab[aria-selected="true"]{background:var(--surface);color:var(--primary);box-shadow:var(--shadow)}
+  .tab-note{font-size:11.5px;color:var(--faint);margin-top:8px;line-height:1.5}
+
+  /* ---- Spectrogram ---- */
+  .spectro{display:grid;gap:2px}.spectro .r{display:grid;gap:2px;grid-auto-flow:column}.spectro .cell{height:12px;border-radius:2px}
+
+  /* ---- Chart ---- */
+  .chart svg{width:100%;display:block}.chart .cap{font-size:11px;color:var(--faint);margin-top:8px}
+  .chart2{position:relative}
+  .chart2 .c-unit{position:absolute;top:2px;left:4px;font-size:10.5px;color:var(--faint);font-family:var(--mono)}
+  .chart2 .c-plot{position:relative}.chart2 .c-plot svg{width:100%;display:block}
+  .chart2 .c-guide{position:absolute;top:0;bottom:20px;width:1px;background:var(--muted);opacity:.5;display:none;pointer-events:none}
+  .chart2 .c-tip{position:absolute;top:4px;transform:translateX(-50%);background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow);padding:8px 11px;font-size:11.5px;min-width:120px;display:none;pointer-events:none;z-index:5}
+  .chart2 .c-tip .tt{font-weight:700;margin-bottom:5px}.chart2 .c-tip .tr{display:flex;justify-content:space-between;gap:14px;color:var(--muted);line-height:1.7}.chart2 .c-tip .tr b{color:var(--ink);font-family:var(--mono)}
+  .chart2 .c-axis{display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint);margin-top:4px;font-family:var(--mono)}
+
+  /* ---- Table (history) ---- */
+  .tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+  .tbl th{text-align:left;font-size:12px;color:var(--muted);font-weight:600;padding:12px 14px;border-bottom:1px solid var(--border)}
+  .tbl td{padding:13px 14px;border-bottom:1px solid var(--divider)}
+  .tbl tr:last-child td{border-bottom:0}
+  .tbl tbody tr{cursor:pointer}.tbl tbody tr:hover{background:var(--surface-alt)}
+  .tbl .mono{font-family:var(--mono)}
+  .tbl-wrap{overflow-x:auto}
+  .thumb{width:34px;height:34px;display:inline-grid;place-items:center;vertical-align:middle}
+
+  /* ---- Checklist ---- */
+  .checklist{display:flex;flex-direction:column;gap:2px}
+  .checklist .ci{display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid var(--divider);font-size:14px}
+  .checklist .ci:last-child{border-bottom:0}
+  .checklist .ck{width:22px;height:22px;border-radius:999px;display:grid;place-items:center;flex:none}.checklist .ck svg{width:14px;height:14px}
+  .checklist .cl{flex:1}.checklist .cv{font-size:12.5px;font-weight:600}
+
+  /* ---- Alert ---- */
+  .alert{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--border);border-radius:var(--r-sm);padding:14px 16px;background:var(--surface)}
+  .alert .ico{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;flex:none}.alert .ico svg{width:18px;height:18px}
+  .alert .t{font-size:14px;font-weight:700}.alert .c{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.55}.alert .a{font-size:12.5px;margin-top:6px;font-weight:600}
+
+  .row{display:flex;align-items:center;justify-content:space-between;padding:13px 2px;border-bottom:1px solid var(--divider);font-size:14px}.row:last-child{border-bottom:0}.row .k{color:var(--muted)}.row .v{font-weight:600}.row .v.data{font-family:var(--mono)}
+  .switch{position:relative;width:46px;height:27px;flex:none;display:inline-block}.switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+  .switch .tk{position:absolute;inset:0;border-radius:999px;background:var(--border);transition:.2s}.switch .th{position:absolute;top:3px;left:3px;width:21px;height:21px;border-radius:999px;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.25)}
+  .switch input:checked~.tk{background:var(--secondary)}.switch input:checked~.th{transform:translateX(19px)}
+  input.txt{border:1px solid var(--border);border-radius:8px;padding:7px 11px;font-family:inherit;color:var(--ink);background:var(--surface);font-size:13.5px}
+  .disclaimer{font-size:11.5px;color:var(--faint);line-height:1.6;margin-top:16px}
+  .empty{text-align:center;padding:56px 20px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:10px}
+  .empty .ei{width:60px;height:60px;border-radius:999px;background:var(--surface-alt);color:var(--primary);display:grid;place-items:center}.empty .ei svg{width:28px;height:28px}
+  button:focus-visible,a:focus-visible,input:focus-visible,[role=tab]:focus-visible{outline:2px solid var(--secondary);outline-offset:2px;border-radius:8px}
+
+  /* ---- Responsive ---- */
+  @media(max-width:1080px){.c4{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:900px){.c3{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:760px){
+    .sidebar{width:60px;padding:16px 8px}.brand .bt,.brand .bs,.navlink span,.side-foot span,.collapse-btn span{display:none}
+    .navlink{justify-content:center}.main{padding:20px 16px 60px}.header{padding:12px 16px}
+    .c2,.c3,.c4{grid-template-columns:1fr}
+  }
+  .sidebar.mini{width:60px}.sidebar.mini .brand .bt,.sidebar.mini .brand .bs,.sidebar.mini .navlink span,.sidebar.mini .side-foot span,.sidebar.mini .collapse-btn span{display:none}
+  .sidebar.mini .navlink{justify-content:center}
+</style>
+</head>
+<body>
+<h1 style="position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0">MOSS AIR — 이끼 초음파 기반 상태 진단</h1>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-dash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 13h7V4H4zM13 20h7v-9h-7zM13 4v5h7V4zM4 20h7v-5H4z"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17v4"/></symbol>
+  <symbol id="i-analyze" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-6 3 14 3-11 2 6 2-3h3"/></symbol>
+  <symbol id="i-history" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 4v4h4"/><path d="M12 8v4l3 2"/></symbol>
+  <symbol id="i-env" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></symbol>
+  <symbol id="i-device" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="12" cy="12" r="3"/><path d="M12 4v2M12 18v2"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M4.5 4.5l2 2M17.5 17.5l2 2M3 12h3M18 12h3M4.5 19.5l2-2M17.5 6.5l2-2"/></symbol>
+  <symbol id="i-test" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v7l-4.5 8a2 2 0 0 0 1.8 3h9.4a2 2 0 0 0 1.8-3L14 10V3"/><path d="M7.5 15h9"/></symbol>
+  <symbol id="i-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 20C6 20 4 16 4 11c6 0 10 1 12 5"/><path d="M20 4c0 8-4 13-9 15"/></symbol>
+  <symbol id="i-temp" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13.5V5a2 2 0 1 1 4 0v8.5a4 4 0 1 1-4 0Z"/></symbol>
+  <symbol id="i-humid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11Z"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s5 5.5 5 10a5 5 0 0 1-10 0c0-4.5 5-10 5-10Z"/><path d="M9.5 13a2.5 2.5 0 0 0 2.5 2.5"/></symbol>
+  <symbol id="i-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.4 1.4M17.6 17.6L19 19M19 5l-1.4 1.4M6.4 17.6L5 19"/></symbol>
+  <symbol id="i-air" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h11a3 3 0 1 0-3-3"/><path d="M3 14h15a3 3 0 1 1-3 3"/></symbol>
+  <symbol id="i-fan" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="2"/><path d="M12 10c0-4 1-7 3-7s2 4-1 6M14 12c4 0 7 1 7 3s-4 2-6-1M12 14c0 4-1 7-3 7s-2-4 1-6M10 12c-4 0-7-1-7-3s4-2 6 1"/></symbol>
+  <symbol id="i-pump" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="12" height="9" rx="1.5"/><path d="M16 13h3v4h-3M8 10V6h4"/></symbol>
+  <symbol id="i-bulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.5.8.5 1.1v.5h6v-.5c0-.3 0-.7.5-1.1A6 6 0 0 0 12 3Z"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16l-6 8v5l-4 2v-7z"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 13l4-4"/><path d="M4 15a8 8 0 1 1 16 0"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 2.5 20h19L12 3Z"/><path d="M12 9v5"/><circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.2 2.4c-.8.3-1.2.8-1.2 1.6v.5"/><circle cx="12" cy="16.5" r=".6" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9a6 6 0 0 1 12 0c0 5 2 6 2 6H4s2-1 2-6Z"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13.5A8 8 0 1 1 10.5 4a6.2 6.2 0 0 0 9.5 9.5Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 11l5 5 5-5M5 21h14"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+</defs></svg>
+
+<div id="login-screen" class="login-screen">
+  <div class="login-card">
+    <div class="login-brand"><div class="mark"><svg><use href="#i-leaf"/></svg></div><div class="lb-name">MOSS AIR</div></div>
+    <p class="login-tag">살아있는 이끼와 데이터로<br>더 깨끗한 공간을 관리하세요.</p>
+    <div id="login-err" class="login-err" hidden></div>
+    <button class="oauth-btn google" id="btn-google" type="button"><span class="oa-ic"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.88 2.68-6.62Z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.02-3.7H.96v2.34A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.98 10.72a5.4 5.4 0 0 1 0-3.44V4.94H.96a9 9 0 0 0 0 8.12l3.02-2.34Z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.46 3.44 1.35l2.58-2.58C13.47.9 11.43 0 9 0A9 9 0 0 0 .96 4.94l3.02 2.34C4.68 5.16 6.66 3.58 9 3.58Z"/></svg></span><span class="oa-t">Google로 계속하기</span></button>
+    <button class="oauth-btn naver" id="btn-naver" type="button"><span class="oa-ic">N</span><span class="oa-t">Naver로 계속하기</span></button>
+    <div class="login-div"><span>또는</span></div>
+    <button class="demo-enter" id="btn-demo" type="button">로그인하지 않고 Demo Mode로 보기</button>
+    <p class="login-note" id="login-note"></p>
+  </div>
+</div>
+<div class="shell" id="shell" style="display:none">
+  <nav class="sidebar" id="sidebar">
+    <div class="brand"><div class="mark"><svg><use href="#i-leaf"/></svg></div><div><div class="bt">MOSS AIR</div><div class="bs">이끼 초음파 진단</div></div></div>
+    <button class="navlink active" data-nav="dashboard"><svg><use href="#i-dash"/></svg><span>대시보드</span></button>
+    <button class="navlink" data-nav="air"><svg><use href="#i-air"/></svg><span>공기</span></button>
+    <button class="navlink" data-nav="filter"><svg><use href="#i-filter"/></svg><span>필터</span></button>
+    <button class="navlink" data-nav="stats"><svg><use href="#i-analyze"/></svg><span>통계</span></button>
+    <button class="navlink" data-nav="product"><svg><use href="#i-device"/></svg><span>내 제품</span></button>
+    <button class="navlink" data-nav="alerts"><svg><use href="#i-bell"/></svg><span>알림</span></button>
+    <button class="navlink" data-nav="maint"><svg><use href="#i-history"/></svg><span>유지관리</span></button>
+    <button class="navlink" data-nav="settings"><svg><use href="#i-settings"/></svg><span>설정</span></button>
+    <div class="spacer"></div>
+    <button class="collapse-btn" id="collapse"><svg style="width:16px;height:16px"><use href="#i-menu"/></svg><span>접기</span></button>
+    <div class="side-foot"><span>DEMO MODE · 가상 센서</span></div>
+  </nav>
+  <div class="content">
+    <header class="header">
+      <span class="htitle" id="h-title">대시보드</span>
+      <span class="hspace"></span>
+      <span class="mode" id="h-mode">DEMO MODE</span>
+      <span class="chip" id="h-conn"><span class="dot"></span><span id="h-conn-t">센서 미연결</span></span>
+      <button class="user-chip hidden" id="h-user" type="button" title="계정"><img id="h-user-av" alt="" style="display:none"><span id="h-user-name"></span></button>
+      <button class="iconbtn" id="theme-btn" aria-label="테마"><svg><use href="#i-moon" id="theme-i"/></svg></button>
+    </header>
+    <main class="main"><div class="inner" id="view"></div></main>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script>
+/* ================================================================
+   MOSS AIR — 이끼 초음파 진단 (Desktop Web) · Demo(가상 센서)
+   실제 하드웨어/AI/카메라 없음. 모든 수치는 UI 개발용 Demo 값.
+   정상 범위는 "연구용 초기 기준(DEMO/RESEARCH BASELINE)".
+   ================================================================ */
+
+/* ---- 정상 범위(연구용 초기 기준 — 검증된 값 아님) ---- */
+const BASELINE = { normalRangeMin: 30, normalRangeMax: 35, label: '연구용 초기 기준' };
+const RANGE_LOW = 26, RANGE_HIGH = 40;
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const r1=v=>Math.round(v*10)/10;
+const two=n=>String(n).padStart(2,'0');
+const DASH='--';
+
+/* ---- 4단계 상태 ---- */
+const STATUS = {
+  normal:       { key:'NORMAL',            label:'정상',      cls:'st-normal',       color:'var(--good)',    tint:'var(--good-tint)',    icon:'i-check' },
+  caution:      { key:'CAUTION',           label:'주의',      cls:'st-caution',      color:'var(--caution)', tint:'var(--caution-tint)', icon:'i-alert' },
+  anomaly:      { key:'ANOMALY',           label:'이상 신호', cls:'st-anomaly',      color:'var(--anomaly)', tint:'var(--anomaly-tint)', icon:'i-alert' },
+  insufficient: { key:'INSUFFICIENT_DATA', label:'판정 불가', cls:'st-insufficient', color:'var(--neutral)', tint:'var(--neutral-tint)', icon:'i-help'  },
+};
+/* 판정: 데이터/품질이 부족하면 절대 자동 정상 처리하지 않음 */
+function classify(peak, quality){
+  if(peak==null) return 'insufficient';
+  if(quality==='low') return 'insufficient';   // 품질 낮음 → 확정 판정 불가
+  const {normalRangeMin:lo, normalRangeMax:hi}=BASELINE;
+  if(peak>=lo && peak<=hi) return 'normal';
+  if(peak>=lo-3 && peak<=hi+3) return 'caution';
+  return 'anomaly';
+}
+function matchPercent(peak){ if(peak==null) return null;
+  const c=(BASELINE.normalRangeMin+BASELINE.normalRangeMax)/2, half=(BASELINE.normalRangeMax-BASELINE.normalRangeMin)/2;
+  return Math.max(20,Math.min(97,Math.round(100-Math.max(0,Math.abs(peak-c)-half)*12))); }
+
+/* ---- 이끼 종류(확장 구조 · 실제 데이터 없으므로 기본 1종만) ---- */
+const MOSS_SPECIES = { id:'hypnum', name:'참이끼', sci:'Hypnum cupressiforme', referenceImage:'moss-01',
+  description:'가장 일반적으로 사용되는 이끼로, 공기 중 유해물질 흡수 능력이 뛰어나며 부드럽고 풍성한 형태가 특징입니다. 연구 진행 시 종별 정상 범위·시각 자료로 확장.',
+  normalRange:[BASELINE.normalRangeMin,BASELINE.normalRangeMax] };
+let currentSpecies = MOSS_SPECIES;
+
+/* ================= 이끼 Botanical Visual (공식 Asset · 전 화면 동일) ================= */
+function _frond(x,baseY,h,lean,cStem,cLeaf){
+  const topX=x+lean,topY=baseY-h,cx=x+lean*0.4,cy=baseY-h*0.55;
+  const bez=t=>[(1-t)*(1-t)*x+2*(1-t)*t*cx+t*t*topX,(1-t)*(1-t)*baseY+2*(1-t)*t*cy+t*t*topY];
+  const stem=`M${x} ${baseY} Q${cx.toFixed(1)} ${cy.toFixed(1)} ${topX.toFixed(1)} ${topY.toFixed(1)}`;
+  let lf='';const n=Math.max(4,Math.round(h/8));
+  for(let i=1;i<=n;i++){const t=i/(n+0.7),[bx,by]=bez(t),L=2.5+7*(1-t);
+    lf+=`<path d="M${bx.toFixed(1)} ${by.toFixed(1)} q${(-L*0.55).toFixed(1)} ${(-L*0.15).toFixed(1)} ${(-L*0.75).toFixed(1)} ${(-L*0.78).toFixed(1)}" fill="none" stroke="${cLeaf}" stroke-width="1.5" stroke-linecap="round"/>`;
+    lf+=`<path d="M${bx.toFixed(1)} ${by.toFixed(1)} q${(L*0.55).toFixed(1)} ${(-L*0.15).toFixed(1)} ${(L*0.75).toFixed(1)} ${(-L*0.78).toFixed(1)}" fill="none" stroke="${cLeaf}" stroke-width="1.5" stroke-linecap="round"/>`;}
+  lf+=`<circle cx="${topX.toFixed(1)}" cy="${topY.toFixed(1)}" r="2.4" fill="${cLeaf}"/>`;
+  return `<path d="${stem}" fill="none" stroke="${cStem}" stroke-width="2" stroke-linecap="round"/>${lf}`;
+}
+let _mossCache=null;
+function mossArtwork(){ if(_mossCache) return _mossCache;
+  const C={1:'var(--moss-1)',2:'var(--moss-2)',3:'var(--moss-3)',4:'var(--moss-4)'};let s='';
+  s+=`<ellipse cx="122" cy="176" rx="92" ry="24" fill="var(--moss-base-a)"/>`;
+  s+=`<ellipse cx="122" cy="171" rx="72" ry="15" fill="var(--moss-base-b)"/>`;
+  let ss=42;const rnd=()=>{ss=(ss*9301+49297)%233280;return ss/233280;};
+  for(let i=0;i<16;i++){const dx=44+rnd()*156,dy=166+rnd()*15,r=1+rnd()*1.5;s+=`<circle cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="${r.toFixed(1)}" fill="var(--moss-2)" opacity="0.33"/>`;}
+  [[106,172,120,-6],[140,172,126,7]].forEach(([x,by,h,lean])=>{const tx=x+lean,ty=by-h;
+    s+=`<path d="M${x} ${by} Q${(x+lean*0.5).toFixed(1)} ${(by-h*0.5).toFixed(1)} ${tx} ${ty}" fill="none" stroke="var(--moss-seta)" stroke-width="1.5" stroke-linecap="round" opacity="0.85"/>`;
+    s+=`<ellipse cx="${tx}" cy="${(ty-2).toFixed(1)}" rx="3" ry="4.3" fill="var(--moss-cap)" transform="rotate(${(lean*1.4).toFixed(1)} ${tx} ${(ty-2).toFixed(1)})"/>`;});
+  [[58,168,44,-20,4,4],[186,168,46,20,4,4],[74,170,66,-14,2,4],[170,170,68,14,2,4],[100,172,72,-12,3,4],[144,172,74,12,3,4],[92,172,90,-8,2,3],[152,172,92,8,2,3],[108,173,104,-4,1,3],[136,173,106,4,1,2],[122,174,120,0,1,2]]
+    .forEach(([x,by,h,lean,cs,cl])=>{s+=_frond(x,by,h,lean,C[cs],C[cl]);});
+  _mossCache=s;return s;
+}
+/* 공식 Moss Reference Asset — 실제 이끼 사진(디자인 시안 기준). 전 화면 동일 이미지. */
+const MOSS_PHOTO='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQDAwMDAgQDAwMEBAQFBgoGBgUFBgwICQcKDgwPDg4MDQ0PERYTDxAVEQ0NExoTFRcYGRkZDxIbHRsYHRYYGRj/2wBDAQQEBAYFBgsGBgsYEA0QGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBj/wAARCAFoAWgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD0d5OahZs9KYxOalihdxkDIr5+xsRcmlCk1dhs3kbAU1LJYyRD7tJyina41qZrR5FV5Ih71pNF7VE1u5HAp2LMiSPGarOuM4rb+wySZ+XgVQuLVkYgis+ZN2KTMskh/atTSoBcXSRk4BPWqyWjSS4xW1Y2RgdXHGKxxVT2dNyW42zq7TToYIMr17mrCeVvxuHvzXLat4j+w22wNziudj8WyByS/Oa+HwvEVeFbkm7oxnNI9dSWGOD5SKzLvWLaBjukVTXAjxe7WrAOenSuE1vxDftcl3mYDPT2rtxXEMudKlqZTrKKue3wa3DcTBI2zmtRWVhk14z4S11Cy75fnPr6V37eIbeMBRIMY5Nd2X56lRc67sxQqqSudDMyKDzVCQq3INcrqHitAdkbbifugVNpmozyYMwI3D7pFd+EzyniHfp3D2qNt0XHPQ1iX+nRTscdfWtaeTbGR3PSuPv9eayv/LYEilmWJo2SmrkzkjN8QeGTJpsjITkAmuC8I2+zxeIX6q3Ir0261yKfTnxxweDXlNreNaeNPtES5Bf0rwlCjGqpQ2OGpZSTPo2xsUWyRsY4/KsLxJq8en2r/Ng4qG38VomkIGOTt/OuK8RXM+rM2QyqTxkV62YZvTpUrU3qbupZaHMatrdxeXDlGO3NbHhS9lt5g8jEDPWqdn4eA+aQ556VozWsdrb/ACEDFfFyzD96qj1Zipvdnseh69b+QuZR9K6A6/bsmA4xXzta6xPbvtWU4z61v2Gs3M9wsckxAPU5r6vDcVaKDVjeNa523ibxcLS4Ajk4zWenjRri32pJkkVwniaTzrnYkm4+tZOntcQy5LGuGpndV4iVnoyXN3On1ixfW3MhchhzW34W02ewh3OpIXvXP295J50bH5F7mu50/VLJrcQxuhJrXCunGt7W9mKmkpXNVNXT7oOSKLvW/ssQdjjPWuVeZrbWSAMxv3rK8SX805EMeVUDiunG57VowbjuXKq0dXP4shmjMaOM+1YEuvXAvAhJ2HvXBRag1penzX3Vfh1q3u9QjQuMetec8xqYxJ1JWZl7Xm3O4gvSLlXVsZNW9RneawIjJDEVyOoapFa7GRxmptP8QR3UgVpBnj6VtPE0KCdOT3LjK2hREWowXLSTbguTzUl7qsjWwiVzkd6seItat4rLyo8O7enauYME0tmZWJGeRXm15KpH2dBXM7u9kbuk6qIQVklyx7V0FnKb2cKjcZ614hcaxc2uqGNieDXo/hTWZXjRip5r08uxVahBU0jSnUadj0kWCJb8E7gKrAEHBp0OoedABR1Oa+uwE6k4Xmd8HdBRS4or0ShYrZ5n+XgVt6fFEke1wM1UsVALZqrqV7NZSEoCQa+OzTOZ4Ko4yj7vcFFM6Hz7S3POAahmuYpciMg5rzvU9cumbCsR/StbQL1xEHnYkn1r5vBZvUrYjmk9COezsjqYrDe256nktIwuFArKn1+GFdobJ7Cm2+ozXMm5mKrX0VTNalTSkNyNIxJGmABmsO/UGU4FbisjDJP51UuLdGbcBxXRgqv7zmmwjMx4I1Vqul2WI7EJ4qeO1TzBkcZreW1thZ8gdKeZfv04wnawOVzyDxL9qlmY4IFcmftG/bzn6163rlpA7OQo/KuAurUrqAEcZJJ6Yr86lGVOo4PU46zdzLgknjk+fd+NZ/iCZRB157c10WoxSwRfvIirY9K4e6g1XWdZWwsbWR3Y9SOBXVhsPKVXXSxy1W7WILXVJrUZSQj8a0P+EyuSfLeUn8a5vXbHUdDvms72Eq4A5HQ1J4Y0K5168uN5eMRIWXjqa9b6nTmuaWxjByUuVHqHgmV7/VBPdgMpxt3HjNel6gLeG3SXIVx2B61574G0jUBo3zKVaNuMjvWrd3tykpiui2V4Oa5sXjXhMMqVOO/U7INJanTSXsU+1Y3BPfB6VWtdHtL+Z5bhAzA/drCsb+CzuGdm4bpntVC+8S3lretcWL4Q9RSoZr7RQlUVwdWI7xrawaWAtoQC+flB6VzehafaSwtNMB5uecnpW5YXFrrcks2osZZOQF9K5fxBcrptzIlkSDnjFc1SrUqVWoaX2MZzS9/odhpKW39oqJW3RL0yau+I57SVobe2VPNJwAtea+Hdcurh2iO5pM9B3rt9K0a/kZtdnlAWBspG3UkVpR9qlLD1NU9bhGfOtB+t2F94f06K5vFASToQelcjf6w0tuSh5x6123iqXWvFXhyFYbJ8bsAIM5Nc94m+Hup+E/BsOsapNHum48oHkZrpeWU5zlLDpuMbCnF202PNm8U/Y9S8q4JAJ610Np4kSdVjtS0kjfdC9a5d/DU/iK/CW0bFs4yBXsfw9+Gtt4ejS91RN8mMrvHSuiphaE4q3xHHS9rKVlsZ2naXqN2ha6jaNyMgNXP32qPperGCcYKn869N8aeIdOspUW2KrKvHy14n4num1C7adc5z1HeuaFCmqnLH7zrnNRVkzs1123u7MRwsC5HY1Al7qOlzLO7NsJz1rzyxvJ7OUS7iCO1bl94ou9QtFtxEQB3xXXWo8+5n7ZdT02z8Z6fLGv2lwHwMn0qzfXVvq8ONP/eMByVrxKX7Z9mLoj9OcDrXQeCfFr6KJ7e63Ev0LUThKdNqTuvxGqvNJJljxLBdQK0sQIZeoBrjLHV7sagTubPTGeleg6hq1peB5N6lm61w88drFqoliIAJ6VzYB+44TiPEUuRqUGaVzqepXjLDGWdiccV1Wg6beacqy6iHw4B61q+D9M0YhLqWRN/Xmuu1+70hNGKh4yQOCMflXRLCqdF9DSnTb95s4fVpbc3MQj6k88111hp8FxpSk45WvL57wz352n5QSRXU6f4ke2tPLOeBijAV40JfvEaU5pN3OY8XaVFaawHUDBNdt4RSH7AnAziuF8RX7312GwSM12vhCNjYR/N24r0MHXj9YTitGFOS59DvYQojGMVOvSoLcARgVKZFQcmvt4SSiehFky/McUVWN7HGck4ormqY+lB2bG5JHQwRDA2jJqvqcSfZmLgdK17WBiPlFZ2twOsLbjXx/EGM5ISi4XFJPoeT6/di3mbaOAayrXxdICIEBL5wAK2fEdkJkcrnPNcPpcCweJEM44Dd6+Vy+jTqrsccnJSuei6ba6hdhbqYHB5wa6SG5+zx4ccirFjf2EWloEZS5XgCotqOWlfnPaujN8dTwdqNCWvU3jsVT4gMMw3NgdhVtPEEc0qxxnLNXL+IrqytoWIIDfWue8Oa9ANbBmkG3PGTXDgfa1WpKTSuHtUnY9xtbOSW2EpODjNYusaydOjMTnFYWtfEyHS7ERWpV2x97NeWar46utUuS8j4Hsa9XHJ1JcuHvpuzGrXUep7Jpd7a6jEzysGb+7VDU4YIJfPhQbhXnfhXxBLLqsVsJCN7YPNe62mlaY1sokbzXIGd3SuGWJdK1GSSfdkU5OotDzECfVtUit2i35PpxXW3drpGhW8cjRRpM/AIHPSt+WHTNJ3SR2yK5HbqK4zxvaXWqJb3djJuaNstHnt71p9bioStNOT/AALUeVX3Zyni62t9T2u0Ssw5571S8M2zxagMQhYuQ3FW76S4FsoeJ/MA54q1ZapbW+nkyrsKjnsTXmwxFWMNNdTCUlz3Z3NtfWWn2n7iPORxj1rnriIahcSTysqZ71zx8W2+xxv9g2elee+I/HWpRagsdpKVUnB5616tKlWxzUZrYU8RBK51+ti4tbgpG+5c8YNYF5rDwWx8wjdjiq9xq9yNKW5mJLEZOTXJ3epzXrFlBKjriunC4Ft2a0RyVXbWJ1Hh/W5U1YszYVjg/SvRBY6DqdqTdkDd3714zo13GLxfMOMHpmvYtCTRb+GKOeUoSQPlPU0sdTdOrFxRphlzqzOg8HeBNKtNHvNRtSkrsTsLdRVE61FbT3NjORnJ3KOlZGs+JLnwxqsmjaZeM9uw/KvNvFHiG+tr9L63Dvl/nAOd1TLA1cTNct07d9zplJU42ie0+HfELwXQtonAUENGho+IkuoeINNtk1W7WKAN90nFeY6Z4n1G4aC4TSJ4Nu0s5GDirEkupfEzxlHY/aZbPTbM5mfONxHatMDh69BzhOTSe+pLnzQ5Xqeu+GfC+k6VoCTwBXdRuDHndVzUdftda0MWNmnl3SHaSO1c4+sQaHappNvOXjQbQ5brSadeQWUhvQAGbnrXHjM1nG9KmrJ6PzNVTS0R598RfDGtaFbDWri4823ZsEZ5FeZTeIfl45PavozXNKtfiBYS2+raobSBQdsanv618y+MvD7eFPEEtgLtbmEH5JVPUV9RgcLTqUYStvscVajyvmhsRQ6pLcakoc4TNenaXa2lxaRjYCx7V4pBdj7UpzznivY/BxMluk0z8Dvms83p+ygnHQ5YrU9M0bwvby6XvkjTy8dSK4L4g+GLGyiN1YyKrA9j1Nem2viHTrzQTYRzKjAYJDCvHPiPLPbLthuS684Gf1rz3Tl9YpKm91qdc3FU7oy9E0u5u4fMlmIWsDVpZYNea3Vt2w9RWbD4r1bTrdoozkHjNV9L1NbjUmlvGy7nqa9qGEqQlKpPVdDJyvE6mPxTPp9uAsjA+mafaeJr7VZvLadip7ZqK40e2v7UyRNk9sVyiyz6Lq2Dng1FKjSrRaiveGps9UsGRZFWU4ro7W2hnkADDPevKZvFCyxIYjhgK0tJ8UXazKVJbB6DtXm1MuqP3rGyavY9H1XQFSyNxGAQOad4d10QyLaqhaTOABXV+B57DxDpX+l4LYwVJqTSPC+nWXjy5v4xi2iGVB6ZpQj7FKpc2UbSTj1NK0vZDGPMUq2OhrI17xCtiwUtgmur04WWr3VzMDtWP0rl9T8It4ke7mhcpHADtb1Ne28xnUoXpvc6ZNpaGDJ4lFxGdsn1FFcRNFdWtzMgSRhE21mUcCivDqVKk3dnI62up9ew7IVwSKwvEE6yQNGhy1XLy4PksVODjjmues7mOa8Zbluh9a0zXHRrVVh7aPqek3oc9B4evb2V/NztJ44rhfF+iXGj3RnCnaD94CvfoGtIYt2Vx1wDXnHxMmhutKl8uPGK4amGw+FhHkl7xz1Ie6zhPDeuTswR9zkdK7Y3V9LAdkbLkda4PwJbgXwedfkz3r286ZbyaSZIsfdzxXIsmWMqyknsc9KTcdT5+8WX8yXbpM5BB6VwsmstHPuSQg57V1fxIjdNXl28YPTNeXSGVpyRzivdy/BwVO3Yxnoz3/wr8PTr3h1NW1y/dEkGY416/jU9v8MtFczyT3EwijBwB/Oovg74g1PxEyaFLCzpCuFbkKK9Pu/CWrabeMJoi9q/LOp4HPSvGxVTFUqklCHurc7oUqc4JpHGeD/hNLFqNv4le/22UUpZYHXlwK9V1rxBpkduPJiji245A6Vk3stxb6OLS3idLYA4fPA/GvI/GmqX0UDGCX5eAVVs596480TxNWFGGl0r3X5EStQi+VHpMGsWuq3T+bOAI84PY1kXmoSRX7+UCIs44HU15p4L1r7e9xay3Gzy1JGW61u2+vXFwJUhG7axUt1AFccsvdB+ytsYLEXV2dTbwnUb+OK4uooQ+MueOK5T4kw2Gl6vDp2nXsc7OuWZOxp1vYm9hZ5b4pkZ+U/crybW7ye38VnzJWeMSbQ5bO6vXyzC0pRcFH3lrf8AQ561XTXqWNRnvLFiSGaM/rXJ6jqDTXCyYPByBivQdVlgj0xJ5UyHAwp7Vm2PgLUfEFodTsbNmtx1Ir3sBVha8omEqTlpAljvRf8AhcKEy230rkYtR+ySPCxwQcc16N/ZMOk6cbeRQpAwQTyK82k0uXXPGa6Zp5AZ2wTnoPWtcCo1JTj0NJwkrdzV8P6DrXinU2h0aPc4BJJOK9K8Lxah4OvJJNWtxNcxDHlOPl+tQeHtKl8D3UUcdyGnzksDwfapvHWtm9g86M4k6s2eprHHyvJQj3OilBUlzPc5rxN42kuNXlub6xRPM4Gz0zXKaxqcSWX29bwYU58s9qxNQ1KeeVhIQT7muj8O6f4LvtFkn8SeYbhCSI1OAeK9GNONGKnNP5amTqOb3NWx1XxrF4Rg8SahayjR5mEcdwf4sVq6J8QbKzZkRVieTO5gPvVyer+M7y70iPw9b3DLpNvgQwE8AfSqfhXSNG1rx3pml67qZ07TLmYJPdJyUGa5p4CnWvKpHl9Ow+d3Si7nv3hXw5c/ESO9u9HvYVks081oZOC+B2roPBvgq8+ICT20N+unR2wxLNIvAIOKy9H8A6h8M/ixaX/hXWRq3hl28p7gPghGH8Qrodes7rSvhp4h0DwrK6X2pzGSN0kO4IfT8a+dxMMJRq0qb1179DpjteS9T55+KXiq+8E+O7/wxZarHeC1JX7TA2Vb8q8d1bxLd6jIZbmVmbtnmvbtd+E+lal8JfJh/c+ObO4ZphJKT9oj9/esPVfgzoll+zFL4huTJ/wmMd0DsVjtEWfu7fWvs8uxOXwjGKet7f8AB9DLd6njVvqhV8s3NfSvwA8PXPjWdn1DzI9JtuWbGPMb+6K434cfDCwTw4l7rFlHc310m9UdseUv0r2xfE2jfDnwA15YwNHZwtsBiB2u+OhNednuZ0qkvq2Hg5TvYmFOLlzPY0Pin4P0jSNJXUPDivbTqMGNT97614BfRavqlwTPG7Yzy1ev6rqXivV/AI8ValpkltbzruhicndIv94D0rwPW/iPcQSyRwRgDkZrly/2+KqSUIK8Xb0FWpc0rpWuZeuv9guxDMAGNYVxP5bh42xnvWNquu3Wq3/nTsc549qtxSrPagMeRX2dLBulTjz79TphSXs2mdFpfiTULUbQ5Ye9XN8mpTGebjNYFioLDNeoeHvh9r2uaBJqdnCBHGM7T1NeZivZUXzJWbOXltscRZ6XqOoat9h06Fppj0VRXp3w40OXSvFxTxHYMkO3aQ68ZrB8DawPC3xKMl7AVYZRgw6GvbLvxFo+qgufLyedw615uPzSWFatG/UqjyyV7jLSKDTby4/sxisZOV2/yqx/wkPl208DttZs5JrMsJF+3iOJg0ZOBzVLxjZx6ZIswnB3jJANfGOpKviGm99TplJKN0aWkeJPsTSxJKfn4Y11Vr4shg0FtPtgC8mRvA714v4bvbWfxGFv59sA/izxXew6x4asZXureUTPHyiA55rtlgJxkkptIdOo3G52d1o8EPgE6Vp9gJLq9O6W4ZOh60VwcvxH8Qa1c/ZUK2tuG4VeCBRXoV8VRptRs9CXFS1PXxrsM6tlsMOua5XUNZWO8Zrc854rmDqjec0XmbT6etAnjVDubIPevmZVa07c50uqmjpNI8RXl1q4hkc7AelXPGpjm0RiTj1ri7W9SzvTcBwMfpXO+L/Gk97G1lbE7c816GGpe0XIlrcj2q5Xc1ZtZ0/TtKRLaQeaPSr2l/E66t7VraVtwPA9q8Mm1K4SU75M46kmqtxrskSEq+QO45r6Kjl9RS5oPU5nJnoviu7m1ZprmK3mmHdkQkCuHfTr6yjW9vNOuYoTyjyIQGr6w+Adhqdr8GYo/E+kRW5vJTNbyTIC0iHoTXX3NrpuuW8ttfWVtcWUAZREYx+fSuPF5hTy5qk/ek9zVYRzjzXMP4V6p4d/4VDZ6ppVhDBLtxLsX591bsviy6FkY70Yhx36nmsmG30awBt9JtY7S1DZCIOCcdK8x8beI7u58UWem2LbSrAEIDzzXzCzjEY7EOnhnyxt/VzSdT2UUnuep+IvE1vJosenxBURxwwA4rwvxzaXccbPZP5gbHy55NbPjPUDa6XGC+3HGRn71eN61qes/wBpLdPfMAMcc9K9XL6dbG1I1pyWmn3HJXrJ6MtJp+v2GZhbvEGUlmHeul8P6/cafos0HleZ5p6sORWTC/i268PPql5C0dkiErJIMCQeormLPxBcTX7R2w3yOcBQO1ezLDTxEZKSWnY5WuXVHucXhrUovhXL4uvL+NJWOIrNCNxX3FcgnhuJvDn/AAlWuxukMUpeKEgAye1VfB1/qlhNLd65PIlmi7hbSkkE1yvj34h3Ov3rKji3soyQkY4Gan6o6tdU8NHlStd/n942klzM3fFfirS9etkeG1W2jQABF4Na/hDx/NpunwaPYsHhfqBXhF1qUk8bbJY9wAyAe1dZ8OfAfjHXbyLWLU/ZtPi+bzJOPMGecV6Usto4PDuUp8qW1x0qklLm6nY+JbvxF4i8SXdl4f06e8kjUyS7B9361wvgmTVU+Ibb43jnjJV1bsa+otMey8OeHruPTbZY7iYEGfb8znHIrwiaSPS9durx9n2maQsTjB6968vLM2VaNWlCnbSyfVvub1LJpt6nZzxlV+0XEzb8E5NbPhTwMPGWg6h4h1PUEtdIsThk/jlb0ArzZLnWfEKyJp8Ek8USkylei17D8MUS08NJba1+5O/LwfwOn9761zY2vLB0vbz1l2GuWb12Mbx78IPCOpeENI1j4b2FzDes+29ilOcj+9XlfinwLrfhi1EtxE0kJJDNGM4wK+v/AA1px230cFxbwQSr8iYxlM9RWZaXHhnSdQvl1xba9S3ZsQkZUqR/OvPnxPjU41p004Pt1/yIlhoza1sfMtv8K2sPgpB8T/EN+Y4Li5WK20xR+8mTPLH0p2p+BLa68bWMnhJbq70KeFZJREu5rXj5t3416nY61pPj3QNcsb1o/I06486ysMYAjU5AxXLeD/EXjnR/E0Ol+D/DjRR6r5iCGRflbJ+9k9hXtUcyr16kla0o9G1azV180TKEbJLbv5nqHhYJZaL/AGH9rmjEbAl5sfvuOOK1ZdTVb+zvUZkEfyvgDJA/pXknjDxG3hvRbrW/FFre2/iBLxYBBFxBnHWtTxjrtxF8ILnWIAouHtFaNQDk59K+TxGV11Wpyb+OVl6nSpXTt0OE1jxVdy/GTWNVu3ljjlcpC2AAcV12j6xBfXCQ3TGeDcnmKACH+lc98Gbiy1/w5ff8JhpUUiLERBNOpRxn7xXPU4rq/Cdl4T0zxc39jme5W3AMMVweueua+ixvJCq4PScLLTbTqc6g00+g7xV4D+IDeM4vFGgRImhGDG3gbFzyMV6vpOq+Gofh/P4Y13w3aT2Vxh7RZACZpMdfzrgL/wAdz3lz9ned4tJj3CWJMg/e5xV3WdDSZdN8ReHdWW/hjuFb7DIf9SmBmuWeOryq80LQSTXr/wAE6KbjFO2pyfjD4o3Wl/FHSYdWsSNMsFEUtkcbFjY4AArwr4ieDb3WfiXqk3grRL2/sJn8+IQR/Km7+EfSvovxn8N9N8e/F2z1Z7iK10qOJH1Dbnc2OwrW1fxbeaUj2vgyxh07R9LiZvOCDPA4L+tejlmPo4T2dShrOSs10vfr53/MblN359j4NvtKvdP1CSzvrWW3uYzh4ZBhlPoa2bXwzr5MISwlPnAeWMfezW5qNzP4n8dvql5KLme+u/8AWBeH5r6F0/S7Vdf0uAKm5HjiKkfdHBr6zNc7lg40046yTb8rE+3djwLVPC3iHwTqlpZeK9Ll0+a4USxpIPvKehFfRngPxdbWfhmG1AUKqDJHcVwH7U/iKTxP8ZLa0iA8nTLZLWM4+83FVItA1zTNZ0HwlZwtcavfwJOIVBygboD6V5eMvi6FKqnaUk38jG7u2j0vVPCnhjxLem+WNY5Gydy9TXB+KPDN/oE+bGZpI+MKDzXvHww8I6V4WW+n8est1eKfLe3Q5SAnoa8p1y7Nx4/u4UfdZRylhn+Fc8V4FOs1a01Le69B1aHLG7VmzmNA1vU7GRZb2N0AHBYVZvNVt/EGq+Tc3ZXPAya5b4j+OoptQTTNPRFCDaWQdar+EdAvNck3mRkxkh/U16DwEI0/rdT3LnPFSWm6NqbRLnTdSZSTLbnoy96u21nFD89vL856hq6HwlYXAvpbfWnX7PAMBn71yXia+to/Esx0xsRKeMdK5KdSdeq6PZb9Gaxdlc6HSNLE1+Dd3iQgnk5orntOuVvWCSSMPpRU1KajK0ty1U7HaeLtI17R9QF1JbyJGe9VNM1OW8KxPndxXffELx1Y65/oduqkk44rQ+HPgGye1OqamBgjcAR2rF0ozfsoK/Z+Rbpe9aLOHvbTbaFdx+Yc8159qkT288hJPtz+tev+JbW1XWriO0OYlJAFeQ+MJY4NWitnfajSKsjDqFJGanKG51fZglZ6mp8DvCfh3x78Rb+08Szk2lrDvSFXwZGz0zXrXif9nXwFd39tceHtUlsp45g7wStuUgHpXcp4U+EnhLwvYXOiQxR3U1sjC4t33O5IGc496uxaFPJpy6rPqEFnZgl42n4djjuK782zSrQrezw9mu99jrUVy2aLOqau1/aWnh60R4J7OFEVgcDavXFZ/grWWk8WS6beROBKrrIXbCDHSsTVJrV7Z9Tn1hxKCBuiTGQK4/UdUF5ZvGLq5jkCtsMK4IX1J71839blWxKxU1zS/TYfOo6HpmpafFa6Be6hLqEMbxzEW8Ebff8ApXB6e+kJFdajOokul5DlgfLq+2meFfD/AMK4NS1TWLrUdSu8tEgY4ibHGRXlfh/xKlnr89hqJDW8yF3wuRn3NKplUo80qemienY5q8veR3/jzwFrc3woXx1Lc28Vkz/JbOwDyA9CKT4d/DnwNL8N28d+OdQKJbvvSDzBltv8OO+a87uvGMviC7W11nVLhtMtSVt7fdhV9OKo+Ldet7vTLexsJpBFHgvEp+Qn6V71BKjKFGlB2trf0MHOCbnbp+JD448ban4x1R9M0i0aHTVLJZ2kI6JnqcVzPhaCHRNWuLu9hzIvyhW6qfWuz8G6/ovhW2m1G6gWaeVCFbGTF7Csi+eTxv8AEJLTQLeKG6vJMKrDCdOpNd1OfuyoQjaHVkX5rSvd9it4j8UW91p4sFnT7RPtSPMgUZJwK9Y8LfBrSvhVolj4q8dx2vijWr+Fmj0VxuhgVhxIT0NTaP4B8GeHfBt5oWq+Cr3WLyba9xrVxEUWCTPSP2BroNW1a5i0e0uL0mS2t7drVDJH8zJjAx6VyZhmNPA0vq+Hu5S6nVGKh70tzz74naD8OPDPgi18Ka/4ftIPEV9MNQh1HSiBthbny2x/Ks3w94/0qG1h06KOcaXbR7YnYbcY681a8U3en2Ph2TxPNYm8vIQBHHIu8bAOma8A8Q+PdW1rEEiRWcAUmOKBNvGehrtw9CWd0lGcXaOmr2fkjCpdyvE+jh8R9AkvJhPcMAQRCofOTj17Vwdr8OvE/ju71PxD/bdho2lwAy+dcyAswHIAWtz4GeBtCuPCz69480a/nu7uQpp0e0quzH38d69T+IXw/wBAl8Cf2XaTtaao8aiGONMKyVnhqWGy6rU9jK9rJt6/cUqTsuY+UvDnjjWdB1+fT9PuSY55TDKVORIM4Dewr6UGkvoWiabIuqDUrO5KySyQNnyyRnbjvXzPpumeIvBPxQgS90CS6mnZ7aG1MG4TAnHy+9fQPg/wr8RNE0mVJfD82i2scvnMuqcbg3OFz3rp4lwtOdNVaaVt2+//AAwuW6sdhFq2o2ug3Mv2W7Nt9yO8YEKo+tchr63d1BELJZpbg7ikcbbjcHHXFW0v/EUGjNpt/dzy6Ju+0vBj+HPY11li66ZbxaxpCwSXchY2CugHlDHQmvmIxw1Nxs9FuOKUtGfPfgxPE2nfFn7Lc6Hq0bSLme3eJl3L259K9itPEU9tJBaQXzQyvOQibcvaqDyM9hXT63car4h0Q6xB4hg0rXYFjFw1wgVWXuoavN9Sk1Sw+M9hpH2COK41VUhi2/P5occvnt611YuUcfW9pRVmo99dBuHJsbWqamvi3xBd+FteaC6t1G+HzCDvcdDn1rRTQ7+5h0fQ5LXejOoZicrGobo3tiuH13QdP8KftASeHtM8SxaxEjrLJcRqCsMmOY8/Wu18caprOkeHrebTZpY5NQHkSME+6Rz+FedjKM6WIo0YSupa633tqy03FPm6HGfH6y8TX/xCluvC1is+gabarFI+lL8sbAck7az/AALLJr6w2El0lncRW+83Bb/WcdCfWsHwt8Wb7wrPrNjDdvEt4rW91DIMh2PGcVkDUjoFobpJo4zuDtMBw6n+ECvp5YarKiqEopSWztuY1LSfMtmdH4o1yXQ9Qhju2eOTad0atuVxng/jWz4W8VXXnySTRGC1c53B8c470/TPifqfhDwnBoWg+D9F8TXmqnzV1bUYVlNtn+HBrz/xFJqVhrzzajqUEtzcPvntLQBVTjoFHQU55fRqUowTXM0/wfb/ADJdJwXMmer3Hi9Y7BrGyuXZnILTFsYGelJp13rOp7hBaGSzjVxcRNIALlO4HrXnWhl9TsbixeVfMli+SQDgD39K6jxL4ov/AA5o+heHtYh+wyR27PFdwjAkQjue9cVLL405OMNZrb/MI1HuJ/wqWyk+K+iaz4PkWXw4XE13aTSAPZSd1z3BNauiad4nl8Z6xez2MsNlHdbhcyHiNRwCKl8JaxYJp8l9BdFrNlXIx85fHWu08L6Vb+ObO40vX/GTaLmM+VGy480Z71tiMVPG1FRmlzW5bvTzNYNS6FC00XwR4lvb+/1S0e51u2uN9rg5EhUZyfyrdbRZYZxrcKp/wkeplEiuFI/cRg8qPTip7Dw8PBmq3Fil3b3ZjG2C9RBt8vvk+tV7nWiNWBsZESAR+XBuXL7j3Ar5TG4yuqroQfw6eRv7sUZl3fSade33h6/uGe5QtcSv5nL45ANeUCx8U+J7rUYfC+nT39zEjXFx5Zz5cY96v32k+OfCXjF/EXizQNStrC98yI6jcxkpJn7oGelezfs4zp4V0rV/7RsHt7jUXaY3Mq43W+CNoHqeK+hw2Bjl0nPEPdJ/ProZqHtpKLPhkwzXfiNAwZmaQqRnJJzgivZbnWI/CWi21nboFndM4LY7V3fgz4Qw6r8W9R1h7Fjax3ElyC0e2O3jyTk10E9t8OPG17L4afQ3utRFyd1/bj5Qo9Mdq9LG5nQxdWFNr93FXb6ERpOx8+XHji/vImiEpQEckGo9Kmiu7ny53PzHkk19X3Xwd+HniCyOiz6bBpFtaxAPfqwBzjhjXyFrNrbeHPHmoaPYagl9bWk5SO6To6g9a9GhSoVKbeGt8gnh5RXMzsobOHS9QjlMv7tveim6bFba9bLHNc7HFFec8P7TWe4ewk9Yl6Yf2bryS3UmUDA5Jr02H4q2qaENPtpAnygE5ryvxXFJendGx9gK4W6ttUsU8w7/ACx1IrKhhY4mCfNZ7Gj91ux6rqnjKGBpLl5cnnbz1rzDVtYfU7x7qY5LHoaxJLye4f8AeuzAdBUM8xUHI5HpXr4HKqeHd1uc8nc96+DPxZ8K+GLGfTfFljcXUxP+jXIHmbB/dANfQ+pyR6l4ah8QS2/lpccwW1w20sD329q8I+FPgv4deEvBln8RvGOvWuqanMPMtNKQgpAc8bx611d58RdN8S37XV9qixDJENpCMkY6cDoK+Hz/AA9KviZfVYSdn7z1tfsl/SOmE5Qh779ESeIr+40LUIFlSNoZcHyyPlWs3UNSsLrSZZZdiSqD5flcbqzb3V/7XtJXjsrq7skIWS7ZfkQ/WufvdSjd1treOV9wKRxou5s/QUsNgpKMU42l1OV1Hr2OisZRrvhGPS7+8+zW1tLmTYMuF6k5rz3X5PD8ni5m0NZbXToV2sZif3pHevU/AXjLwv4Y8Ja1o3iWwaXV7qXaqSLk7dvSo9WtPCOs/CyfSNC0OL+0ph5xkY/PEM9Ca6qeL+rVpRnCXK2kn013fyN3Hmim2rnzld6op1Wd7c7IsngtT72bU7KO3+2afeW3ngNb+apHnD/Z9a958CfCD4UQ+CrrW/HuryTeIv3n2bTWYKikD5SfXmqOqeJ7HxFphTxzIzXHh6JX0KSFFAL9kOByBX1jxuGi4qHvadPuMJ01GN5PU8n1jStW8M6jFp/iK3EF5JAJzbq5JiVhkF/Qkc4p+iRG51yzsrO6W1nnuBHb3BkK/Me5I6DmtTUJE1HRNR1mdprnWZx5t1cM2eB0TnpXovwF0r4f33h+bxALO61PxVpDGW8spgDA0ZGBtPrnFRUxMY4epXkvh39f8h0aSnL3dj1/+zPiV4a0iDQfF/imy1qzgijH2W0ALsM+veud8WPpi6Hql5JIkVltMcaM53Rt6AetdJbLdTlLGyguF1O6H2ppYmD/AGeP+62elcL4lj0nWYLqxNhdXkUXmPLIgwWcdx61+e1cRPF4hVppqPl2X4HRNK+h4ZrHiaabw0dDkmDW6SDELNhwD/EfauC+IFp4c8Px2eieG7oXsk0QnvbsnO1/7q+1e1alYWUPhnU9RHw5u5rf7N5Z1OQbTEcdW9K+b5I7eJk3O8iBtx3fxjPQV+pZJCN3KKcUne2mra307EQVtz6L8E/Fe50P4XaR/a8sV5qWfIsmDnEKHjkV3sXgzxQ3iK01a+8UWmpWtxCrKyzkiLd2+orwHw5qvw21fVIY9V+2eH41ygKYZMbete8Xfi7wVpXwps9D8MeKBPEoUggZnlPv7V8vmuF+rzl7Ck1Obd7xutezV1p5Cm29zo/FZj/4RGPw9pU9tZ6nb7pItUI8x0K9wx6Vw/hfXLvX9KuE1b4h3mveJbSYCHSp3Ijmxxwe9aunSNNb2yXE0mjeYjMyXgw1wn+zn1rzXVtF03wZ4ov/ABDb+Ibaf5ttpptuf30bMOpNY4D2tSlUwteT5t1pu+3o/X5mam3ZtHsPiFPDvhrwNZxXOqmbxZdt5k1pE+6O0Q/wtXP2viiJZFmeRJHjJiEKsegH3hjpVH4A+BLP4kfEu7PjK9nbTNMtzdXIkkANwc52k5yR9K727tdFe/1fX/hH4C0y20zT5Raz3mrl288g4cRKOTx3xXoVMihUgpykk/LyLtzJSWiORtPiLpmiat9l1TTbfXNBlZXntmf5snrg9eK6D4g+LtK0b4eXeueF/Bn2WS72x2mpzyl5LVSOiZ6V4R4tsdUn8YX2taT4ev008yhWNpEzQRnPIHFRSXGrTaR9kv5L3yCGa3ickgH1x2qo5bGjGDjaz3v1/rqEa7gmjH0a5f8At1SkkzyNMJXuEy2Wxklz9a9zfx74T8aeGdO03WL7+z9RDGGWVW/doAOG+pNP+Fur+HND+DcllDptn/wkstztuDdoCZUI6D04qp4k+Cuh6ta3eraVJJoxW3Bs7uZh9mmlB3ED3rjx9TC4rEqNW8XDaS/rbbuNS0uup8z+MdPvdK8fahZzkOyyExsCT5iHoxrHmF5IRDcXrSKuCsZc4Ir6A1OG4tfhVcJpllH4h8ZXkn2WWVI8m3iH933rxaXwT4ts702V9pNzZSgqPMuiFUZ9zX2WWY+Nenadk46brW27S3S7DkrK6PU/h9cy6d8Ip7wpG3kK7qGJJbmuL8MXvh688UTXvjlbye1uAdrWhy8bdq7vwxqctpbT+HWs/tc0NsUlUAbGB6kGsS28LeBf7QLX/jkWJEuTAi5KDuK8jC1Y0q9eVRO8ndNa6fIznOU4JI9D8K+GvAS6lHb+GdWv7qK5hDXQuFx5SjntV3xOmgeLfselapGr2Nu5ht5g53P2ABrK0Lxj4G+HtpqVl4QvhqI1G2EDXd4Buiz1K1zY1W0TR0VtXiezjLZlTl1b1FcOIpznVjWg5Xv2aMJU2kdFrXhyy8N+M4NF8P8A2trKSNGlEv3UfHTIrYu7uJPDs1zM0cGp2wwsLN94D1PaqPhvxLoUunP9k1S4u5GKD7PIAW3Y6k10mowfCxPhbNHbf2knii5yfPmIIDZ6D2rgq03Wq2raOP4hB8q0OfPxS8R2/hT7daeHHvrJGIubpSSqHH8q1/DnxMtP7Nt/FeueE1e9gKGzG8iNiD3FctpMtxoFtfWUcpeCdDut1wVJxnkGvLLfVtQ1y9ubf7S6wxOcRk4Awewrpw2W4erzTpQUeVp82uxpCu277nv+q/GXSviHdyJ40uNRklV2a1s0P7iJs8ce1dJovjWOTUUS4uFu/ssW2KNeAq47+tfOFomGRzaMQM+Y3oK7DS7wwSQ3ybhaFggCkZ/Gsc2wCr6uTb83c19vK9z3DSPGV0LDVNEsLtLa11DJkkY4Zh359K8x1n4v+E/hxFcaP4RhSe+bKS3A53H61t6fqHgSKFh47TUcTLi2NoQMqTWXffD74aW+tpqul+GZdb0G4mIkmZv3lvxzmubL8uwytLFybi9o37dzVz7nkGo/Ev4heKbC/wDsNxdGzVN1ytuSQin+8a4mynZVDhs55yTnNfbvw2+HHhPRr7xPpVmptLDX9N8mzjlK8ll4GT3r4u8QeH9R8O+IL3Q7q3miuLOZ4mjcYIUHAP0r7bLamGrUmsNFKP8AW5SV1uaWna69tKAspUjoc0VzVrb3t1eCGzglnlPIWMZNFdE8FBu5UbpaHv3xMsD4T1IR20/nwseHxWDBcXHiTTo9M02xe6vJSESGNMkmvoPxh4d0bxRpT2t7bKFbmN06ofevOPBWheOPht4qm1DwtBa30rgJHNMgYqPUDtXwWAzbB1qOrtOL66X+YSj72uxRuP2YfFmkfDPUPF3iPUYbK4gjMkOmoN7v9cdK8b0nQNZ17UPsWm2Mk0/UrjAFfUTXvxP1vVWbxXrttaWcu4SxJ1x9KWHwD4Zs9RfUNO8cLYBmG9Fg+bpya7avE9OnOUU07rS12l62RnUoc1uRWPBPDnw38aat4st/C9naeXeT8kSAmONQeXJ6DFfQ/hLwDp+lWN54f8C6cl9ftuj1bxfqC5RcDmO3z+Wa7j4TyaNDDr2k218uo3csDFL+YeXlf7q561JrOq3tv4Vg0wfZtO06HcTBCQCW9fxpYjOoqnGdV/Enol16blww/Kr9TiPGeqR2nw6h8I2ey0061AMqxpg3D/3m9a850PxrZ+ANN1C/isYLvxJcxmK0lkXclsh6kD+9UninxNBqOqPpTXot5jhPMd8hK8x8UWLafq8dtDrEeqFgd7RN/qxWOW4WeJ/3hvXW3l69jnnJ83NHodp4M0G68XJfeJ9S1dYYraffc3L8SOxGcD2r0S2GnTi10yx0mW0aRMvclDiRQc5NYHwf8N2cvgH7Rrkwe1N15k+JeAg7kd69p8P6fZapLd3MxlWyaFUsrdWxLIhbHFeXmUp4nHSw8Hs7Lolp+PzNqVBySfc+ZPiPDqkuvyajiNrFB5Uc6IQu4dq4mDxFNCkVvePCVQ4CHkhjX1Z8cfha2p+OdF8HeGJDp2gpbC5v3kf/AFfctjua83u9D+HmiTPpfh3R49QxgSajefMWI7gHpXtPGUcFFYOrHnnH+Xol1b6NnJiMNyO7eh4PeXktuswt7kbJcsxHQtnpXvvhrxdHonww0e2t/D1l4ZjuCPtlwmDLe/7Te1eY+MvCumReVfaf/o/JLW2ch+evtXOS3GpanfR2wNxeyAiKK0hJdgcdFAr0asIZjh4xpuye/f07BQk4JpH0defESxtNRfRPA2pL/aGojN1eZ4K/3R6Vd1j4laZdfCJNVgWDR/Efhu8WGW0C4/tBM8nHevFH+DfxN0TTrDxFrujx+H9EWeMveXVyIpEG4ZO08njtXqHi3wt4QP7PXivxzrWuWt5LPcRWuh3VqwUuyHnjvnvXAsrhgJRoX5lKy1V3uvl8t0dnvvUf8RPjhL8SfhHqfh/wzokWlw3BiS985lHnNjG1fQV5P8RPgZ4Z8E/CePxBqPxQ0lvEAt1kTQ7U+ZvzghQQeDXnF7cz/Y0jS4eN9oDqH4B9a5e7gDtubLMONzNk19bgcPOMm3Pd/PsRTltc9J+DfgDwz420/U73XL67ea1zt0+3lER24++XbjHtXR3PgPwVe6aX8E3OvxapHKsaSzNvh3A+oGK4LwrrXhbwx4Lmmit9S1DxRdyFTGshjtreH/aHRzmm3fxQ8UCNrbT7ldKtcLi1g6Eg9frWmNpYqdRqg9PP/LqFSOuh7NpGj6le63c6j8VPEd3eNptk6QQRncyPj5Bx0rxS50vV45m1S7hZFlmbZLMfmZc8cV3dt+0df6Z4SXR9P8JaebqWJkutQu8O8pP8XNbFj8WvDcGk6frfiTwCdS1lrZ4bOIybIB28xl74rxoLMaDc6lJPm0smul9l0T9TKVN2OFt7/WNJSM6fqVxBIU5NrkM319a19I+J/jHRNUi1Cx1x2liLbBKMoNwwcj1qr4D8Xy+FfH9t4pubCC/iBd5bWcZQqxPygH64rC8W65Z6v4w1DWNO05NOtrmQulmh4TNdKouVZ05001a/Npv1Xcyin0Z7X8OPj74r0bwzrvg2EWtxFqiPIl1Kq4tZGHzOSf0rzDTNca+8W2Oh3PiFDFc3HlXN5IMKmTyw9q4O91wx6O2m6fD5UcmGnlI+Zj6A9hXafCX4MeIfiPq0M9xFJp2gId0l5cDb52D/AKuMHqT611zwcFTcqztFKy20/rsbxp3V5H0T4k8CeGPDvw41nxVF4rsb77HtSzlh+YzOV+62K8103xV4/wBc0PTPDkWntc6Zp4+2RWjqVjx7k9a9N1nQ/hxpvxS0P4cW7LaxJEGk0t7nAaTHBkbt64NY/wBvgPiDWfBsviGw077BMDkyANMufuI3pivinz0lKMocz3Ta2jtdJf1qTNcr9zRM8am8c+Mr3xnd/wBixpo1xGxBhthjLHg4Heu2svGOtNaQ6X8TfC8fiPRgyOfNG2fI6k9683+Ier6XY/GR9Q8KhlWzcMW8zIeRevNdd4t8VeHfEvwofxzNrEll4gfFsmnxtne3Qk177wyaozhRSUktbe8n08/n0JbnojjNT+In9pePdafQrKHS7K5/cW1ui8xKOAM+tcre6ZeWN4FuoZkkdvlmlUlXz6HvWPpsUnmTSt1cZLbuh+tdJ/bOt6hoq6Xd3qS2VscosvLoPY1786CoT/dJW0v3HUsnZGDdjynMYOVP3iM16t8DbPSrLVtQ1/xJDby6bHAVjhukJWUkc49xXlkwulQtDD5qLwSPmJr03wGkvifw/JYa6jW9jb5ACHZuX+IgdyK5s4k1hGr2Tsm1vbyXcUm+U0/GHj3R9S8URv4Y0C20OwiAjfyBzKf71Zmua9eT3unlnUMv3eOMZ/nXFXUdrceMbrT/AAsJ57WIny1kPzEL1NXDq6PbKs6FJYxyGPKEVyf2fCHI4q9l1317nPOm76nXa74o+w7JIFWV5AS4x1471yWk3Wlw3st9O7xSysCqL0zmqkr3N4/miGd0Y/LJj5enrXW+HPDE76EZtT+zWV3cyLFaJcgEuScDHoKPZ0cJRtJ76ef9IumktDf8KT2Gq22oWVvfCLUrhWC+cP3bAdqpWdvrfhT+1NL1uwVLGWL93cE7vm/2a0dZ0bxFoF83hLW9OsbC+t4vOE8OAZVPIwferer+Gbjx14HjNvezWfiCwKrFaNLlLpPUe9edCvSk1zSXs5213t2aa6fka21t1IvFHiFZfB3hKCMwvtiIaREOSM9/etrwP4sl0m5lt3eN7RgQYCM5JHeuP1PR9J8Oata+G7jWJrqeKIG4kZSEtpDztrPKRWN2tw2sw+Q7lN0Zy231NZVcFTq0vZLZ3adt7u+hlUUlLQ99tdFHiw7E1d7O/i2SWqAkIh7HNXvEPhK3M114m+IE2mnVbzT3sIJwuRMwGFYj1968muPE5ttHh0vw7qTSWj7PMvGbawPpn0runuPDN74Ss/8AhOpr691S3QyQWlm5IZR0JxXDgKdTDJxb0e3/AAxpCbWiMH4H+CYfD3iS61nVPJeUK0FuHTKsSc5B6UU+/wDido+uXyaTbRf2JDAQIx0yQO/vRXVWzPG05tNfgx+0sehm7v77xLBo9vLbwXN7NsjMzbUXjuajke/0nxhrvhhtaiuNfsrQSWP2Ib4pH/uk+tbHgq18BeKPAsHiqMrrF1GzPe2jS7HsiB9cmsCHxDptg99rOhaPFb3cj+XbhsvKeeor5KFOjQTozpXmrdreh2apKTe5D4L1GSy8Gaxq/wAaxJBdSjZp1uq7ZS/diB2rFsZ1KQ6ldalHBZTTAC9njAVx/cHrxVS5v77VTPca9pc+oSBZMm4OBFV74SeGLL4tWGrWvjDRrmz8F6OcW89uxy0vpXtUMCsVOUklBL4rWsl5LuTG0rLf8z2G28R+GPE3gOxvvC9s1hp1peC0knSEBmYDJOe4JrmNenvdU8T3trdwyIm3y4DswCR0Y1JfDQNF8NWXhvQrYafpmkn7RHG7HdKc9X9ao6v8R/Bkkr6lHaySXhhMd2ysdiAD+GvMzadPEV5SwqckkkrLr3NWmo2bsebaN8Oo/FfjS8i1O8lt9NgYG+vvKGAR0wa04vg94Nv5rh/CfiCSGQFoLa2kj3PcsT97ntXP3XxYnudUhg0uGPTtFmZYWB5MzZ7+proda1jU7fVXnWa10m60+3Bh+zqdzbxkcY6mvXnUx9LlUvdTX9X/AK0OaPs+XVXOs1RPCvwo8Ead4P8AEOsxS6ndSKb17dAVwf4T6Vm+P/ipeeC7uxbw/c295eNGv2KaIApHH6H3rzHxh4V16Lw3aatqyxJd6nKH8i4ctcY/vkdh3rjdd0ifS0gWS6FxbyIAshY5HsK0oZPh51o1qs7ybba6N/p+pE8U46RVj0TRfiH8TfFnj+XUbiS4upb3dDOdmYoowOxrp9c0Wz0fULfSUv47+6vnjEVnCOdx9SK8k0jx14k8G2JWzlj8ghliVh9zI6+9erfs8+MfCurePpbbxdp5uPFblZrHUHz5UYX+tdVXKZV8QqrtCmt7bu3V+hMWquktWZOseD9dt/iJZeGfFukXkARhJexxxnm3POVP0r2r/hFfhNojWXiPw3YSaI9jOGhv3XzCcLyGB7mtbVPiXa+EZdV1nxJPb6teX+VspY0DbVU4KtntmvPzqmveMdZmv7XT7a5ErfvLRDtitvl6ntmuPFZnHDUF9Vas3rdbWffa50OMKWi3G/EDSdB+Nmope6vr2tXKzJ5NrZRuREjL1Zl6V4j8SlSD4f2nhfQmm/snw9O/nx7MjzD1avatES58NeHtb1rXI7bfbwutqsL9Tg4xjvXkXh/w9rOseEvEM/8AaVvZJcRm7kaYEmRzyEx61lg8xq1K0q1erzQpyja+13v9yf3mXPKTSa3PNZfD9/aaHpmu+JNFv7bTdWcpp8u3DTsOMgelYq6Q0149raXkMjbS/wC842gHHNepeFfBvxF+LPi6KK/vZbqfSIFAkvcxWtpCB/ABgZxXunxC1D4J/Dn4KTaLbeF9Pu7zVbby7dYm3TvMD8zsey5z0r6irmyw9RUY+9Ul0jqlfbfy16XNYw5ndaLufId5badHDBa2jmS4UfvnTO0n2rHuba2icSJkKmGO4Zr6Gg0VvjroPha38IeDrXw+2kJ9l1TUE+4y9/qcV0fxO/Z6+GvhHwTpWraFfajLqa3KJLaz4K3yqeW46A1vHNaVHSs2ne1t9b/r0E421ufO/iLwX4lt/D2m+LdU8NXdho2oLstrxoyEmx6CpIGt73VtPh1CWRrK3AQAcY9hX1RYfECC1dfH3xMNvdaBpNv9i0zw1AoZVAGMbTxn3r5D8Va5p974t1PVdG046ZYXVyZoLIkkwgnNaYLEfX4Pk05br0/4JnKKl8LO012fRrXT3SV45ZCP9HjjUDyx6GvPp5ZLq5wgzKWxkjFUhqEk4zMchR69q9T8P/BTXNY+G1941ur+O2SO3+0WFlEd010O5x6Ac1vTo08DH97PVu3zIhT5Dy99UbSNTgltESZ7eVJGEqhlJB6H2r7Y1bxhc+GPhxF47TbHDbaWrw2flBIpLh1yCg6cV8/+Avgr4c8RfAnV/id4r8R3FkIJzb2lhAoJnkB6NnoKqeOdQ1oeA7LRr/VTLpccWbe2JPyN2Brlx86GJrQoRd3F2l+GhpOcVZI86s77W/FfxCW8mu7mbVL+481p8kvyc4z7dK3fiSjL49jmikm3NAqh3XawYdSfWuX0vU7rQ9Yi1PT5BFeQnKN1xxV681u612/S71KZZbhF2qegxmvVq05/WI1Ipcii19/6BJ3d1sbXhv8A4QuTQ72XxTb3s17E2beOEn96T1LGu803x3o1n4Wi8MzfDPS7rRIZUnk3zf6Q3qd3X8K810UDUvE9jpdsFb7TcrCwUZZQxwSPpX1XrH7OvgGD4UT3uh65eDU7GJ7l9UnOIpSnWI+/avEzPEUKFSMa7l7zutXZdOlrfiL2c5ao46CL4aeJ5Ne0TR9DTw7oupRxzWTyDzJUlC4KgnnGa4eXwpp3g3xosPi2JLjR9pgDRffI25DECuq8GeDvDr/s66v491HxKseuCUpZ2MTbiMH06jNeX6t4o1rS9QFxfWJluXwSt5khhjqBXBh8PVliKtKlUbjs0972Wqb8t3qc1WnNtEV14Y1TTY5dS04O2kSOHgvivyRKW4BpV8Yz+HfEccOomO502eNkk+zgZ2kfMy+hrEf4h+InlWC8kSfS+BJp+MRuoOSOKxPFs/h6/wDEvn+GBdQ2MkanyLrrC/8AEox/D6V9HRwVSrLkxaTTT1Xy3ff8Dop0W37xvQzaVpHiJ9S8J6jNdRhsxxyphwD1B9aqjT9d1G/e8k0+dvNfzCAmARnpWLHrT28McFvbxQ7SMy45NdHY+MNUgixIy73XgtkZFb1aVWn70Em9rvf8BVITWqR2F3NrmqJZ2VtYJYWKMsccW0AhvUmu58QfCvxBaRabqkmpJqFlCYjc7DnyBnjbXKeGdP8AEXjHw5fa5plpHNZ2JPnfOQWOOg96oXnxQ8TXWjR+H5L4Czh2q0YyGAz39a+aqYfFynGOH5Vyt8y9f1OSEZc3vI9L8UeH/Eus6tda34etbjVbS3tlSWSb5nwB0WuS0DVb2w1JFZ5bfUbaRWRJkwV/2eetem/DDxQ1xoEcdnDclY0cRyxZKyv2DZrN1nV5Z/iBPB8QfD9uk6ASQywLtc8cHjg187QxFaDnhatNNQWlvidvLr57WOyVPm9++po+NtH8C6nqdv4+17Q9W1CIW4e6srCLCzOBjLEdBXgGfDmq+Ib7ULgHSdOmdjaWincI/wDZJNfQOh69d2+hTaJ4N8RR6O97Gy51RMhsnBI3dq+f/ix4Oj8GataRjXrDVri4Um5ktCSiuevsK+j4efPR+ryk1JXSvvYr2d2Wt0dp4Wnury6SIxFWtljwUlUdA3vXS+F/i9auyXesW4XUoLdltpEQYPoCO9eIx3VwIhA8jPCCP3bHIBqeBkSCeTAJHb0+le1UyinOLVXV308v66h7FHr1kLDxZYy6lew7L2SYsJEXAT3IormrXTfEmjfDmw8WvbbdG1aUwpMpJ+ZeNuPworz54OsptU5e7f1t5HPOk7nskn7OXxO0HTxf6t4j0bw0Zsg2rXGZJOO4U10mgxR/D7wODqmpf2lqp+dZk5AHZRUfhf4fnUvE9rD8XtY1XT70XADpM7PKUPAwe3Ndd438E2nh7x5L4f0maO8tfLV7bzxkx/7x718rnFSrUpr281yqVmkknp572O7kS1gj5/8AHPi7xHqJae4lMMMhbEURCk/Wk+F/xI8dafdN4P0KaS806d972cYz5J7sa7W88F+DNW8aWekeI9WaG3kkP2qS1HzZzwi/Wvarf4deGPAGjtP4H8K3NuZHWNdTnG6aRSO59K61mGFp4F0oUrtra1l6jhGW9zxfXrnVLk+UHnZAMTtIfmbnpWR4bWwh8Uyya3Z3F7okSsbqGEZ2jHGTXt/iXwTYWujQx6nOLjVruPbF9jTO3Jz82KxtS1STwz8NNS8Kab4UitXkVhe30q/vJVx1ryqGLhSTovR/11MXCz5m9DzPwT4Y0TVfiNZnwbZy6peJei7t7G5YCOCNTkF89q92srnTdZ8ea9fJo+m634uZdjxRsPs0AXj5R3Ir5N8M6jc2/iAw2uozWJuf3LXMHykRnsa9F8L+IrD4SeIJdWtLy11LUTDInlhSQFbufU19BiPdmozbb0t1duvkTCasd94ostF8P6pdXevX8l/4hDCbzWYOiLt/1agdMV4TrGs/2jNP/ag8uR0/cBcYjGa9g1rXfC1r+zjc63Nd2N34p1+c+XAFzJbKTyfavnq/MnkIJVdY3A2SOuN574NcmV0JVKk6k097K/l2MsQveVhLmOGV18m5aTywRI5OAx9s1d8Pap4u8N+IrHVNAsZoZ2kVIJLtNscwJ5XJHQ12Xwj+Gdz4/wBTfVNQt5YPDOnP5j3IhLCaQf8ALMeo9a9R+LXwl8VeMrSO/stdgt0hiU2WiKnkx+Wo6g9jXr18XDDTjSrL3He7ey/r8BxpO3MY/wC1D44tdO03wx4bTw9b2urPbLd3F1CcoGIyVU9DzXkfhzxp4g8Q6YfDNr4j/siVMyPIWx9pGOhNZEk3iLxBph8E6zby6rdQSMtpIv72W2Yfwlh/DxXAJHPaXjY4ubeUgrjoR6104PK6Loexklzxd77rXZ2fTyNJNVHzI+hfCiWMKeZqnxARpwi50tSSCFOcsTxXTz6/d+GNLn1O0sLO+/tdmjgMrApCOzYHavBYNa0mC6s9cSwF5Fwuo2yIUaT1VWr0vXvEPgrUk0uXw9ZT2McKeY+nTEsBjohNeFmGWN1YymnKMt9EkrdNLPe2uvqZv3FddDtNC8S+KtU8C+KtM8Q6tBZaTcJHDDqFnHsEj4xsBFcj8W/DPwu8LeCJLyW61jUdfltVgsYJnwkZKgmXB7V2+keINK8S6RY2qxQWGkWkiyPp6DPzkZLY+tfNPxE8Q6r4r8Z6je39w0wgdoIFx8qRg4AA/KqySNXE4xpfu4xd2l9yXztdlU6ylKx9DfBTxRrNr8BNP8P+FrCLTblpXkvNWmOFbKnp61oT6rJrXhm5WXUZY5bXbGb+c/IHB5KCuC03xbaWPwl8LeEbEQteGPfKuNixnOTuPfiszU7iz8UWSW1r4qigujd+ULE/JGF7sfWvNxGCniMTOrNcsXNtOzel3q/J9OiFUm5Oxd8Wa34J0vw1Jb3E51/U5UdfKY/IrH+OvCbuJ5VHBLE5I9B6V6p8YIdCsrLS9O0iyhintk2zXUfzCTHXkUngP4LfELxdHp2uaTptmdMuLgQtNPKvCkdWX0r6vI5UsPhVVcmudv4n91lsiqMLHmGiaNea5rtpo2nRtJd3cghiUDgk+p6V9z+A9BbwTpul6NdrL/aFiptLuORwyurDG1fbmuN+GfhfW9F07xn8Obzwfp1uumXX2oeIAgaaJsDiM9x9K6u+nmTw7b3/AJxaWKRpHe5UrI5A9/pXh8X5lOc6dGi9Fr8+hVeOlkVfiNZaJZ/DG88O+HtN+xQQXZnnjiIxljxXhPxJ8NTXfwD0Pxvb3E0swunsrq2QbtvPytgewr2K41211jT763nVY2uYPMmRhzkDg1xll4jm0n9mbXhpwje8+3LDGskJcYb0HrXFw9VrU2pVNZKavfrzK25lQhHn1PlSZyshUkg578V2Pwz+Hmp/EjxFeaPp+qWuny2tsbpnuTgOB/CPevUPBnwm8e6b4O1TXvEnw8t9T8LX/wAl5LIoF5b7hkSwd1OcV1fwV8EaTpdprkLTxR+IsLPp631sVaW2DZwM9WwMV+hZjj/YUZ+z+JLTqdt1ZWOquPh74aPhv4eeK/B+hQWWs6Q6Q300DAC6cnHzg981t/FWPV9L+Auo6LaNdSahd3zyKkTDLF25QVrF9P1bSrm10LT5dIjup1nSK4iIJnQ5cj0FQ6nfJd+IbXTZpEnER80NtziT+Jvzr80xOYSlWjKfvODW/rf8yJLueYCHwr8BPgVNd69bwar4616EC1sy277FkfeYdBivmnU9e1bXZUl1i7e6lT7rNj5favpvW/gl8NY5b7xj8TviDqNys7NIoVvKZRn7o3dfwr5o8cT+CY/HFynw8Go/2CuBC2oNukc9z9K+7yRUarlUV51Hq5Wsl5K+1i3BOKsYsig8U21s5bu+SCEZdjyR2HrVyx0jW9UtnutN0TUr2CNgjzW1s0iKT0BYDANezaJ8Nda8Mafpej+J/DDWuq6gpvlcL5kn2fGfmA+7x2NevjcYsJSc3qznqzdGF+pwEXw/jjl82XURcRhQfJjHMh9BWPqdnqgUz3VpPFEq4jYAYABxtz619H6RoemXBn/sS0K2+4Rw3Lxl9sh6gVzstiPEnxtj8EoIk07TE869TbtWRupJr53DZ5UnKUqiuoq7v0S9OrOOnWqSfNIm8IXkWreDdOTwFbyy2GmjfqulOwErS4+8MdQaXVPhVqvj/wAWRaj4Z0C50iYwiW7tJGUYPqR1xXFXvi600f4/Rr4Rki02zic27TWy4Sd8YBI781LoPxL8T+EfjvHrniPX7yYR3It9Q6kNbk+nfArejRrOp7SGl48yT316Po/X0OqMU9zZ1bxf8Svgvro8KalZWdu3lGRIMZWRW6Nkd66i1+MWkaZ4Os/GOtaadZ1W6byhbyEERgelYn7Xd9oepfGzTNW8Oa5aatpd3pkclvJA4fy12/dbHQ+xrwwTt9iRWH7tTwpHQ1VTJsNi6cKk4Wb3tpfyNVFxPo6y8RH4maHP4g1zRIYrG0G2K2s8LJ16U7x/f+GbD4Gz+HPCPgp7u21Eia+1S+X95YyA5wpPNeX/AAw8aS+Hmu7MRwvG2Jlkl/5ZNnk478dq9b1rw3pXxI8VyE/FO1srS9sRLDboQkL3AH3CO1cWFwU8JjJU4+7T+zvb/hy43vc+XJYhb5V2LYAwy9OafBGZbaUKcHBIYkAHHavR/DukPpGpXVlqumQS3cNyIfLkTMcvP3lPSvRdL+Gvw/g1y38W6okreGgsi3unqP3hlP8Ac9s19B9ehzum90JTSLnwNg0/UPh3ol9eB7y30CZzeaXcSKYpNxJBI9OaK8t0s6z4W8dTNo2kamui31wypbNCzNPFyVBP5UVx1lNTbjG6eobu7PtOw1HZY694x8S+Vq+uCTyj5w/dIMcbD615B4m1LWNS1CWWzkkmu5l82Rg+TGBziu88e6t4ZaGLTLHV5LiKwBVp1UKk79mIHWvPvA2lQeJviZcaZrXidNGtDZO76hjCFsfKM1+eYajVxuIbdrq+r2fn5mktEonC+Cdd1Oz+IaeILPS49RvLORsWknzhiT94r3xX094MvPiMvh7V/EnxO1BY4dRGNOso1wyZ6YTtiuV8AJ4M+Fmh3H9gSQ+M/Ft87h7vYPKhQHiuo1b4h6ZpUYvfF/inSbK9UqUslcSeWCK9HMK8ud0MOrtpLQzprl3Zh6/4sl8LwHTNBhWS/wDs4DS3R+eRmbjZnvzWZ4+0zV9F8DafbeI7p7rxDq8f2maIHDWsZ5AI71o2GteHvHEunxeBrT+39XkuhLJeSDmzjBySR0xWr8Q7mHW9e1jV55TLOsa2Uc+BtIUc7favGq4Gjl9Dmrq9XmVn+f8AwwSu1zNny5J4d82OWfSbeW4uzJjZH90DPf0pvh/wZr2t3d08FqtnBaA/abm6bAx3Ck966HWNUuILWew8OutlZBlSaT+N2B5Oav6N4mvfHXwym+E9yWj1G2lNzaapCoRp1HWNvU19HHEV/YupdJaavVpdW1tp2OWEYs5fxq3w2sdCFl4f1F21XeFknd8845ArjfEnjYavpOi6NdW0Qj0aLykMXDS57k9zSa94Ml8O6hJd6x+6iDbY7Vh+93gfeI9K4GUXE1zJK5IZznOK+gy3A0ZRjJVHO2qb7vTT5G0Yp6ntHwo+LHxittTsvAfw6u4JYZpmZbBrcOse770jn0A5r2bUNTivvHZ8D6Frs/iXxNcQ7tW1QTbLWxAHziMdMV4BafFvXNP8Ap4d0DSdO8PnyjFcalagG4uRj+91XPtXD6f4h1fTZ55tJvp7N7hPKmdDhpFPXJ96eMy+pjYuLSilt117u3Ty+80aue23nxC8OeAb278P+CLKJrxy8Go6vKdzMx/iQ159ofw61vxlqjX2kRCLTZLorNqs7bY4sjJLGuMiLMwUszZBGepOa+pfgJ4a8c+OvhTBo0b6ZbeCdGv/AD7tpJNk1y4GSpHcYrKeD/s6lKph3ecrczl18/8AJbEW6HkPhX4c29/8ftP+HVxfTT6fd3Hkm+iyu8Dneq9x716L8QvEPw78A/DXXfhL4K0iTUNSi1FkutcvY/3ihTyFJ5Fdj4+8SeC7PxxBqOiabLc6vp6MYNQiTyhbwkYVQBwTmvnnxDpfiu/8Q21re2N9Ld6vMXtw8O0ys56k1nRxMcbCCq6W1etrtdf6sZOTV0jnrbX76xvftFpdyRuF2ZDcFazpb1XujIANxO85P3j713nxN+Bfi34X+D7TXvEOt6K8tw6p/ZUE2blM+q+gry26t9TsJUS+tHgLpvUNjkV7GFjQrr2lGSd9NOtjSGGcT3L4U/DS98Yabc+Lbxm+wW8uILdfmN1IOSvsMV0fj74RTeJdSi1Xw9aWml6rJCqjTywXIHU/WuF8MfEL4geEvgfCNGmit9GlumSCdlG9Jcc/pXY+Otf8Tn4T+GfFX2m6g1KJds9wqgEqen1r4rFwzKGYqrGpFRcnCO7tZbNedtetxVIKOx5d8RPDt74PurDw/qFws1yieY+yXdgn+E1peFvFPxG+FOsWWpXNtqen2dy6kQXynyJoz/dB4zXE6tqt/f6uuq3108935gkWSQbiSDwMV9V/Dvxp8RviJZWth8UfhtHqXhWJUI1K6i8rylUYG38K+qcJ0cNFYhKX8z218kXCK5dD0D7fNqEuj+LPDGEjuow0kMs3Fw3cEVgagJfE3ie7/tq9IjhLtO1umVtRjviqerap4YufErtYW13p+m2yeXbwo3CHONwrtLHx1oeh+CToVlpMIE+VuLmRQzXA75Jr4KvKlOvKVSdkr2st2DcXo2fOOoapp1vf3ENtrDzpG/lRTDgyrXQfCe508SaraaikbhJBPBHI+V3DocV1/iG98Ha4tvpEXhi0tLRnVVkQYdSTySas/EDwp8PPhhZafN4cnkl1WaDdJGSHGDzureOOjOn7OnGSm9tuhgoWblF6I7DTINd8fE3XiHxdBFaiUOdNtpxB5Uaj7zY7cdK5h9S8IfGbxl/ZVn4htPDWoeGXCW16sgP2vB/UV5R4n0vWNR0ZfE0ZvGivSIydNYlmGMYYDoKW1+HHhLwr4Vt9Y1/XNQj1afDwwrDtWMehbHWvoMNiouhzVNZdbXd2i4zPbPGTeI/DapNr3iHT9aVy22azIVo+O4HrXIWXirTY2e6KDznAwwPIPp+Nec3HiPTYoZktrqcMxIfzTu3n2zWRot/L9rZJWySdyk9B6V4FbLY1pTrKPL5HPUqyurDPH+jeKfiF4ria5vY0ifIQTSYihA746CvH5/Cetw61Pby2ck1vbziKa5txuQLnBIP0r6IuL63Gh3c9zG0sDIfMCj5gO4WsK58P2OjaPpmveDtXuL3S9SmC3GnyDMsLejjsK+pybMqlOg4WSUdF/wAOdFGu1HU9N8GXGn+HfBkXhiz1N9N8LxxpcrNEuJbuc9d3rXS2Ot2yXMdzftcX19cSMFnMhaRYB1Rz/DkVhWHhTUvEZtUwLazjjVpI0UYibsB75ri/i34gv/A+rweB9DE32uaIy3U/l5lkDdlxXzNOnUx1Tlg7ybbd/wA2Z+89Weoadc6f4aa7s72yS3tri48+KRJf3cAIJAz6mvjbXNa1Gbxtquq219cQSzzupkhlILJkjBPpivrnwP4cvU+Cd7rfxsuvsOhW0YuktWwJ5VUfKp9yK+a7jw9L8S/F9/P8KvAl1DDDC1xJpluzS+XGD9/c3cjnFfUZHhvq7qSq69G+mn+ZtGFlc8+w8cq7dwYNuVlPOeua0L7UWEctzqsb3Ms8YUTq3Qj19auxWzxKxlhljlhco0ciYZCOoIqvfWYvbKSKb90QN6dlFe86sZTXMiIz99KRzllJATtLiLgkluh+lXo7lrmUqhAjUgHJrDZSCR1wcVYtJpLecOi5HoelehUpJ3a3PQ5Ua7WrhMqxQjsGxmvT/hXoZ1PS7qDS4bbUtRhbz5dLnAVpUH/PJv730rymxuJP7ThmuXLx7wGQDsTXpGr6fd+C9atNRsrx42kUXFrNA211yOAcV4+YSdlQvrLVfLoc9Wag9S54s103fiaRbPTrvSF8tUlsronfAfUZ71p+EfHctnY3dlqmLiJl8tN7/c/2setW9O1tvizq66N4yuLe31H7M0ltrgQId6D5Y3A656ZrD8HaRpeo2viXT9TcC+jidbaZfueYvB69q8rERpRpSVRWattru97nO1d3R11x8XNUvtDtPD1heWlili+RdyAMz/8AAu1FcJ4UsfCVlqMep+N5pL22gkw2mWw5nOMZJ7CitKj5Hyw5n6K/5lxWh6/oM1j4l8WWml66LqyspJC6F4mUOQP4TjkGuq8T3thD4avrIaZbWTM4iGVIYIOjD61V0HX/ABdqiWMOv6ppgsdBQywGSMCRv9k+9cf4l8eS674ilu9WXfA5Aj2DAUZ718TUwzq11Gkvdik9H1/4JrzKMPU5zUNb1HRrC4TT7j7LNKhRZE4LJ71g/Czw03jP41aZpmoabe67ZF/NvIY2LOyd8k9KPE9/Zq7R21y04bJz6e1XvhL8SvEPw88R6n/wi1hZ3GqavAbWKW5GfJyOq+lfZZdTdOjKcY+8/kceHj73vbH1JZ+E9O+CMWoan4akXT7jXz9ki0+XmSGMnnbiqfiC2gbw5cW9nIjWlnFjzMnLTHqP1r578EeKvG/j39pDQdN13UtS1G5aYx3EcBLCFRyfoOOte5+L576LXdXWezax0d2MFrEsg3OwH+sNfK8RZViIzjWlK6vc75WcNjxCwu0tvF1nLqQhjgsLhZbqOQ8OmelTa38QPAVp8V5viF4Y024SQPmHT24RWXjdx2q7rvgvR7/wp5unXM93qzPidGOFYdue9eU+IoYLOUafYW/kvEuJwGB+ua9XBUcPjJ7u9nFrZW639ejOWK5VYk8Z+M7nxj4iu/EOqtBHdzMCIgcBV9h9K6e/+Dd9c3fhRPBuox69D4gshdCQHi2fPKN6YrndA17wR4b0aGXVvCB17WfP3OLlgYBHjoB613XwW1G0134tXS3Gup4VspYf9DiRv3URzxGB2r1cTKphMO3hY8saadrq6ellZJ3038zZQsvUydQ+Afi5US306a11HUCzB7CFsMMDsTxXDReFr7SPH1hoPi7T7rSlN3FHeLKpUpGx5IPQ8elfYn9ha1aTOks0CTozbZ4n+eX3Bqxq1to/iS/09fidpsmp21mFFu0JHnH2Y9xXg5RxZUlUVLFtNPrtb/gCjUS0kc7qfwW+Fts+r2nhzSJXslt4/Kv5HzsLLkufavP/AIbtY+DPHmqaTqevXdvpqj/VoxEU79ia9lcC91C7vtOV9J8OraOjw7uQqnAz6mvLR4LsPFmi3etXep3FtpVsrN9tc/6xxnC469K4p451J141qrdOWl1ra70t5+RFWfM1ylXxj4r8P6h4jtJbd7ZPshVjFCPkkweAx716iPiNp/i7w1DNpf2RtQhjdDI0YBtCB1TvXy5o+hJrXiu28P2ly8BuZPLgdvm8w54Jr6k8IfBXTfhHo13r/j3WE1XU5lK2tpB8ixcfxA9a7cTk9GnQUVUa5e/YKcXujyj4gfB/WvFtlB4o0rxPP4i1e4I/cXJOMKMEiuC0z4Qafo2nTa18Xr3V7WKSNksbDTR5k0sucAEnIC5r6F/4SSHTdVzdz+Ra3DKoFmwzCp9B71yPjn9oJ/D/AImOm6R4JR7eFBg6igzNg/fGa2yjM8ZVj7ClsvRO3k9vwNqMkndnhOu3N74Z+H3/AAr+50mWGae5OoJJcghljPT2rv8ARPiF4e1H4WRf8JRDHdLahYY7BTzKB3rmviV481D4p6mfEOq6bBYukAgtktsL8o9a8tt/Pt8GaM5Hcng1708tp42kvarlmpczs+r3s/M0qpbo9s8MeO/CPhTR7vWfC3ge1m8W+czQy343wwRE/wAK92+tT2/xp+LXjnVXsdV10y2Iwz26IIo1A7ADFeQW+pC3fzN7DjgZ6+xq7H4ku1b9yFj5zhTgmrqYFuMoKN79W72OKTlsjvb74iXmm+JrGI2iXdmrhWRM5Yk4wPWvXdQ8DfEC+1hbmx8OzGyngW5iTdjZnsfeo/gH8I9M1Hw/bfFvxRcw6k/mEWOnjBWFh3kFey654ku7WKW5imbztzMiK2Ahx/KvCxtPCUJRg46pWbJdNW1Pl7VfES2OqSaZeIYbhGC3CH7yN6VwPibxDeTeKFiubppDt2bmYnbGe1dv4707wxf2WoeKLrxO9tr5m3Gz25EnNeK314Zr9LsuzuDuOT1x2r0srwNJ2qQXTr3M1TPpD4U+Jp/A+unUbC7S5SRNqWdz8ykY64Peva4PjJ4P8YeHNW0jxtpGmQ3ttZvNCjxYV2wcAEDrXxzpviu2uI0eSJo7pcBdp6cVpyXk8wWabfJkcgHlh6Vzxp4jD1JNvR7oXtHF2ZiWGqw6zrcizxxxRySMIQv8PNetWnwaubjQ/t2meLrN7vCMLNyQWz2HvXA6NoGhzXlzcQtNBdMD5ceeAa9A+HaalpXiNdR8Ts01lCAFXf8AMT/CaxzCtqnQnypbprf0Jc03scrqA1PT5JNL1CI2l/ECrRODhhmvQPB2gWF1LBDDFFHFLiafbn71S+PtE1H4h6vFrGjeXFdRjaIyQNwzxn8K7vwP8P8AXtI0R5L2aPzpRgop+7x1r53Nc0o0sNeE0pN7G1GEm9Nie41y28POYEWPnDeUrdD6mvP9a+JOn23ixtbuZrOXUQpjEqQ73VfQZGK7l/AVg2ptca3eSXKEglIz156V22lfCvQdcTd4R060WePnF7bkgn61lkkPrbapNyfk7HUoux88a38X/C+t6cdN8Tadc6taF1fyb4MiMw6dKLb9omw8JWcK+FfBdhYJbDckdocF/Te3Uj2r6d8T/DqNPA9xafELwZoUumbQnn2iCORTjqPevh74sfBGbwbp83iDwrfS3+hPndEw/ewZ6bvUe9fV4bLcLzrD4jmi30bdn91i0ne7ZzqeKrzx98Y7zWfEX2UXeszHesQCpE2OMAVa8d+FLbw/4SATUjNdGdkmVfuqo6HNdBoUXwrtvhz4bih027m8TzndeXSNxET/ACrvG0DTb6+07SZrJb63hzcNlgftBAyA3tWuKzOOHxMHCLjCN1ay15dLry/4c5asuWopHzBd6JqGnw2817p1zaxXC7oHmQqJR6jPaoFiC19GftF3djqujeHfP1QtrFojKNMjUBLWE/dXj0FfPwt55ZzHDEzueiqM5r6LL8weNw8a0ly3vp8zpjVuXdK0K/1CH7VDGgtQ+xpXbABrqrfSNQkuzps5/tC4cbLaNCWbHtS+HINN0zwlcxeKLO6l8w+bbQxtjYfVq3IBqnhXwo3jnTVnjkv2a1tQrhjEMdcdia87F4qc5OMe9o9m/X8zlqSc5WWxg6dF4h8FeMYbtLKCa+sWEgtid6t6hsVffxy3jDXbqxm0HTtGmvmOw2oZd0vp7V0nhbwZrmh6BLe6/p93a3d8BcpdTNnKnn8M1xdxpY1m31bVLJXiudO3SMqMBtH96slVp1ak41Erqy5l/l2ubU468tiibeWO8kspEWC9ik2OsnGT+NFb+keKLPUbW0v/ABNpEeoQqwRZkIEowOrHvRRVr1oPl9m2/KzR0rDnt3j3RtP0r4gX1nYmV47dA8gK48w1weu2E0vhybWrUJ/Z4wroF5Q16V40gll1dtZdQJLpyWj3kkDGMV59qunXllpJtp3C+YwkFqH4YE9TXxeVV24U7y10X+f/AA5yVH7z7HndxBFM5QtiYoWK7eq+wrCFvNDKt1byvGyt+7dRhlPrXqI0LUrz4bXviCw0Vbi0067WK7u1b50DHhcelYEXhu71DxMunabAslzcbSse7gAj+dfX0caoJ8zsl6dPyEnY57wtrnibwjql5rPhvVpdNvJ4TDNeAfvAhPO09j717n8ONC1uH4NeIPHfiu91G8S9C2GipfZfzOeXAP161wl5otv4K8U2tteWkV+IcSOrtlCc/db2zXrtn4t1/wAY6U+p63eadb2dpmKy0G3YL5Yx94KP515+aZm61D3I3g9b/kl1/wCAa8+jueRfEDUfFGlX+maV5os47aNXVolwHI7H1qtfWNjrXhSHxtby2kMUswtNQsmwJvN6BlXqQetbXxZtpbm+0pExJthDO4fNc94b8FWepaZPr3inW18P6Fb5dbwnLXLDosanqarASpzwtKq/dl5Le72t57rsRD3lY878RRNa6/JbZICY2qVxgV0Xwr1TwZpfxBivfHEc02mW6bxDDkFpOwJ7V1uj/BLUfiZpN54m8FeLNL1BEJb+zLmYJeiMD7xSuj8GSHTvg7qHgPxN8OrW7WF2uWvtu26z0wT1Ar1sTmeHpUPZt80lZSSdmr9dbG/Jy7no3g74gr8RTqlx4f8ADc1nY6UN7Xcz71IP8IPrTTrccmoiSPVI1lcgRGXohPqK5v4d6/rN94DudAa1h0fRIpS8MEI2vMx7M3U1YvNP0x9YSztdNkmuGUPIAeFI6Gvg8fh8MsZONONkvRnJUszqtZltZVj0q31CSdhH5lz5X3XOegrm/iD4nSTwxDptlZx2Gmp8ht4x9846t71W+GXiG38EfGyPUvFtuzaHFG4kdxuBOewPX0rmPiv450/xv47vdR0SwXTtMZyIYl4DD+9j1rfC5T+9g73S1/r+tCbe63c4zwz41uPAvj638TWVhbXt1agiOKdMqpPfFegx/Ffw14ptdS1vxVr+rnxAQ3kWO1jASe3pivI7q0ZYDK8ahf7xPNP0aPTbzzA7JFLGDtdjn8a+rxGFo16fNNPTsVGo4qx6l4FD6t4Y8Q+Ptav4La205QlvEw5kk7YWvNPiv44vPGU9nqV4EE8EQQFUxhf8azL12juGtI76U25IJVXIRj7jpWJrFjcJBiQEoRlecgVvgcDSp4j2736eStsXTmtEYTa3eeUkQcGJWztxzXsmi/D3XvFY0O103SDcy6simEomREvcn2rxFrVhIVavqv8AZXm8WaXZat4+1HWTa+GtLtvs0Tzcgv2Vc9K9rG4dSUZQaST1OyVmjE+I37JvjrwX4dTxBp15aa5bfN9pt4RtlhPoF6tWn8GPhj4C1fQXtPH+k3q6o0gKkSeXtT/Gu1g+ME/iPUnaSC/1G7JcRyWykRhc98datanDNeR/aDD9lnOG80HBJxXyGcZvXhFU6eivv1+duhyzlZbHReBvC+j/AAr1nVtJ0LxE+paBqqGSC1m+9by571i+KdWYy7UYcsVc9jXCvfX9vqQPmt5kZ+Zt3UVHrOrmWLLNgHg89K8HEVK2KnF1Hc53M1pNI8M2miS6tNpcV28r4VpxkBh7V4h8R4fD019HLotssNyCfPEf3fwrovGPi6d9Hh0q2kI2jnaetYOh+BdY1mH7desbe07s33jnvX0eXQlQtia82l0V9/kQnbVHH6LfrpmqrPNb+ag4KkdPeuqufFNg0e6zTY2M7sd69Yu/gL4L0vwvaanq2vvFLOQyrnlxj0qLxD8NrLXPBttZeB/C06iPBlvHBy3OM124nGYWpVi5J3f3WHJJs8r07xdqdxe/YtI0Z7y7ycLGmWPvWzNqPxNh5uvDlxboMfejIwK+lfCngvwP8JPhq2rQLDdar9n3XdzN95Gx0H414Hrfxt1XV5ZrWMb5ppfLTAzuGcCuT2kK9RrDUVJLdsv2aXQ7P4MeHvF3jW/uZzqH2OG2HzOw6n0rS+Jnjjx38PNRGkPKrpJ/q5wOor1L4MeFdU8LeAW1W/tttxdjzXiPoenFcj8bNFtfEvha5fcn2u1bd975gPSvIxWEw7rwqYimrN7W6G6jy07o8w8J/F3xEb3fNMss5b5UkHBNenH9pG/0mHy9R02/tSoOZLdiFPvgV84Q6RPFbfaIch04ODyK9Y8AeNfCOr6K+k+L7mCz1G2GLdpUBSUehJr0qeFo0Juph1ZdbGNOq72ub2rftT6TchRNp2oapggrFczEIfqpqlf/ALSlhqulTWy+BIfPngMY3fOmPTFa134H8AeKrI/2h4f+xrkD+0LR/lbjqMV8/wDiHTLHwp8TrjQNEuZ73TYyB5s2Vbae4r0Yxp14O12/U2dRmzo+v+Fru9urm+jt9GvLHc4giTK3DH+E12HhXxlpEXgPxJ4rkubeO8gtlgs7Vh827kZA9K4C40HTWm1P+1bdShi32l5b/N5Z/wBuub8P+TCRLctHcRhguVP3hnriueeDoV4uau7W0303svX8Dnly7s7f4r+P/Afjvwf4f1PTbGez8YwQiDUwqEQyqBjd9a8nXV3sZgbaRI5AcqxHNei+L9F05fCZ1B7e3t7kEmPY+N4PSuLfV9Ms/B1xpUegQ3N5Jj/TpGw0WfQV6uAnSnSSpxbV7WutP+AjWm1PodHoWrWd34ce4vbmPeTtn8wcn6Ur/ET+zvCGpeFbKzhubO6k3xXEo+eDHOVrzOW0vLW1t55kf7NMMpICdr47fWvTY/CVlpXwSGva1p6PrGqS405TIQ0Ufqy+/QVdfCUKElKbupS0Xn/wDWNFQfMezfD231G1/Zn17XfFfiiDWodVRIdMt3lEs1u6+o6rXgVtBeySeIbi0uTBELfy7lsYDHHIr1fxN8Pbr4T/AAj8P+MdMSW6GoQ77+CVuLR3HyEr2z614E17eSLdwNcMI7mQyuFP3mz0rDC03XnUqwa5XZbdnroaw+K5cS9tNP8ADsdhaFpr2U5mkH3UXsB70VqeHtAttREqm+t7MRgMYnPzMfaiumpjaNGbjLcqVZrRH1T4mvrnTdJOqRQC4kuXOyOUZMfHpXmFyL1/nvRL9rkAYM3RAegr1bU9Tt5I9QtrLT/N1fJJVhlFGP0riLJ49X8N6ydSuYrddHtRJGhGPMc5496/Mctk4U2+XZr1s9tO35mE6d3ocDJeazbT3FrZahPb27HdLbqf3czDpkd609V8Yy6fp2m+RYm11qJg8t0oxv8AT9KwZb1ZdMt59u2Qjf5mDtBPYmul8ZadHd6faTGNTOIVkVgp+bA5zX001BVKca0dNf6fdEW0KWueKbvxJpKSrFCrRpslVgN8hzmrPw51nwtpt9cJqFhfXXiq6fyLOQn9xbp3z6muKSxuUdTYI80hXd5aAn61Rj1may1iK7j2G4t5N65H3SOtdsMDB0ZUKWzT/p+QLuexeIfDmoap4paxthJJqJVYoc4x78VyWtfDiHW/ilpvgfVvHkNqxAVkJ/c279xjpmvWPAOqHU/Edl41h06TUrK1QPdRxqS27viotS8AeBPH/jW/8a2dr4k0o7zO1hKmPNkU8BTjpXg5djqmHk41JcqjG10k7S+exrShZXOW/wCGfbXwX4kXVLL4ny2MltMvmSp8jkD0A4Ir0e4jk1/UYbxLz7bpyoI5bqIBTL2wcVsW0r+KdMij8ZaBFpsduwjgJHzsoGBn3qTSNB0TQy0EWpusEg/dWj9Cc9TXz2Y5rVxD/wBonzVI6LRbeq/pDlK+2x57tl8I+Mrrw41nPeSXh32UQXOzd06V1V/o93oQWzu8pqUyq8ki/wAKnqK7iHTbS28YW3i+0iie+tozCC65ULjqM1zXi++iu9RkuwQZ3xhT+tYzxVOtGLV+d2uYzhbU8M8f3Wpazr0Wl6fBNIxHlpDGuTIa6bwz8EvP8LS3nig3dten7luuMx8d6NC8daF8PPi5Pr2r2Y1DFuyQogyUc9+ahX46Xs3xBu9c1HT/ADNOmBC2/dT2r7fDQqRw0I0lpb5mJ5p8RfAuqeELdJn1OO5tZB/q93zrz3Fcl4aMD6g7XkbNbIpJArqNUj1Hxtd6z4luLrCoxMdu56D0xXnI1eTTYJoo0XMuQ2R0r6LCRlVoyot3kt+lrmkVzKyNs3dteSTxwIYwGzGvXitWCSO50JoZxuKjBJ6muC03V206884RrISMbSK6/wAIaT4g8deIU0zw9pdxKpObiVEJWFc8sTXRisL7NOTdorW450GtTKs7fSG8U2kWsNKulmdRctF98R55xX05aWfg34hfEzR/hX4M11rHwHbwCcwo21rmTGSG9TXnHj74Iw6Lo/8AaXh3U5L/AMlc3Mb89uSKj+GGjfDPWrS3gm8VX2g+JFkHlyBsLnPbFefLM6GJofWKUm0tHZbebW/zHGrpZHtvxD1rSfAE1v4I8BaKkmrhdnkxLuIXsWNVtO8HeKl0BrzxVq+LmTDLaxdYyexro/CXwu17wv4mbxB/bdrrElwpEl3MNz7e2Ca6XWLb7VfKyP5m0jr3r4nOM8oRjyQ1b6ha+sjhdM+CHiK+059XmvBFBjcAx+YipbvwB4Qk0R7eaUvc4I8wN0Nd34o8fXS+Fv7M0uIxuI9ruK+dYdRu08eW9td6g6QSzfOSeOTXFGNXHzTw9Vxsl83/AJEqVOGnLc5nxF8PNSsdUZrNxNGrZRmq3Yf8J1q+oWXh2422drKfLM6rxj3r2n4tw6PofgW0vdMmjeU4GQclvetz4WaXZ6n4Fgnntoru6mBZD3Wvq1DGJqlWUZSXX5Eqkp7GX4V+DtqNUhm1e8udVigI2LIxK59vauk+JPxPtPhtoA07R9N+13gjwIoY8oo98V2+sahYeGPCpmu5U+1Y2oin7hxXKWXiTwZY2H2vUYIJTPzJPOuRknpzXNBqFZU6stev+Rv7NRvbc+Qdd+KWv6/BqNteM0UVySfKUY2039n3SNC1b9oLSLTxDLGlopMg804VnHQV6Z+0L4c8EzPZ6z4ONuLyckTxQfdI9cV4PLpVzpCLfM7QSoQyspwVI719JgqmHVOUaNlfT5nOnyysz9OPE+qweHfAepamygwWkZ+cY27P7or4asfH154t+LmoGSST7JfqRDF24rze++L/AMQ9R8LSeGLrxPdS6ZJw8LHO4e9Y1jrVz4f1/TdctY1aSzYMEIOG9q1r5c60ZKoldqyOmp7ysj2WwtDDrU1pcIepBBHT3ry7xpAmn+LJ4EztPzA+n0r1Hwf4qk+KnxKBg01dPlaMbwqkisDxr4M834pyaHesYpFUlcDk+leTg4TwmIbrqytqciouMrHDaT428W6FIo0fWblEyMQyHcp/OujuPHp8RWoi8TaKiXYTC38K4I5715ldXF7Z6tcWUTBRFKY+R6HFWrfU9RVlRpcg8BSOpr6KrgozSkkr99mdDpOx6Z4aF5Z6i1xpeqW9zLJkSxXJ+SdcfdwehqXxhpSx6TBqtv4UGgzu4Rngk3RPzwcZ4rmrPRdQ+32z6xaTWkMzfLMgIwD3rvNR+Hdwvhye7sNaurxrdBKtnOSQyf3hXiVZQpV4yc9/Lf5p2+9GDNvxN8F9Ob4Ew+IND1W+1HxJbKLm8s2OYzCeSUHqK53wf4V8PfE3wMdFbZpvinTsyQXZ4W9TGdjD+8OlexeBNdhfwtpd5aMiMI/IlJBwB0wR3FEfhjwppnivUNTjtE0688pmt5Q22Ese+K8l5tVjSlCbanF3i1+TXYuMlpY8K+Hfhz7T4nXwx4lik/s/T7hr6WMgEKV/hB98dK9Q0TR9b+KnxKTxLcaPPHo2myFraz8sKkuz7iY9Mirfw88E2Nle33iXxbcQyRzyHZbwk5uVz3r21vEr3NnFb2FrHomlITHAY1w/TGBiufMs6pKrOTlrayt0b+K3mzaLk0mz5z8V3HjPwzpPiyy1WC21rxB41dYY9Ht3aUadEh4OOinB4r521bS9Y8L6udH1zTZ7G+hQFoZlwcdjX2Z4t1rwn4S1NtN0ZorTW7/DS3TgvKSO+T0ryD9pCFNel0jXZvEelPe2tp5b2YUid+nzMe9erkeeOvWp0XStGaeut9EktNrdDWErvlZ43p2wtDdXBkQF87x/Fx0orJnvpHMaKwESgEIOgNFfVzwntNWEoXZ98XGiwfDz4lRad4jY3aXEWL1opAQAeK4H4m+EbLSrq7XTpi9hcgS2jiQHzVPO38K67xRr+l+IvHp1K2mNrLe3P2TFwu5RHjvnpXOeOtMkhvodIa5Nxp9njy50XoD2FfjGFc6OKhLmab380no/Xp6HRWhaLSWh5rd+KrCy+EH/AAgY0e1Ia5+1zX8pHmDBzsU13Go2kN54Y0bVoFY27QCPaWB4x1rEsZND8L6tLL4i8KQ+ILSYN5SM+wp7+9aXibx14dli03TbPbpqSEFrXbxCvYZr3cTKVZ01Qg3q23unda+aOW11qcXdzzeE7ovpzq19eIUjOQfKBNVfCfwptvFi3+r634zsPDWn2zHzJbhPMklbuEUcmrNtaTa78Q7+SThbcDYwTKf5xWjY2Xh2/wDEs8Pi66bTtMtS5+0iPPboB616kcTKgrQdp2TbSu/JJdRKPRo9c+Et7oXwv+A2ueLLPUZtV0WC9ESzs4h89geytziu4g8aeIde8NWGsT2sVho+pq72ykgSNg9vb3r5l8RfHbwpF4bs/AvhrwoLrQNMlEkYuXx9pcn5mcd/pTU/aE1nU/FFtqV/pMU4gh+zWmnQjZFAvTCgd6MTktWthasuV88tVey+81elj3TxB4tTTroRvpd1dsGALr84H4iq9xeafraR3MSyb4wGJLY/CksNR1290GLVr7TRpcNwAy27DLdO/pXGeI9XuLeeOwsF2s2DIyjHevgsNglKapxVprd3v6mT8z1G912Kz0iLzJsTsmFjBrzTxLc3k1vLNCWEp5DZ4B9K6zU1tYvCujloGm1K4ZUjPpmtfxJ4Mn0mwjivYQkzxhwuOOnf3rqhQlhkq1rruTWpu10fK914c1W91CS4ctNI5JJ3fdqlf6B4itEDTW0rQeq85967nxT9t8OaqbqBT5DHlSOtdl4O8ZaFrVoLR0iF0/DxyAY6dq+z/tKvGlGtGKlH8jgTbZ5J4RbT11RrbUvOFvJGVwD1PoRXmniG2RfEF5HEjiJZDsV+CBX1vqfw6/s2aLxNHZ28EAIYrwe/pW9q/wAGfBPxP8ItdQCHT9XEbeQ8P8b4/iFb5dnMVi9Iv3l91jqw8WpHwrZ2RutVtrMts86VY95PTJr7D8JfCf4n/Bnyrjwx4i06Sy1aJWngkA3Shh0/I14X4a8GaZonxEuT47l8mw0eQtLCv+suGXoFHoa9l+E3im++JPx7jefUktbWwiMlvDdzYXYv3VwepxivZzirVrx5KWsba9vI6cQ2lYf8RfHD+C9MvtL1DSGae/jK71ONpIrnvgbdfAqPR1XVrG7uPFbybts4LIvPG2qf7UGqmXXkLSxt5rkjyzkAdOKxPgF8Sfhl4HiuJPGeivdaozg293t3hB9K8rKcsSyyUqaalJ62fbT7jKlTsmz64tRMumhhIYrY58pC+CfY1rT+HrnSvBcniC/kKPIPli3dBXjy+PF+IV8134VJSwgYthlxg5r0Hx347W88FWOnJMGnjhCyYHfFfJVMqw1KNaVZXmlaPq2bWjZtnI6le2lxokk6TBZCeVzXzt46vJYNR82IkBWyCD1rto9UEVxKl7I4RiTXAeNUFyHa3YtGc446V6GQ4JYevZ6pnnPVla48TXuraVHDNeyTBAAEZsgVqeGfHfijw86jTNRliTBUKG4FeX2lxLaXyhmOwtyMV6vp2iLdWEF7AAUOCxAr6rGwp4VLm2Zc5uOqO3uvHusvoi32sJJdZ+ZmY5Brz7xP8RNV8UW8OlQxi3tI+gTgmu78Wy2UXgqCxt9pkKjgDkVwmleHML9pmTHcZFeFl0qHLLETj719CHUb3K1texaSqG8lLFv7zZrlPGWtT3agxwyLB08wjg/jXZXWh6Vq2orNcXW1YD8yjgHFUvGfjzw2nhiTw1Z6ZFMNu0PtwVPrmvYwc068JU6blLr0SNKaTknY8oglH2hQeea7ax0s6pHIHAVIU3MSa4Kzb/Tocj+IV6WLuL+zJra3YrPMuDhe2K97MnKLionVVjbY7vwq2t+CfBo1PwXFby3dzjfNKQWj57GuevPFmqS+P7TWfEdyJb+SXbMytjaK5y31+d9Kj0WwuJIHzhstgE1iapbXtvc778O+SfnHJb8a8ulhJSlKFZ739dSoW3J/G2ltF8RLxbONpobhhLGycjnk1FpOmC+8TWmj3Uy2ryHBkc8Ke1djpWm3728N2EZv3W4s6cBR2z61w0dvqXiPxytnpEbTXcz7Igq/dOe9dmGrurB0r/Ct/M2ko7nbHxZr/h7xKml6vMt7bWkgjVH58xemQa99019OuLG1klnktLWWIFZzICBnqhHp7Vymm/C+GGysbnxbsfUYTlpVQFIsD+KtO58T+FdVvY/DPmhbONR5zQxfMzDuv1rx6lOEpKUY2aWttmcT5WzR/sDUvBs7zOpn0y9DPHJC2ViH07U/Vn0/WfDSaLrqTB1kV4bhGwzrVvRtJuNPv7aGHXjdadKS8ltMdxCdhii9u7XXPiMlpp8amCyQkKq5xjtXzGZ1XTr+5o0ru3Sw1TV7l6/XSNL0m2WCFjBbRAwnd8xb3rlY/Herrqe+OJpYdxEcBbLA+oHar8F3Df6xMsU8ZmR8Rwy8DOa9W8PppUMKzaloOkWtwh5uAVdmOPSuDCYenNuOI1b6s2dS2x8q/E3wJ4/t9Jk+JNzbXY055FBleTMkZJ4/CvGte1m88Q3qXWorHJcIgQyr95wOmT3r9GvFM+meK/A2q+HICSl9D5G8ruVGIwCFr5I8T/sweK/CtgL27a8mtthf7RBb7o41Hdz2r9HyzF4enBKW8VZNJ7fIKfc8LEZVMZJJPc0V6/p3w20/S/EkVre38GpwS23nI0OMBvQntRVVeIsNB2V3/XmJ1knY9o+IWnafLrvh7xlYyoND8QBWcq5C27q3zAe+BWd42+Ifhm98fK/huxli0fT41gkaZjiVv72K4+z1fW9Y+FN3oSzg6XptwbiGMEGS2bHP/ATXM+Fte0fWPE9tpOrzmyt5AJHkGNsrDop+tfN1cuhNynKN1BNWXZ9fWx7Neiowt1Z2Piu5gMFtLBKkiTgyRhGJKk9K5UNoupavaJ4ytp5LJJV86S1H70r6V2sWl3Hjuw1nUNO0Sayg0k+XH5GCnH8TfWuH16zmgt7dDIHmmHzun3Tioy9xX7m9prfXVXV915HmcjTOnXx9pWk6tq2i3OiPYaNespsrj/ltGo4GfWuR8aeJdM/sC+0q2njvZZHzFKT91f8AGtePTm1r4UPrN+0hl06fyBLx0x0NeZ3mjT27vcm2lS3ZjtmI4P416OXYPDSquW0ouz10bVtdddrXLdNv3jmtLs7/AFLVINN0+2lurydxHFBECWkYngAV9jfBb4H2XhfUINV8TJBqfiJE81dOzlLQjs3q3tXlHwX0LxrBZXet/Dqy0efWWcRG6v5FWS2H/TME9/WvYLTR/jpaQxL4iudPtrmUt+9icFmOe5Fdmf4qpUpShTkoxW+uv/DEyj5HoHiC+W91SdnjKBD8ynhc+grzuLSTqHiFrp0/co2WPt6Vr3Ws+LJNSi0LVtPicDBe8jHXitK6vLfS9IkdIxtVMkf3jX5SlPCycYauW1nc46iaehmazdTb7ea3x51md0I9MdDW54S1PxL430rUNV1iY3DWzBSznGfpXA6Vr7ao9yJQVYMcfSuWsfHniDwz8W7fQLW5eHTb+VUkiPQ5PWvosswUq/PhKva+46Tc9Gdb8TNBe48LXFwsWcAtn0r560uK6NyZYrgweWciQHHNfc3j19ItvDC+HTDvnvLUsgON2cda+GfE9tfWUPlwq6RNIwYDqOa+hyjDywznhG+1vmE8PyM3V8Z+Iri9gt7/AF64ubaHAZN5xtBr0C7/AGijpttDaeBPDotZoYjG91OcljjlsV4posDhvLcsAR94960hY+T5lwiNsXO4etenLDYeFVSa1W3QqD5XoUtY1O+1a9n1PUp/PvJnMkjn1NY1vNcLcb7W4mgk7SROVbH1FaWpvI1mszR7I2OAV71SsHREkdhk449q9OnpBuxrUTuZWu319fSxx3V3LcLENqmRyxq34I8G65458Uw6Fotu0jsQZZMfLEvck1Na6RNr3iK00mxANzeziGMnpknGa+8fAHwk0r4WeEF0nTniub9lEmq36MGZTjJGewFaYjGrC0LRWo07KxxemeAdN+G/w8W1sbstct8ruTje/tWO2laqENzfbgsnIDE1y3j742aXqnxusNItrjy9A0+bZJN2cg8mu78R/Fr4e6hZNp2n67CzSAIHx93ivj8TlOIr3rS0b1M503LY8/u7WG+vmhidWZThgDWB4g0o21uVChlPeui8N6Z4O8Mz3WsXHjGK+knywi3ZxWmklh4nEkloGaEHgkYrkqSngqi3cF1tY4atOUdTwHULGNXZyNjDsa9R+H2pWt14Uezj5ki6gmpdZ8BJfbsEoT+tWvDPhe28KWMrSzAPJ/ETXdj8yoYrC8t/eurIzUrrUa8IluzJct8qnoTxVLUtXe4jOm6PbvNKRg7BnFdVF4fm1uEizBdW/u16b4B8MaXo+kmJtOT7ceskg5NedQr0rrn3/A0pwueHeHPhpqV4zPfLMokPzbc/rXVt8DfCMsBN7pU7uw/1ikjmvaLuw1WFjLDaBYznOwcmnWFpNeqcz+Ww48tutdkMXWlU0bTfbQ2jHlPjXxr8FtV8Lasmo6ejXGjl/wDWOcNH7GsnWLKbw1eQXlwikzLlVDdsV798b/BfjO30CXWbfUfO0qH5pYEblR64r5i1vUbm/ihnkleRUG1QxycV9PhZ1sTy+1eiun3N1eW5RmmDXLzqSpc7uD0q3BqN/KMsWnRB0YZAFYZmJavSfBtvp9z4RmtoJt+oTN88IGWIHSu7HTjh6am1fp6BN8keZml4f1PxBrHhy5s2kS3t9n7tjxkY7VY+Ctsmk+OdS1G9RP3MLKGY4IOeorPW+vbWVLCKCZEiPzRAcj1rc0DXdD0vUJ7jVUkLSL8oUcfQ14MpzhGoqcdJdjmdWUizrfijV49ZvHude32szFREG6j0NcivjG703UBcaFYJFKoA3ON31612E3gnTfEDSazZXm2CUkhXccViTeFQXEIuBIMhRIhGBRRq0VrLV9SFLXU7r4daf4o8T6HqWsrcAysCFySOfQV33wU0Fbe01vVNcu4TqLMYFtzJ81W9Qu7L4b/ADzrSRftP2fCsuPmZh1FfMPhvWPEL63/acWo3Cu8vmH5jgmnVwMZxlOyXe/4I6INPU9t+IHhHUfCbL4jidpNPuWw7qeYjmsXT5tTvVW50+/mmI+YxNITgV674dvU+I/wZvtBujuvkiO1DjnHO6vm3TdZu/DetzWbyOk1vIUYHvivJ+re1pt017yKnpqj3/wAJa9LeP9nvgba9jT5QxKrx0JrzLxT8Qvj9Nb65pFlqGpXuh/NHc+TbhoxH6ZPbFdl4K8Vrr2sW1rOtqty5UJK/A9hWd8UPGfxBOtXXhWz1aPQrdUMc9vFEALhT745rXKa6pzdOokvJjhKy1Pn6w1W6itXtopmBH3WDHJPcUVb1fwZ4m02wfVUtBJZROA0qMNwJHXFFfSQpUqy54WdyXFNkPg3VbvSPEkt3dM62s0bR3CSA/vBjjiubliMl9K20hTIXjVeMDPauj8Q6i+qeJZpvI+zsXC/ZiuxkHutXrmTS7DTFkMCNcAAJk9cd6ftZU5e0cfekkreh7dXVcqeiLXw+8X+LPDGtwWthfX7aZfyiO90+JC3nxk4OR617j44+HltbmO305DBpUpSSCWZTvVmGdp/GvM/gOniTWf2gNIh0GW1WYEz3HnqGCQj721fWvq/4ky+FJns9PvXu4dS1W4JsrN2wxK5BYr/CCea+czjAYmeJjXw6Ssvet17fNdH2NaeHhOOp8teKdB17wT8J76y1Bo2trm5y5j5Ctjg/lXCat40nufhdZeGBHG2643eYV5IPQZr0744i48NfDi28O39w8t7dzGbIkzx0wa8S8K+F9f8AHOu23hrw7ZNd3hy3l7sBQOrZ7V3ZRSVTDfWcXbSTlfZaaXMKq9nLkj2PctI/ZP8AiZNpVjraeItIsUuokuEZbkKUVuRnB6169omgXPg/wxD4fvNf/wCEkv8AnfPuLCLnoDXPeEfgte6Nosdp4h8X6hfXW1NtvHKSkf8As59q7/w14LvEv/stlGUiTIllLZz+NfJZxnrxnNhqU1PXSysckrp7ENtazsxhkO6UkDGOgrK8Q2UUc8NtIf3bEKeK6XxVeJ4d1FJxGSIcKyA8n3rA8bap4e1D4W3fiiy1WNZ4cKlsG+fP0r5fAYHEV63urRGbgnucR480Sf4V6nY6/JALqwvV3EKO/pXgHjrxQfEPjWPXdPtzZ+QwaMdwR3r2TW/FmseO/hxb6Pq7Ax2oJhY9cV4PrNhPaTujoRg8Y71+jcP0YxlzVV+9Wl79DJtRlZGzefFrxteeKLTX73UDLc2sXlRoc424xW3YQ3HiXwsdUvFVWnlJcFepPpXl/kXM7hUicg9/SvTfBNvr+t39h4ethstLdhI7Z7V7GaU4U6aqQtFrVvyQ6knJGlJ4MeG2TCbJCBsGMDFZ2vaReJpBtIMibB3bR/Ovf5NEsbwx27vtVFHzk1kyeG9GudRjsZL+K1eR9vnSMMV8Vhs/lKoubV3OdN8yPnjS/Dt9JHa6ff5MF3MIklYcR5707xfD4f8AAGv6h4b0yePXD5YD3nZGIzgV7D8WfDT+CL+30d5UuhMglglgYEEY7Y715ybLwd4fsZD4htXe+mHmLHLyzV9TQzCU3zVIt3+yurvv8jscrHn/AIcvntdSGpITE1tl4pcfdatK3+J/j7T4NTSz8T3qrqQK3QLk789awvEOtNNey2tpZfYbQnKxYwT71krMGjAPfivpYUFU/eVI7203Go3Hafpmo6zqaWGnWst3dStwiDJJPc17P4b/AGa9euLZbzxHdrYqcHyU5YfU1xXw98e6n8P9RuLvSNOtru4nG0NMgZlH+zX018N/FvjbxtcRX3iTS4tO0lmAQ7drStWeOxcqSetl+JM24mHYfBvwr4U0hb69spLhv4DKSQ1bFsgjtwLXTvs8P8ICYBr0b4kzxRQWVvGoZIcOUz2rS8N28HivSY7n7F5EMZx0xnFfn2Lw0sbVqXqNtbXOOq76HmVroF9M3227UpFn5QRXCfEaxlS6gjMphjJ6DivoPVfLl1D7NCoEcQwQPavnT493z29spgOGB7HpXj5I6lbHxgttiY0FY9k+DOgSfYYn2ebCSMMec17D4l8MRQWSanaBVZBlsCvl79n39oHQvD/h/wDsjxI/lSpwjt3r1Pxd8e/Dc/hC5ls9Uj3YOyMN1r7WvgKdOhKnNXl+p0wpWVj0nw/rVgP3V6yFmHcdq8f+NXimTwdJ/wAJBoKfulPzccVzHg74kad4heEteCOQtzl/0ro/jHZW1/8ACK6kchR5eV+brx1rhwdSpJRoV1blfzElrZnhfiL9o2XWvCN3pT6crvdxlX3dB714jHBdzx/6PCzAnnj9BUul2SnVFS4UmIN82fSvRPsltZtbHTdrSM4+Q9B7V9XVnTwfu01dvub6dDiLHwndyxi41C0lt7fg7gpr0v4b6V4Y8HeIIfG2p3c8unwMYzDtIJY+vtXVP4Rl1ixmWz8Rx22sxxq40+5G2Nx7E1zmvnXP+FS39r4j01LW8t7gKojGwMM9fevKqYupjafK5WjLRpPo/X8zOrTktyOHxZp3iD4s6wbGC006ynUyK8vG0DuPeuV1/wAU6A9g9hp9oJbhWKtcnvz1Fef6nFLDcLKXba68HNUvNYDAOK9ajk9FOM4t2SWnp37ijRja508Wo6g8Jjiu5UjH3ghOK9W0Cy/4tz88oMjKW3Hr+deRaJf2MWjXa3UhWXH7setX4PGOoxaG2lxS/um755FYY/BVK/uU1azREqIaz4p8Q6lB/ZF7qcs1pCxCxsTgeld74O0xX0ZZGTtzxXmllatcXilskMck/wBa918FWgl0JvJUMV4IHYVx57WVGgowM56aImuZ9d0PwdPr/h68e2ubU4k2Z5X0rxFNfF/4qa+1WUlZpMyuOCa9l1Hx3pPhnSNS0i7tzeveQlFQNwh9TXg508PukY4BJOM9KeS0f3MnVVr7M1hZqzO9luGtboSaFd+dCxBQA4YGu3tvEureKILefxXCrz2CYhuGXlwOx9a8Gtb65stQX7NI3BHevWPDPiiG9hS0vflYgoRnGM96zzPAyp01JK/n1MKlNx2GR65b6p4naa6kngtN+11iPDfhRWTcRR6Zrs8KnMe/KNnOaKxlS0Xs20rE81j9FPiX+z58NfiRC763oUdlf4+TUNPXynU+pVfvfjXyJ8Rf2OfiV4caS+8HXkXizTYxlYvuXSgdtg61+ld3pJcFlGfpWadMeN9y5U+qkg19e6XY9dTPx50/WvF/wz8UzGGG78O6yUaF2uoCHVT1C5r334SaF44174h6V8QfGk800JIW2luDvc8dQD0FfdXiX4e+FPGVg9j4q8N6fqsLDGZYwrj33AZrgLr4I6j4Y01x8M9VjgVRmHT9SO6OP2U9a569Bte6tTroVop+89DwX4xfC+w1rWZfG2ryEWVsmFs3+UPz1FeU/Bm0t9J+P5TSpxpSXyNFE8vCgY6bq9l8U+H/ABVZxO3xhs9exGcJLp0Ye2xnrxzXkWpab8KfEOtxaT4P13VI9bnn2xz3/wC5hgPck8EV87Wy+U6VShKTUZJr0+R6NV05JONrn1bcR2+j6Y9g7pNf4UkooI5967LQI7bSPCJubgBAyGeYsMcDtXmXh268GaTYw+CbW8bVNXtIUe91MuXRiBztauX/AGg/iwnhX4Z/2Vaygajqa+XHGp5WIcZr47Isl+p4ma5ueWy+Z486fvGtfxN4w8Lan4jh3eSJWEZ28EDivCtZ0yFYZDGj7f8Ann2znritD4OfHN9Q8I/8Kzv9OEUyKXgulJzIT2augk0yOa8ML4w4wx9KnGUXlmJcHppf1MJRODsLi22fZuSVHyqB0Peq9/pVjcs0s0aPKoyEA610UXhWFvEhsmnSCMEuZGOOK5Dx1410fRdXXT/D9sZPKIEk8nc/4V2YVyxFZQw122r/ANMwlRcndHK3mm3y3bMlmYISDtCr1qPQJtftvGtnZabM63NzMsQjHAIPauv+H+sap408Qy2Jsk+xQxmS4mxxGPrXPfEO0l0HUo7iwlNvIGLQyofmHuK9yliJSrvBVUuZr137mbhKMkmfQM9xBY+OYfAq3CXGrmFWkhjwSp6kZri/GkcUeuTaQblZpYwS4TG6I+h96+YV8Q69beIzrUWs3Saj3uw5L/nXd/DKe+1IeI9Rurt7ieOESs8rEsx55rlqcL/UY/WfaXsl06t2+41lTW51WsXGoQWcF2Lua9mtGDBZzu2D05rz3xzrur+L9bTWNQtvLeNAqrGvAArv7vVbJfCFjrk4Ty5ZBFOexNeWv4kmttTu/s5R7d2OEYZGK9XKKMnJ1FC8o3V/zRMeZlfWtRh1LRYI54P9Oh+XzQMBlrAQFBz9a0GuYZJGaXAJ5GKk0TRrjxH4hg0ixZBNMflLHAFfTU+WhTd9IrX0Noqy1Oy8IeDfF09jD4k0W2t5EGdnmYbp7V754avPHQ1fT38VtHDaW4DIkKgLnHpXg723j/4dyfYiZ/swzt8skofevUdG8dy658OQL51W+VwrMSc/hXxmdPEVo+0g4yg3ZNbpMwm76nqRg8Q+LNbe+8lzZI2xpMcEZr3NPsOh+AkigQRoE64xzXkvhXxetnZ6T4YESqsqhpJa77xvdQnwLcQwuAQnyEHrXz9LE+xoz5d2gVNbmLqCRaf4fk1Z5FYvlsjvXy18TGfXjI20ldx216FB4j1K40xtPurktApwMmuavrSCSWRZFyGB2gUYHkw1WM4rVGcnY8KufDu213qCHHUgVz7m5iYxO8hUdietex3mkB5XwMR55HpXn/izT47F1IADH0r77AZh7aXJLqVCpd2Zl6RfXVvqkX2e4eFs/KQcAGu5vPF/i3Xok0e/1OWW1hwCqngivM7cmS6SMNtYtwfSu6gvLDT7UQW7+dMcbnHr6Vtj6UVJSUby9C5rU77SvBWm3ekRX1siuUHzg8EmqvxFn0/wZ4Ys47S3zqN228OR90Vyr6/4g0u0A00uI2GSozis3xhd674n0u01DU12G3Xaue4rxMPgq8sTCdepend6X18kOm4p3e52Z+IvhDVPhSLbVmuV8QQEGGdBhuOgJ7iqUnj+98VeAX0i8QyvG2WmbkkdhXjQdiQOM13fgKFriO5GzfxyK9TEZZRwlN1I33v6enkb4qu5Q1RQvreKSzaC4yhHzBiP0rlTA5l8tQTzgV6fqmnW0ts8bgJIOc1y2n2AXUCXUED9a6sJjF7Ns8+nXsmZS6TsVTMGz3FVVj/4mKwxcgnFd7c6JcXlsfITHoxrnofDmpWF+Lp4t4Q545rWjjozT5pa9iqde6fMzVtIWtJo96kqR6dBXoHgjxLqGhSahFbWyzCeEqgYfcPrXBR6rDsKvGcjOcjpW/ol3JuDRqVT+8e4rxcdTdSm1OJk292FpoAv5bi41Bna5kYt69+1a0Xwk1LUrX7THN5QfO1SuMmrlk4/t+zl25jLgFfXmvomyh0n7RbxWSeY8i5KkHaDjtXk4jMMTCS9m9xxbZ8YX3he90HxQLHU4TFKnTK8Gr/kR2+oQzISFJ+Y4/OvsPxd4B8ASeHp9f8AE1qZjaIJGaJvmHsa+TvFuoaLq2uKfDVk9pZAkIrdWr2oVqtZR9oumvY0cX1Olutc0K3so0tLNLibg73XOOKKzl8PQadof2y/ZQvBYk4xRXl06VKSfKnLzM1FH67w3vbd+Bqz5sEo+dQD6iuVivPer0d7gA7q+7TPUsbbWaNyjZqB7coOVOaqxX3Tk/UVcS/yMNhh70xWZSnj3RNGyq6EYKyKGB/OvHviB+zz8L/Hgkm1Pw7FZXrc/bLH92+fXivcSbWb/ZNQyadvGYyDUTpxktQjJx2Pk3RvgkngLVp9O8JXN1qzsgaRbhgdoHRSfevBPH/gnXtc+JE2p/EzSr/TrZG2wpGhaNYx6EV+iQ8PvDczT7AHkPzMB1qhq1gstk0F5aRXcRGDHNGGBrw4ZRClOdam2pSOuniFGSclc/Nn4c+EtPi+Ldzc2N/HDY2alladgpI9Oa9Am8e+HZ/Gtn4b0tvtM0nEkq/dHPavaPif8NfAGqgQXnhaaynuW2m60z93t+uK8pH7J2q+H9ftde8GeJ47swYdLa6QhmHpuNeBmORfXas6lVtyUbJdL+bLr+zqWlBWOX+IF3pdjdyQ6rfPauVLRODjcMdK8D8ba7oWo/Z00d3Z0AEue59a9b+N3w6+J+r6zFc6l4Kv4rWAEb7P96D78V5Rb+DvD0SlL/ULizuhjdFdRlCPbmtsly+OAoU6mIcufstUvuMIwlshPDPxE1Lw14I1Pw9parG2oyo01yPvbARlQa6D4x+K9K1/VdLi0KUSwRWSCRh2fAyK4rVNKtbTKWs0Uo/hZB2rMtliS8jFz/q9w3fSvXWAw066xkFaSu/W6S19LaGcqd5amY0M0j8IxrpvB2t6l4V1C4kjjJtryIwTow4Knv8AhXaz6Fpy2Edxp6oyOoKDbz+NZdxHaxW7rLs3kEbcdKJ5jTxMHTcLp6WLdO5B441vSY/Ael+GdFvTdIHM8zY+6ewrzV3J6Gte8sZjM+IwFJ6gVmtaur7e/fivTwNGnQp8kXfd/NmLhy7EJ3A816r4W+Efj37NY+JrJVtgwEsW44YivMvss6MrnscjivRtC+J3j7S3gnu5ZZ9ORRGqSIdgUdMVjmjxMqVsI43636+SJlGTVke56Y2pTacLPxTYAtgh3xkEVymqeC7862LjR4StkXGEGKoJ8cbCaHy5LGaaZs5UcgH6V2Xhfx/b39n5kmlTQSZ6uOD7CvzqVDH4LmqunZPp0+SOH2c09TsTLa2Wm2UMAL34QAOOv0qxrfiTVbfQZF1NBChzhmPLDHSvPNb8QXLzfaLGLyXHKgdQa828T+Lta1Jnt7+/lbHVOawwWU1MTJXdu51UotnWWviy0m1h0HMYOdue9adnqs99qvmG1ItecMRXkPhUXF146s4hE0gLcoB1Feq+IPElhouqR6QBiduAgGNtevj8BGjVVGlG7av6E1aeuga3btBMbmBcxk5K/wCNcB4205b3QftcGWdBWv4r1fWf7O26aodmPJHeqWhQ3ep+HHivlw/QkjrXVgYSw8I15NaM5+Rw1PGQzCTJJBB/KvVfCsXhaDR4rgl7i9bGQeeacPh7pbu7vuDEkkelLbXPhvw88lugDypg/jXuY3HU8ZDko3v5Gk6imrRN5ibqRBDalYv7uKn1jRZbzTPJ2lQ4xgdqteHdf0250CfV5xsMZwFx2rbg1rRtT0s3EU8Y4ywPUV8xVq1qU9IP3Xb5nJLmTPC9R8AazYlpYY/tEXqvWug8B3UGiwXCXatHO38LDr7V0/8AwlunW2qG0EqMhOAw7VefTNO1nEkFqBLyQyjr716+IzGrUpezxUdH1CdWbVpmHrNsbuz+3qCFPaodFstOFsbm4yz9QtdJqtuY9JFksY3qAo4rtfh74C0dNH+3arNHJK67gh6L9RXNRrc9PkvbXT0M4q55RrOr3i2jR6fZMFHGdvSq3gSHVNU1WYXkcjW+0ksw7+leq+KfEHh+wvntbXTYhHGSHcrwapaD4t8Na+kml6PEkU4TLALjJrSU+ShKMIfM1VN9jmPCHw+Txj8Szp8Q2W0R3ykenoa9S+JXhXw34F8EG+S1SHyyAnq5rh/hx42tPB3xE1BL7AS5Jj3EdKq/Hfx9H4y1G20TTJN9pbLudl6E12U4KslCp5fcbcrtqX/B9va6lbWmtTHZb8MR+NfSelQsNI/tHwlbQ3s+04DYIUgdK+aPDStD8IIpYRkomenQZqLxJrXxE8B+C7XxJ4U1GVdIvF/esM/Ix46V5eHoKpiXFbXaRVCGpymtfFrxXZ/ETxBYanI5iu3a2ntXOUjPTIFQeFdKW/1ZbYA5CNIMkcAV5VeX93f6tLqN/IZ7iWTzZHbqxzzXW3/jiKO3X+wIHt7iS38maRuwxzivpcXgJOKhQVm1ZvodMo3Idf8AE2p61qc9nNOfJikMaRqcA44orDs4ejM2WzuyaK6oxjRShTVkhqFtj9oJLeSI5jP4Uxbl4zhwRWzJGG6Cqk1qGB4rtsdCZFHd+hqzHdEnr+tZclm6NlCRTRJNH94Z96SdgsdDHd47/rV2G+K9Grl47setWVusfxVSkKx1kepoRh1B+lSM1pOP4efUVyYuz/eqZL0jvVcxPKaN/oVjdA7rdG/CufvPDQQExKK2Y9UYD735086krjBAqXGL1DVHJ+Xf2qlFdtv908j8q4bxX8O/B3i6N08QeFNPuXbrLHEEf869cleGXJKiqrWtu5+6KiUEylKx8feJ/wBj3wNqTPJoV7faTIeinMiivHPEX7IPxA0i6E+j3trq9sjBthOxiPTFfpCdMhbsKY+jwEZCDPtUexa2Y+e+5+VvizR/iXotx9muPBN9aW0Shf3MRcHHvXnJl1O41kpdx3Fs7ZGJUIxX7GT6BbTLtlt45B6Ou7+dYF/8MfCeqAi98N6bLnqfIUH88VjTwkKUbQihupd3Z+UtloWpX999mS+jIPQmtaT4a6xHB5yMshr9DdZ/Zc+GuryGVdIaxlP8duxH6Vw2t/sgExH/AIR7xndW5xwkw4rkrUMZdeykkvQ7KdTDNWknc+KE8C6k0R80bCDzk1v6hZXPiPTdK8N2zw2/l4Rjnt/eNe1+JP2VPjLbwumm6zZ38Y6DdgmvObL4KfFfwj4kW+17wffXkEf8Vvls1yVMLimvaVGrx1Vl1E/ZN8sDrdK8C+DvBHhYRQ2sWo6nIpDSyDcSfUe1ZaiWzUpqrRo4bMcUfGPTNZura/4h03U0aTw7qFmBkEzxHgelYev6oIdO8w3LG4uTl2ZTleK+Y+oYqdS1dtuT6/1oZwwDldt6GtbX8F/qrpA5mnQZZU5wM1xfjptNhvUe2z5ufmBPWvfP2atG8J23gDxF4u1CWCe+IaELcYARcdRmvm34kXlp/wAJVcC0lV1MrEbcYAz0r3MHgFTxKUXpYFRVNN9jp/h74v8AC/hXWhqOtReY7KAhUbtp9arfEHxp4b8Q+Ml13R42RkTHzDGTXlbS74wwByO3pWx4T0C98VeLrPRbIfPO2CccKPWu+WT0KdZ42bd0rPXS3oZWUpaGpo/ia+GqSpfSgpLyu4/drvvDmuWl3YzM4WMRcdcCq3xO+DWoeBdKgvUlaZcgSFRnaf8ACvPL7ULm0tYooGKROoMuB1rllQw+YQU6Gl/lsZ4nCtaM9A8XazbxeDptS07UIxMZPLEYb5q8pmlZpBK772fkkmqwE+oXTJCjkE5C9RRdW1zZzrHOCGPOK9bBYKGFj7NO738zClRUUdto2tWNh4SuYJm3NID8uelch/al8HaG1lkAkbAVT1qLkxY55rpfh82i2fja3vPEA/0SPnpnmq9jCgqlW129bFSp2VzpPBfw+vZiuqaypVOGEbdSK9Y0uG1iBWBFWOMcEetcH4g8f3Ov6ymkeF7cpAxCBwOSM16jb6FLpfgl5JsmVId8hPriviM6qV58sq7s5bLsjza6luzMbTBqgknij3FDnAq7Y6DPPpsn2K+aOYKQE3cCpfgdr9lrmpX1nJh3QlSCOop/jSW48M+Jrs6WwaIfMYj1NcdTC16T5SXRcUeM+ONb1LTY7vRtUsNsrkhZum4etct8ONTh0rxJLeTyFQsZHB61P8QPGNz4p1oJPGqpD8oA6/jXJW7GGYSDOM8gd6+6weFf1TkmrOS1PQpU2o6nU6mbvU9Vmv7dT5bMWHNamkWcb6femUA3DRE5Y8isk+Ik2wW9lB8vR81vSQNcyi3hmEN0QGbPGVx0rlrc8YqDVl/l3N/ZJo3PDvjvSdO+FF/pl1IVv0QxRR/3s96k8H/FTTIvhVq3gjxgkk8UkZ+ySD5sN2BrK0fw5p13qVvbG3Ml3IvII6HPWul1f4S6jNp3223sLa8Zc70jOCvHT61jH6unJWfvO9+3oddHBtLmR4UbMM52jjPy59PeiezVLNWjX94DzivWLT4f6Ja6RNqfiy01DSoVXEYRcl2rzq4glheVoref7IWbZI6Hle2a9qnivaP3ehM8O47lmKw0uTwNFdwXLDVVlxJAf4l9qKr2UyWswlKBgPWis+acG7Lmu7/8AXLF7n7WbaYyg1LSYr1bHPcrtECKqyW6kdK0SBio2FTYZiy2YJJxiqrRTRtlTkVvtGD1qvJEp7UmhpmP9oZeHUinC6HZqtzWwweKzpbTuOKmzRSsyx9oPrQLk+tZxjnjPytkelIJ5E4dPypXHY1RdEHrUi3eO9ZIuEP8WDTvNB6NRzBymyt/z1qdL5T1rnfMOeDT1mYd6fMLkR1CXUZ64qwksR9K5VLkj+KpkvSD96qUxch1G6Iio3jjesAaiR/FUg1I5+9T50LkZsG1B6H9aUWgPB5HvzWWNTPc1MmqDuaOZMXKx914f0q8Urd6baTg9RJEpz+lcrrXwg+HutxkX/hTT5Ce4XH8q61dTTuacdQjP8Qoai90CclseN6t+zl4Hn0ibTbCyfT7eX7yWzEA143rv7Cvhq9nebTdZvrZic/MQRmvscXcTdxThPEe4qI0oRd4qxTnJqzZ8A337Buvx5On+KI2HYS1qfD39lT4gfD3xkNfN3YXuxCqqM5r7uEkRPY0rGAjotKvRjXg6c9mFObhJSR8W+LfAHxWv9P1S1u7CDUI7oEIrdY/pXy5rPwX+KlhPIk3g29kUcApyOtfrXJDbOeUQ1XOn2b9YkI9wK5MJltHC39l1NquJlV+I/I/SfCfizQRM194I1QuehEea5nUNE8TXmrPcXWg6hGueF8luB+VfsdLoOlS/etYT9UH+FUZvCuin/mH2x+sa/4V0xoKM3US1ZjzaWPx4m0+9hXYdKvlPvC3+FMRZUAWWyuVA9Yj/hX68zeCfDs2fM0ayb6xL/hVGX4YeEbn/WaBYH/tkKbp6Fe0R+V2i6/Lol0txawYcYxujNfSPhrxVF4w+DmoXLgJcxRskgPHavrOX4J+AbgHzPDOn/hGBWfcfAvwjHay29jpkdtFKMOkXAb614Wa5MsXFOK95NamFanGoj85Phx45t/AXj65vboM1tIzK+zr1p3xN+Kv/CVeK5L7RTLBCU2Et3r71P7M/wAPVz/xT1uc9SVzUB/Zk+Hg5Hhy1/Fa9GOEhKaqTjr6lciPzBaZ3mMjMSzHJJq1FKhxljn2Br9Nk/Zn+HinP/CN2Z+qVch/Z4+H0GNvhiwJ9467W2+hSVup+Ztqy+apCM2DuHyGuz1f7BLYWV/byXD37Eboo424AH0r9FbX4MeCbYAR+G9PGP8ApkK2bX4YeE7cgxaBp6H1EQrkq4V1JRltY0U0j8ytOvdcttet9TisbwzRjqIm6Z+lepXvi7xRrGmwWWl6JqNkPMBkkSNgWHftX3xF4H0SPGzS7QemIh/hVxfC1kgwlpCo9ox/hWc8tU2ntY2hi3BWSPkFb5LiytLOfwvqmrBUTIkj4Dd+1TzeFNd1a4P2LwLI9gUZRbTIoGT3r65Hh5EOY4lX6KBTxoj9MGpWVxW7G8bJ9D87pf2VfiffalNLHDY2UMkhZVdj8gPaiv0UHh0vxtJoruVOSVkzlckzrxmg1p/2THj/AF7flSjSY+8zflXTZmd0ZWMimMtbH9kxf89m/KmnR4z/AMt2/KizC5isMjpULjmt06JER/x8P+VNOgQn/l4f8qOVjujnnGTjFRNEp6iuk/4R6D/n5k/KmHw3Cf8Al6f/AL5pcrDmOUkgGen6VVlgB7V2beGYT/y9yf8AfNRnwpbn/l7k/wC+aXIylNHCS2oPQVXNtKv3WNeg/wDCIWp63kn/AHzTT4NtD1vJf++an2bH7RHn489RyM08TEffUiu6bwTZt/y+yj/gNRN4Esz/AMv0v/fNL2bH7RHF+ah6NR5npXXt8PbFv+YhN/3xTf8AhXdmDkanOP8AgNL2ch88TkfMalEjn1rrx8P7Uf8AMUnP/AKePAVqB/yEpv8Avil7OQe0iccZH96QzyDvXZnwHaf9BGb/AL4ph8AWh/5iU/8A3xT9nIPaROO+1uO5pDfOO5rsD8PLI/8AMSn/AO+BTf8AhXVl/wBBOf8A74pezmHPE5Iag4/iNOGpuD9411X/AArmz/6Ck/8A3wKD8ObM/wDMUn/74FHs5j54nNDV2A++ad/bLd2rof8AhW9l/wBBS4/74FH/AArey/6Clx/3xT5Ji5oHPjWD61Kusjuwrb/4VtY/9BS4/wC+KP8AhW1j/wBBS4/74FHLMOaBjf20o/iFMbWk/vCtv/hWtkf+Yrcf98Cm/wDCs7L/AKC1x/37FLlqBemYw1dCfvCpl1ZB/EK1R8NbMf8AMWuP++BTv+FcWn/QVuP++BT5ZhzQMk6yn96k/tmP+9WsfhxaH/mK3H/fFH/Ct7QdNWuP+/Yo5ZheBkf2tET1oOqQ+ta//CuLX/oLXH/fsUn/AAre1/6C9x/3xRyzFeBk/wBqw560v9pwkVq/8K3tf+gvcf8AfAo/4Vxbf9Bi5/74FPlmF4GT/aUPaj+1YVNa3/Ct7X/oL3H/AHwKX/hW9oeurXH/AHwKOWYrwMka3CvelPiCAVpH4aWh/wCYvcf9+xTf+FZWn/QYuP8Av2KLVB3gZjeIU7VEfERHT+VbP/CsrPvq9x/3wKP+FY2X/QXuf++BStUC8DF/4SWTscUVs/8ACsbL/oL3P/fAop2qBeB3uaWiiugwDIzQfaiigBRjvSGiigA6UdaKKADbRjHBoooAOPSg49KKKAACg4HaiigBMCjAoooAUYoPFFFACZpTj0oooAOPSjrRRQAbfejAHaiigA4peMUUUAJ9RSde1FFAC4FLxiiigBMd6UAelFFABx6UhA9KKKADrxijAFFFABkelH4UUUALxRx70UUABA70hxRRQADFGB70UUAGBRRRQB//2Q==';
+function mossVisual(status,opts){const o=opts||{},size=o.size||150;
+  const cls=status==='caution'?'is-caution':status==='anomaly'?'is-anomaly':status==='insufficient'?'is-insufficient':'is-normal';
+  const col=STATUS[status].color;let ring='';
+  const inset=o.ring?12:2;
+  if(o.ring){const r=94,c=2*Math.PI*r,pct=Math.max(0,Math.min(100,o.pct||0)),off=c*(1-pct/100);
+    ring=`<svg class="mo-ring" viewBox="0 0 200 200" role="img" aria-label="정상 범위 일치도"><circle cx="100" cy="100" r="${r}" fill="none" stroke="var(--divider)" stroke-width="5"/><circle class="mo-arc" cx="100" cy="100" r="${r}" fill="none" stroke="${col}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 100 100)"/></svg>`;}
+  const ph=`<img class="moss-photo" src="${MOSS_PHOTO}" alt="이끼 (측정 대상)" style="top:${inset}%;left:${inset}%;width:${100-inset*2}%;height:${100-inset*2}%">`;
+  return `<div class="moss-visual ${cls}" style="width:${size}px;height:${size}px">${ring}${ph}<span class="moss-dot" style="background:${col}"></span></div>`;
+}
+
+/* ================= 상태(단일 소스) ================= */
+const sim = { sensorFault:false, lowQuality:false, noData:false };
+const settings = loadSettings();      // demoMode, productName, productId, notify...
+let sensorConnected = false;
+let connection = 'demo';              // demo | connected | disconnected | error
+let currentView = 'dashboard';
+let analysisTab = 'wave';
+let history = [];
+let lastMeasurement = null;
+
+/* ---- 환경/기기 데모 reading (실시간 갱신) ---- */
+function initReading(){ return sanitizeEnv({temperature:24.2,humidity:61,moisture:76,light:5200,pm25In:40,pm25Out:26,
+  airflow:2,fanMode:'auto',pressure:42,fan:'on',pump:'on',led:'off'}); }
+let reading = initReading();
+function stepReading(p){ return sanitizeEnv({
+  temperature:clamp(r1((p.temperature??24)+(Math.random()*2-1)*.15),16,32),
+  humidity:clamp(Math.round((p.humidity??60)+(Math.random()*2-1)),30,85),
+  moisture:clamp(Math.round((p.moisture??76)-Math.random()*.4),0,100),
+  light:clamp(Math.round((p.light??5000)+(Math.random()*2-1)*300),0,12000),
+  pm25In:clamp(Math.round((p.pm25In??40)+(Math.random()*2-1)*1.5),18,55),
+  pm25Out:(()=>{const i=clamp(Math.round((p.pm25In??40)),18,55);return clamp(Math.round(i*0.65+(Math.random()*2-1)),3,i-2);})(),
+  airflow:p.airflow??2,fanMode:p.fanMode??'auto',pressure:clamp(Math.round((p.pressure??42)+(Math.random()*2-1)*2),10,200),
+  fan:'on',pump:(p.moisture??76)<=0?'off':'on',led:(p.light??5000)<300?'on':'off'}); }
+/* SensorReading 정규화 — Demo/Real 모두 동일 구조.
+   캐논 필드: pm25In,pm25Out,temperature,humidity,waterLevel,light,airflow,pressure,
+              fanStatus,pumpStatus,ledStatus,timestamp (+efficiency 파생). moisture=waterLevel 호환. */
+function sanitizeEnv(r){ const b=(v,a,c)=>v==null||Number.isNaN(v)||v<a||v>c?null:v;
+  if(sim.sensorFault){ r={...r,pm25In:null,pm25Out:null}; }
+  const water=b(r.moisture!=null?r.moisture:r.waterLevel,0,100);
+  const inV=b(r.pm25In,0,1000), outV=b(r.pm25Out,0,1000);
+  return {...r,temperature:b(r.temperature,-20,60),humidity:b(r.humidity,0,100),
+    moisture:water, waterLevel:water, light:b(r.light,0,200000),
+    pm25In:inV,pm25Out:outV,pressure:b(r.pressure,0,1000),
+    fanStatus:r.fan,pumpStatus:r.pump,ledStatus:r.led,
+    deviceId:(settings&&settings.productId)||'MOSS-001',
+    efficiency:calcEff(inV,outV), timestamp:new Date().toISOString()}; }
+/* 연결 상태 판정: 마지막 수신 시각 기준(실제 ESP32 연결 시 그대로 사용) */
+const CONN_DELAY_MS=15000, CONN_OFF_MS=60000;
+function connState(){ if(connection==='disconnected') return 'offline';
+  if(activeProvider.isLive){ const age=Date.now()-lastUpdated; return age>CONN_OFF_MS?'offline':age>CONN_DELAY_MS?'delayed':'online'; }
+  return 'online'; } // Demo는 항상 online(위장 아님: Demo 명시)
+const CONN_LABEL={online:'온라인',delayed:'데이터 지연',offline:'연결 끊김'};
+const CONN_ST={online:'normal',delayed:'caution',offline:'anomaly'};
+
+/* ================= 공통 제품 구조 · Demo/Real Provider =================
+   Device(ESP32+센서/구동부) · SensorReading(위) · DeviceStatus · FilterStatus · Alert.
+   실제 ESP32 연결 시 DemoProvider 대신 HardwareProvider 주입 → 화면 코드 변경 불필요. */
+const DEVICE_SPEC={ controller:'ESP32', connectivity:'Wi-Fi',
+  sensors:['PM2.5 전단','PM2.5 후단','DHT22 온습도','수위','풍량','차압','조도'],
+  actuators:['팬','12V 펌프','LED'] };
+const DemoProvider={ id:'demo', isLive:false, init(){ return initReading(); }, next(prev){ return stepReading(prev); } };
+const HardwareProvider={ id:'hardware', isLive:true, init(){ return null; }, next(){ return null; } }; // 실제 통신 미구현(위장 금지)
+let activeProvider=DemoProvider;
+let lastUpdated=Date.now();
+function agoText(){ const s=Math.floor((Date.now()-lastUpdated)/1000); return s<5?'방금 전':s<60?s+'초 전':Math.floor(s/60)+'분 전'; }
+function deviceStatus(r){ return { fan:r.fan, pump:r.pump, led:r.led, connection }; }
+
+/* ---- 센서 자체 정상 여부 (4단계: 정상/주의/오류/연결 안 됨) + 현재값·마지막 수신 ----
+   센서 값 문제(오류)와 연결 문제(연결 안 됨)를 구분. 필터 문제와 혼동하지 않음. */
+function sensorStatusOf(present, warn){
+  if(connection==='disconnected') return 'off';
+  if(!present) return 'error';
+  return warn?'warn':'ok';
+}
+const SENSOR_LABEL={ ok:'정상', warn:'주의', error:'오류', off:'연결 안 됨' };
+const SENSOR_STATUS={ ok:'normal', warn:'caution', error:'anomaly', off:'insufficient' };
+function sensorList(){ const r=reading;
+  return [
+    {label:'PM2.5 전단 센서', v:num(r.pm25In), u:'µg/m³', s:sensorStatusOf(r.pm25In!=null,false)},
+    {label:'PM2.5 후단 센서', v:num(r.pm25Out), u:'µg/m³', s:sensorStatusOf(r.pm25Out!=null,false)},
+    {label:'DHT22 온습도 센서', v:(r.temperature!=null?num(r.temperature,1)+'℃ / ':'')+num(r.humidity)+'%', u:'', s:sensorStatusOf(r.temperature!=null&&r.humidity!=null, r.humidity!=null&&r.humidity>=80)},
+    {label:'수위 센서', v:num(r.moisture), u:'%', s:sensorStatusOf(r.moisture!=null, r.moisture!=null&&r.moisture<=30)},
+    {label:'풍량 센서', v:'Demo', u:'', s:sensorStatusOf(r.airflow!=null, r.airflow!=null&&r.airflow<1)},
+    {label:'차압 센서', v:num(r.pressure), u:'Pa', s:sensorStatusOf(r.pressure!=null, r.pressure!=null&&r.pressure>=120)},
+    {label:'조도 센서', v:num(r.light), u:'lux', s:sensorStatusOf(r.light!=null,false)},
+  ];
+}
+function sensorHealth(){ return sensorList().map(x=>({label:x.label, ok:x.s==='ok'})); } /* 하위호환 */
+
+/* ================= 측정 세션 ================= */
+function buildMeasurement(peak,duration,quality){
+  const q=quality||(Math.random()>0.2?'high':'low');
+  const st=classify(peak,q);
+  const now=new Date();
+  return { measurementId:'m_'+now.getTime(), timestamp:now, mossType:currentSpecies.name, sensorId:'US-01',
+    temperature:reading.temperature, humidity:reading.humidity, moisture:reading.moisture,
+    measurementDuration:duration, frequencyPeak:peak, signalStrength: peak==null?null:60+Math.round(Math.random()*30),
+    waveform:makeWave(64,(peak||30)*10|0), measurementQuality:q,
+    normalRangeMin:BASELINE.normalRangeMin, normalRangeMax:BASELINE.normalRangeMax,
+    status:st, match: st==='insufficient'?null:matchPercent(peak) };
+}
+function makeWave(n,seed){let s=seed||7;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};const p=[];
+  for(let i=0;i<n;i++)p.push(Math.sin(i/3.1)*.55+Math.sin(i/7.7)*.28+(rnd()-.5)*.5);return p;}
+
+/* ---- 기록 시드 ---- */
+function seed(y,mo,d,hh,mm,peak,q){const m=buildMeasurement(peak,30,q||'high');m.timestamp=new Date(y,mo-1,d,hh,mm);m.measurementId='seed_'+m.timestamp.getTime();return m;}
+function seedHistory(){ history.push(
+  seed(2026,9,11,14,32,32.5,'high'), seed(2026,9,10,10,15,37.4,'high'),
+  seed(2026,9,8,9,40,31.8,'high'), seed(2026,9,6,18,5,33.4,'high'),
+  seed(2026,9,4,11,20,29.2,'low')); }
+function latest(){ return history.length?[...history].sort((a,b)=>b.timestamp-a.timestamp)[0]:null; }
+
+/* ---- 통계용 시계열(고정 시드) ---- */
+const SERIES=(()=>{let s=20260912;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};const now=Date.now();const o=[];
+  for(let t=now-30*864e5;t<=now;t+=6*3600e3){const c=(BASELINE.normalRangeMin+BASELINE.normalRangeMax)/2;
+    const peak=r1(c+Math.sin(t/(864e5/1.7))*1.6-0.02*((now-t)/864e5)+(rnd()-.5)*1.4);
+    o.push({t,peak,match:matchPercent(peak),status:classify(peak,'high')});}return o;})();
+function cutoff(p){const n=Date.now();return p==='7d'?n-7*864e5:p==='30d'?n-30*864e5:n-864e5;}
+
+/* ================= 알림(문제→원인→권장) ================= */
+function alerts(){ if(!settings.notifications) return []; const out=[]; const r=reading; const l=latest();
+  if(connection==='disconnected'){ out.push({level:'anomaly',title:'센서 연결이 끊어졌습니다.',cause:'측정 장치와의 통신이 중단되었습니다.',action:'연결 상태를 확인한 뒤 다시 시도해주세요.'}); return out; }
+  if(sim.sensorFault){ out.push({level:'caution',title:'센서 신호에 이상이 있습니다.',cause:'일부 센서 값이 정상 수신되지 않았습니다.',action:'센서 연결·위치를 확인하고 다시 측정해주세요.'}); }
+  if(r.moisture!=null&&r.moisture<=15){ out.push({level:'anomaly',title:'수분(물탱크)이 부족합니다.',cause:`현재 수위 ${r.moisture}% 입니다.`,action:'물을 보충해주세요. 수분 부족은 측정에 영향을 줄 수 있습니다.'}); }
+  else if(r.humidity!=null&&r.humidity>=80){ out.push({level:'caution',title:'과습 주의',cause:`현재 습도 ${r.humidity}% 로 높습니다.`,action:'수분 공급 상태와 환기를 확인해주세요.'}); }
+  if(l){ if(l.status==='anomaly') out.push({level:'anomaly',title:'정상 범위를 벗어난 신호가 감지되었습니다.',cause:`최근 측정 주요 주파수 ${num(l.frequencyPeak,1)} kHz (정상 ${BASELINE.normalRangeMin}~${BASELINE.normalRangeMax}).`,action:'수분·환경을 확인하고 다시 측정해주세요. 반복되면 상태를 점검하세요.'});
+    else if(l.status==='caution') out.push({level:'caution',title:'평소와 다른 초음파 패턴이 감지되었습니다.',cause:'정상 범위 경계 부근의 신호입니다.',action:'환경을 확인한 뒤 다시 측정해주세요.'});
+    else if(l.status==='insufficient') out.push({level:'insufficient',title:'최근 측정 품질이 낮습니다.',cause:'신호가 불안정하여 상태를 확정할 수 없습니다.',action:'센서 위치를 조정한 뒤 다시 측정해주세요.'}); }
+  return out;
+}
+
+/* ================= helpers ================= */
+const num=(v,d=0)=>v==null||Number.isNaN(v)?DASH:v.toFixed(d);
+function badge(status,label){const m=STATUS[status];return `<span class="badge ${m.cls}"><span class="dot"></span>${label??m.label}</span>`;}
+function metric(icon,label,{value,unit,word,status}={}){const disp=word!=null?`<span class="word">${word}</span>`:(value==null||value===''?DASH:value)+(unit?`<span class="u">${unit}</span>`:'');
+  return `<div class="metric"><div class="lbl"><svg><use href="#${icon}"/></svg>${label}</div><div class="val">${disp}</div>${status?`<div class="foot">${badge(status)}</div>`:''}</div>`;}
+function alertCard(a){const m=STATUS[a.level];return `<div class="alert" style="border-color:color-mix(in srgb, ${m.color} 30%, var(--border))"><div class="ico" style="background:${m.tint};color:${m.color}"><svg><use href="#${a.level==='normal'?'i-check':a.level==='insufficient'?'i-help':'i-alert'}"/></svg></div><div style="flex:1"><div class="t" style="color:${m.color}">${a.title}</div><div class="c">원인: ${a.cause}</div><div class="a" style="color:${m.color}">권장: ${a.action}</div></div></div>`;}
+function fmtDur(s){return `${two(Math.floor(s/60))}:${two(s%60)}`;}
+function dateLabel(dt){return `${dt.getFullYear()}.${two(dt.getMonth()+1)}.${two(dt.getDate())}`;}
+function tLabel(t,p){const d=new Date(t);return p==='today'?two(d.getHours())+':'+two(d.getMinutes()):(d.getMonth()+1)+'/'+d.getDate();}
+
+/* Range bar */
+function rangeBar(peak,status){ if(peak==null) return `<div style="color:var(--muted);font-size:13px;padding:10px 0">측정값이 없어 표시할 수 없습니다.</div>`;
+  const span=RANGE_HIGH-RANGE_LOW,nL=((BASELINE.normalRangeMin-RANGE_LOW)/span)*100,nW=((BASELINE.normalRangeMax-BASELINE.normalRangeMin)/span)*100;
+  const pos=Math.max(2,Math.min(98,((peak-RANGE_LOW)/span)*100)),col=STATUS[status].color;
+  return `<div class="rb"><div class="rb-track"><div class="rb-normal" style="left:${nL}%;width:${nW}%"></div></div><div class="rb-mark" style="left:${pos}%"></div><div class="rb-dot" style="left:${pos}%;background:${col}"></div><div class="rb-cap" style="left:${pos}%">${peak.toFixed(1)} kHz</div></div>
+    <div class="rb-ends"><span>낮음 · ${RANGE_LOW}</span><span>정상 ${BASELINE.normalRangeMin}~${BASELINE.normalRangeMax}</span><span>${RANGE_HIGH} · 높음</span></div>`;
+}
+/* Line chart(파형) */
+function lineChart(vals,{color='var(--primary)',h=110,fill=true}={}){ if(!vals.length)return '';const w=640,pad=8;
+  const mn=Math.min(...vals),mx=Math.max(...vals),rg=(mx-mn)||1;const x=i=>pad+i*(w-pad*2)/(vals.length-1),y=v=>pad+(h-pad*2)*(1-(v-mn)/rg);
+  const path=vals.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+  const area=`${path} L ${x(vals.length-1).toFixed(1)} ${h-pad} L ${pad} ${h-pad} Z`;
+  return `<div class="chart"><svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="height:${h}px"><defs><linearGradient id="wg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${color}" stop-opacity=".16"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></linearGradient></defs>${fill?`<path d="${area}" fill="url(#wg)"/>`:''}<path d="${path}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+}
+/* 추세 chart(정상 범위 밴드 + hover) */
+let _cid=0;
+function trendChart(series,{period='7d'}={}){ if(!series.length) return '<div style="color:var(--muted);padding:20px">데이터 없음</div>';
+  const id='tg'+(++_cid),vals=series.map(s=>s.peak),W=640,H=150,padX=8,padTop=14;
+  const lo=RANGE_LOW,hi=RANGE_HIGH,rg=hi-lo;const x=i=>padX+i*(W-padX*2)/Math.max(1,vals.length-1),y=v=>padTop+(H-padTop-6)*(1-(clamp(v,lo,hi)-lo)/rg);
+  const path=vals.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(v).toFixed(1)}`).join(' ');
+  const bt=y(BASELINE.normalRangeMax),bb=y(BASELINE.normalRangeMin);
+  const pts=series.map(s=>({tl:tLabel(s.t,period),peak:r1(s.peak),st:STATUS[s.status].label}));
+  const ax=[pts[0].tl,pts[Math.floor(pts.length/2)].tl,pts[pts.length-1].tl];
+  return `<div class="chart2" data-pts='${JSON.stringify(pts)}'><div class="c-unit">kHz</div><div class="c-plot" style="height:${H}px">
+    <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" style="height:${H}px" role="img" aria-label="초음파 추세(정상 범위 표시)">
+    <rect x="0" y="${bt.toFixed(1)}" width="${W}" height="${Math.max(0,bb-bt).toFixed(1)}" fill="var(--secondary)" opacity=".16"/>
+    <line x1="0" y1="${bt.toFixed(1)}" x2="${W}" y2="${bt.toFixed(1)}" stroke="var(--secondary)" stroke-width="1" stroke-dasharray="4 4" opacity=".6"/>
+    <line x1="0" y1="${bb.toFixed(1)}" x2="${W}" y2="${bb.toFixed(1)}" stroke="var(--secondary)" stroke-width="1" stroke-dasharray="4 4" opacity=".6"/>
+    <path d="${path}" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <div class="c-guide"></div><div class="c-tip"></div></div>
+    <div class="c-axis"><span>${ax[0]}</span><span>${ax[1]}</span><span>${ax[2]}</span></div></div>`;
+}
+/* Spectrogram(mock) */
+function spectrogram(seed){let s=seed||3;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};let h='<div class="spectro">';
+  for(let r=0;r<6;r++){h+='<div class="r">';for(let c=0;c<24;c++){const band=Math.exp(-Math.pow(r-2.2,2)/2.2),v=Math.min(1,band*(.55+rnd()*.7));h+=`<div class="cell" style="background:color-mix(in srgb, var(--primary) ${Math.round(v*100)}%, var(--surface-alt))"></div>`;}h+='</div>';}
+  return h+'</div>';}
+
+/* ================= Moss Hero (대시보드: 시안형 가로 사진 배치) ================= */
+function mossHero(m){
+  const st=m?m.status:'insufficient';const s=STATUS[st];
+  const peak=m?m.frequencyPeak:null;const q=m?m.measurementQuality:null;
+  const msg={ normal:'현재 이끼는 건강한 상태를 유지하고 있습니다.',
+    caution:'평소와 다른 초음파 패턴이 감지되었습니다. 추가 측정을 권장합니다.',
+    anomaly:'정상 범위를 벗어난 신호가 감지되었습니다. 환경을 확인하고 다시 측정해주세요.',
+    insufficient:'판정에 필요한 데이터가 부족합니다. 센서를 연결하고 측정을 진행해주세요.' }[st];
+  return `<div class="card moss-hero">
+    <div class="mh-photo"><img src="${MOSS_PHOTO}" alt="이끼 (측정 대상)"></div>
+    <div>
+      <div class="mh-eyebrow">오늘의 이끼 상태</div>
+      <div class="mh-state"><span class="mh-check" style="background:${s.tint};color:${s.color}"><svg><use href="#${s.icon}"/></svg></span><span class="mh-label" style="color:${s.color}">${s.label}</span></div>
+      <div class="mh-msg">${msg}</div>
+    </div>
+    <div class="mh-metrics">
+      <div><div class="k">주요 주파수</div><div class="v">${num(peak,1)}${peak!=null?' kHz':''}</div></div>
+      <div><div class="k">정상 범위 <span style="color:var(--faint)">(${BASELINE.label})</span></div><div class="v">${BASELINE.normalRangeMin}.0 ~ ${BASELINE.normalRangeMax}.0 kHz</div></div>
+      <div><div class="k">측정 품질</div><div class="v q" style="color:${q==='low'?'var(--caution)':q?'var(--good)':'var(--muted)'}">${q==='high'?'높음':q==='low'?'낮음':'—'}</div></div>
+    </div></div>`;
+}
+
+/* ================= Moss Status Component (대표 UI) ================= */
+function mossStatusComponent(m,{size=200}={}){
+  const st=m?m.status:'insufficient';const s=STATUS[st];
+  const peak=m?m.frequencyPeak:null;const match=m?m.match:null;const q=m?m.measurementQuality:null;
+  const msg={ normal:'현재 감지된 초음파 신호가 정상 범위 안에 있으며, 특별한 이상 신호가 감지되지 않았습니다.',
+    caution:'평소와 다른 초음파 패턴이 감지되었습니다. 이상으로 확정할 수는 없어 추가 측정이 필요합니다.',
+    anomaly:'정상 범위를 벗어난 신호가 감지되었습니다. 환경을 확인하고 다시 측정해주세요.',
+    insufficient:'판정에 필요한 데이터가 부족합니다. 센서를 연결하고 측정을 진행해주세요.' }[st];
+  return `<div class="card moss-status">
+    <div>${mossVisual(st,{size,ring:true,pct:match||0})}</div>
+    <div>
+      <div class="ms-eyebrow">이끼 초음파 상태</div>
+      <div class="ms-state" style="color:${s.color}">${s.label}</div>
+      <div class="ms-msg">${msg}</div>
+      <div class="ms-grid">
+        <div><div class="k">현재 주요 주파수</div><div class="v">${num(peak,1)}${peak!=null?' kHz':''}</div></div>
+        <div><div class="k">정상 범위 <span style="color:var(--faint)">(${BASELINE.label})</span></div><div class="v">${BASELINE.normalRangeMin}~${BASELINE.normalRangeMax} kHz</div></div>
+        <div><div class="k">측정 품질</div><div class="v" style="font-size:15px;font-family:var(--font);color:${q==='low'?'var(--caution)':q?'var(--good)':'var(--muted)'}">${q==='high'?'높음':q==='low'?'낮음':'—'}</div></div>
+      </div>
+      <div style="margin-top:16px">${rangeBar(peak,st)}</div>
+    </div></div>`;
+}
+
+/* ================= VIEWS ================= */
+/* ================= 사용자 웹 뷰(공통 데이터레이어 재사용) ================= */
+function modeBadge(){ const live=activeProvider.isLive; return `<span class="badge ${live?'st-normal':'st-caution'}"><span class="dot"></span>${live?'REAL DATA':'DEMO'}</span>`; }
+function connBadge(){ const c=connState(); return badge(CONN_ST[c],CONN_LABEL[c]); }
+function uHead(title,sub){ return `<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><div class="page-title">${title}</div><div class="page-sub">${sub}</div></div><div style="display:flex;gap:8px">${modeBadge()}${connBadge()}</div></div>`; }
+function airStatus(){ const r=reading; if(r.pm25In==null||r.pm25Out==null) return {st:'insufficient',label:'데이터 없음'}; if(r.pm25Out<=15) return {st:'normal',label:'좋음'}; if(r.pm25Out<=35) return {st:'caution',label:'보통'}; return {st:'anomaly',label:'나쁨'}; }
+function filterEval(){ const r=reading;
+  if(r.waterLevel!=null&&r.waterLevel<=15) return {st:'anomaly',label:'점검 필요',reason:'물탱크 부족 — 이끼 필터 가습이 부족합니다.',action:'물을 보충해 주세요.'};
+  if(r.airflow===0) return {st:'anomaly',label:'점검 필요',reason:'풍량 정지 — 공기가 필터를 통과하지 못합니다.',action:'팬 동작을 확인해 주세요.'};
+  if(r.pressure!=null&&r.pressure>=120) return {st:'caution',label:'주의',reason:'차압 상승 — 필터 막힘 가능성이 있습니다.',action:'필터를 점검해 주세요.'};
+  if(r.pm25In==null||r.pm25Out==null) return {st:'insufficient',label:'데이터 수집 중',reason:'정화 효율을 계산할 센서 데이터가 부족합니다.',action:'센서 연결 후 자동 판정됩니다.'};
+  const eff=calcEff(r.pm25In,r.pm25Out);
+  if(eff<20) return {st:'caution',label:'주의',reason:'정화 효율이 평소보다 낮습니다.',action:'필터 상태와 환경을 점검해 주세요.'};
+  return {st:'normal',label:'정상',reason:'필터가 정상 범위에서 동작 중입니다.',action:''}; }
+const AIR_SERIES=(()=>{let s=77;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};const o=[];for(let i=6;i>=0;i--){o.push(Math.round(55+Math.sin(i)*6+(rnd()-.5)*8));}return o;})();
+const AF_LABEL=['정지','약','보통','강'];
+
+function viewUDash(v){ const r=reading; const a=airStatus(); const f=filterEval(); const eff=calcEff(r.pm25In,r.pm25Out); const al=alerts();
+  v.innerHTML=uHead('대시보드', `${escapeHtml(settings.productName)} · 마지막 업데이트 ${agoText()}`)
+    +`<div class="card pad" style="margin-top:16px"><div class="ms-eyebrow">현재 공기 상태</div><div style="font-size:30px;font-weight:700;color:${STATUS[a.st].color};margin-top:2px">${a.label}</div><div class="ms-msg">PM2.5 전단 ${num(r.pm25In)} → 후단 ${num(r.pm25Out)} µg/m³ · 정화효율 ${num(eff,1)}%</div></div>`
+    +`<div class="sec"><h2>핵심 지표</h2><span class="hint">${activeProvider.isLive?'Real Device':'Demo'} · ${CONN_LABEL[connState()]}</span></div><div class="grid c4">
+        ${metric('i-air','정화효율',{value:num(eff,1),unit:'%'})}
+        ${metric('i-temp','온도',{value:num(r.temperature,1),unit:'°C'})}
+        ${metric('i-humid','습도',{value:num(r.humidity),unit:'%'})}
+        ${metric('i-drop','물탱크',{value:num(r.waterLevel),unit:'%',status:moisture().status})}</div>`
+    +`<div class="grid c3" style="margin-top:16px">
+        ${metric('i-air','PM2.5 전단',{value:num(r.pm25In),unit:'µg/m³'})}
+        ${metric('i-air','PM2.5 후단',{value:num(r.pm25Out),unit:'µg/m³'})}
+        ${metric('i-fan','풍량',{word:AF_LABEL[r.airflow]??'—'})}</div>`
+    +`<div class="sec"><h2>필터 상태</h2><button class="btn soft" data-nav="filter" style="min-height:34px;padding:0 12px">자세히</button></div><div class="card pad"><div style="display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap"><div><div style="font-weight:700;color:${STATUS[f.st].color};font-size:18px">${f.label}</div><div style="font-size:13px;color:var(--muted);margin-top:4px">${f.reason}</div></div>${badge(f.st)}</div></div>`
+    +`<div class="sec"><h2>최근 알림</h2><button class="btn soft" data-nav="alerts" style="min-height:34px;padding:0 12px">전체 보기</button></div>`
+    +(al.length?al.slice(0,3).map(alertCard).join(''):`<div class="card pad" style="color:var(--muted)">현재 알림이 없습니다.</div>`);
+}
+function viewAir(v){ const r=reading; const eff=calcEff(r.pm25In,r.pm25Out);
+  v.innerHTML=uHead('공기','실내 공기질과 정화 성능입니다.')
+    +`<div class="grid c4" style="margin-top:16px">
+        ${metric('i-air','PM2.5 전단(유입)',{value:num(r.pm25In),unit:'µg/m³'})}
+        ${metric('i-air','PM2.5 후단(배출)',{value:num(r.pm25Out),unit:'µg/m³'})}
+        ${metric('i-gauge','정화효율',{value:num(eff,1),unit:'%'})}
+        ${metric('i-fan','풍량',{word:AF_LABEL[r.airflow]??'—'})}</div>`
+    +`<div class="grid c4" style="margin-top:16px">
+        ${metric('i-temp','온도',{value:num(r.temperature,1),unit:'°C'})}
+        ${metric('i-humid','습도',{value:num(r.humidity),unit:'%',status:r.humidity>=80?'caution':'normal'})}
+        ${metric('i-drop','물탱크',{value:num(r.waterLevel),unit:'%',status:moisture().status})}
+        ${metric('i-light','조도',{value:num(r.light),unit:'lux'})}</div>`
+    +`<div class="sec"><h2>최근 7일 정화효율</h2><span class="hint">Demo 추세</span></div><div class="card pad">${lineChart(AIR_SERIES,{color:'var(--primary)',h:120})}<div style="display:flex;justify-content:space-between;font-size:11px;color:var(--faint);margin-top:6px"><span>7일 전</span><span>오늘</span></div></div>`
+    +`<p class="disclaimer">공기질 수치는 ${activeProvider.isLive?'실측':'Demo'} 값이며, 실제 성능은 검증 전까지 확정하지 않습니다.</p>`;
+}
+function viewFilter(v){ const r=reading; const f=filterEval(); const eff=calcEff(r.pm25In,r.pm25Out);
+  v.innerHTML=uHead('필터','이끼 필터 상태를 여러 지표로 종합 판정합니다.')
+    +`<div class="card pad" style="margin-top:16px"><div style="display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap"><div><div style="font-weight:700;font-size:22px;color:${STATUS[f.st].color}">${f.label}</div><div style="font-size:13px;color:var(--muted);margin-top:6px">${f.reason}</div>${f.action?`<div style="font-size:13px;margin-top:4px">권장: ${f.action}</div>`:''}</div>${badge(f.st)}</div></div>`
+    +`<div class="sec"><h2>판단 근거</h2><span class="hint">물 → 풍량 → 차압 → 정화효율 순</span></div><div class="grid c4">
+        ${metric('i-drop','물탱크',{value:num(r.waterLevel),unit:'%',status:moisture().status})}
+        ${metric('i-fan','풍량',{word:AF_LABEL[r.airflow]??'—'})}
+        ${metric('i-gauge','차압',{value:num(r.pressure),unit:'Pa'})}
+        ${metric('i-air','정화효율',{value:num(eff,1),unit:'%'})}</div>`
+    +`<p class="disclaimer">필터 수명은 단일 수치로 표시하지 않고, 데이터가 쌓이면 효율 추세로 판정합니다. 카메라 없이 센서 데이터로만 처리합니다.</p>`;
+}
+function viewStats(v){ const pts=SERIES.filter(x=>x.t>=cutoff(statsPeriod)); const n=pts.length;
+  const normalN=pts.filter(p=>p.status==='normal').length; const eff=calcEff(reading.pm25In,reading.pm25Out);
+  const seg=[['today','오늘'],['7d','7일'],['30d','30일']].map(o=>`<button class="tab" data-stat="${o[0]}" aria-selected="${statsPeriod===o[0]}" style="padding:8px 14px">${o[1]}</button>`).join('');
+  v.innerHTML=uHead('통계','기간별 상태·정화 성능 요약입니다.')
+    +`<div class="tabs" style="max-width:280px;margin-top:16px">${seg}</div>
+      <div class="grid c4" style="margin-top:14px">
+        ${metric('i-analyze','기록 수',{value:n,unit:'개'})}
+        ${metric('i-check','정상 비율',{value:n?Math.round(normalN/n*100):DASH,unit:'%'})}
+        ${metric('i-gauge','현재 정화효율',{value:num(eff,1),unit:'%'})}
+        ${metric('i-air','PM2.5 후단',{value:num(reading.pm25Out),unit:'µg/m³'})}</div>`
+    +`<div class="card pad" style="margin-top:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">정화효율 추세 <span style="font-weight:400;color:var(--faint);font-size:11px">(Demo)</span></div>${lineChart(AIR_SERIES,{color:'var(--primary)',h:120})}</div>`;
+}
+function viewProduct(v){ const r=reading; const c=connState();
+  v.innerHTML=uHead('내 제품','내 MOSS AIR 제품 정보입니다.')
+    +`<div class="card pad" style="margin-top:16px">
+        <div style="display:flex;align-items:center;gap:14px"><span class="dev-ic"><svg><use href="#i-device"/></svg></span><div><div style="font-weight:700;font-size:17px">${escapeHtml(settings.productName)}</div><div class="mono" style="font-size:13px;color:var(--muted)">${escapeHtml(settings.productId)}</div></div><div style="margin-left:auto">${connBadge()}</div></div>
+        <div class="row" style="margin-top:14px"><span class="k">연결 상태</span><span class="v">${CONN_LABEL[c]}</span></div>
+        <div class="row"><span class="k">데이터 모드</span><span class="v">${activeProvider.isLive?'Real Device':'Demo'}</span></div>
+        <div class="row"><span class="k">마지막 데이터</span><span class="v">${agoText()}</span></div>
+        <div class="row"><span class="k">제품 상태</span>${badge(airStatus().st)}</div>
+        <div class="row"><span class="k">컨트롤러</span><span class="v">${DEVICE_SPEC.controller} · ${DEVICE_SPEC.connectivity}</span></div>
+      </div>`
+    +`<p class="disclaimer">로그인 사용자에게는 본인 소유 제품만 표시됩니다(서버 RLS 기준). 실제 기기가 없어 현재는 Demo 제품(${escapeHtml(settings.productId)})입니다.</p>`;
+}
+function viewAlerts(v){ const al=alerts();
+  v.innerHTML=uHead('알림','문제 → 원인 → 권장 조치 순으로 보여드립니다.')
+    +`<div style="margin-top:16px">${al.length?al.map(alertCard).join(''):`<div class="card pad" style="color:var(--muted)">현재 알림이 없습니다.</div>`}</div>`;
+}
+function viewMaint(v){
+  v.innerHTML=uHead('유지관리','유지관리 기록입니다.')
+    +`<div class="sec"><h2>기록</h2><button class="btn soft" id="maint-csv" style="min-height:36px;padding:0 12px"><svg><use href="#i-download"/></svg>CSV</button></div>`
+    +`<div class="card tbl-wrap"><table class="tbl"><thead><tr><th>날짜</th><th>항목</th><th>내용</th></tr></thead><tbody>
+        ${MAINT.map(x=>`<tr><td class="mono">${x.date}</td><td>${x.type}</td><td style="color:var(--muted)">${x.note}</td></tr>`).join('')}</tbody></table></div>`
+    +`<p class="disclaimer">유지관리 이력은 향후 실제 기록으로 저장됩니다(Demo).</p>`;
+}
+
+const BAR={dashboard:'대시보드',air:'공기',filter:'필터',stats:'통계',product:'내 제품',alerts:'알림',maint:'유지관리',settings:'설정'};
+function render(){ const v=document.getElementById('view');
+  ({dashboard:viewUDash,air:viewAir,filter:viewFilter,stats:viewStats,product:viewProduct,alerts:viewAlerts,maint:viewMaint,settings:viewSettings}[currentView]||viewUDash)(v);
+  document.getElementById('h-title').textContent=BAR[currentView];
+  bind();
+}
+function shell(html){ return html; }
+
+/* AI 분석 카드 (대시보드/공통) — 확정 진단이 아닌 가능성·권장 */
+function aiCard(m){
+  if(!m) return `<div class="card pad" style="display:flex;gap:10px;align-items:center">${badge('insufficient','판정 불가')}<span>측정 기록이 없어 분석할 데이터가 없습니다.</span><button class="btn soft" data-nav="measure" style="margin-left:auto;min-height:36px;padding:0 12px">측정하기</button></div>`;
+  const s=STATUS[m.status], info=aiText(m);
+  return `<div class="card pad">
+    <div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:10px;background:${s.tint};color:${s.color};display:grid;place-items:center"><svg style="width:19px;height:19px"><use href="#${s.icon}"/></svg></div><div><div style="font-size:13px;color:var(--muted)">현재 초음파 상태</div><div style="font-size:18px;font-weight:700;color:${s.color}">${s.label}</div></div></div>
+    <div style="font-size:13px;color:var(--muted);margin-top:12px;line-height:1.65">${info.basis}</div>
+    ${info.causes.length?`<div style="font-size:13px;margin-top:10px"><b>가능성:</b> ${info.causes.join(', ')}</div>`:''}
+    <div style="font-size:13px;margin-top:8px"><b>권장:</b> ${info.rec}</div>
+    <button class="btn soft" data-nav="analysis" style="margin-top:14px;min-height:40px">상세 분석 보기 <svg><use href="#i-arrow"/></svg></button>
+  </div>`;
+}
+
+/* ---- 대시보드 ---- */
+function viewDashboard(v){ const m=latest(); const al=alerts(); const r=reading;
+  v.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between"><div><div class="page-title">이끼 상태</div><div class="page-sub">${currentSpecies.name}${currentSpecies.sci?` <span style="color:var(--faint);font-style:italic">${currentSpecies.sci}</span>`:''} · ${m?('최근 측정 '+m.timestamp.toLocaleString('ko-KR',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})):'측정 기록 없음'}</div></div><span class="badge st-caution"><span class="dot"></span>DEMO 데이터</span></div>`
+    +(al[0]?`<div style="margin-top:16px">${alertCard(al[0])}</div>`:'')
+    +`<div style="margin-top:16px">${mossHero(m)}</div>`
+    +`<div class="card pad" style="margin-top:16px">${rangeBar(m?m.frequencyPeak:null,m?m.status:'insufficient')}</div>`
+    +`<div class="sec"><h2>환경 데이터</h2><span class="hint">보조 지표 · Demo · 마지막 업데이트 ${agoText()}</span></div><div class="grid c4">
+        ${metric('i-temp','온도',{value:num(r.temperature,1),unit:'°C'})}
+        ${metric('i-humid','습도',{value:num(r.humidity),unit:'%'})}
+        ${metric('i-drop','수분',{value:num(r.moisture),unit:'%',status:moisture().status})}
+        ${metric('i-light','조도',{value:num(r.light),unit:'lux'})}</div>`
+    +`<div class="sec"><h2>최근 7일 초음파 변화</h2><span class="hint">연한 영역 = 정상 범위 ${BASELINE.normalRangeMin}~${BASELINE.normalRangeMax} kHz</span></div>`
+    +`<div class="card pad">${trendChart(SERIES.filter(x=>x.t>=cutoff('7d')),{period:'7d'})}</div>`
+    +`<div class="sec"><h2>AI 분석 결과 <span class="hint" style="font-weight:400">· 연구용(Demo) · 확정 진단 아님</span></h2></div>`
+    +aiCard(m)
+    +`<div class="sec"><h2>최근 측정</h2><button class="btn soft" data-nav="history" style="min-height:36px;padding:0 12px">전체 보기</button></div>`
+    +recentTable(3)
+    +`<div class="sec"><h2>다음 단계</h2></div><div class="grid c3">
+        <button class="card pad" data-nav="measure" style="text-align:left;border:0;cursor:pointer"><div class="metric" style="border:0;box-shadow:none;padding:0"><div class="lbl"><svg><use href="#i-mic"/></svg>측정 시작</div><div style="font-size:13px;color:var(--muted);margin-top:8px">이끼에 센서를 대고 초음파를 측정합니다.</div></div></button>
+        <button class="card pad" data-nav="analysis" style="text-align:left;border:0;cursor:pointer"><div class="metric" style="border:0;box-shadow:none;padding:0"><div class="lbl"><svg><use href="#i-analyze"/></svg>분석 보기</div><div style="font-size:13px;color:var(--muted);margin-top:8px">최근 측정의 파형·스펙트로그램·AI 분석.</div></div></button>
+        <button class="card pad" data-nav="device" style="text-align:left;border:0;cursor:pointer"><div class="metric" style="border:0;box-shadow:none;padding:0"><div class="lbl"><svg><use href="#i-device"/></svg>기기 관리</div><div style="font-size:13px;color:var(--muted);margin-top:8px">팬·펌프·LED·필터·물탱크 상태.</div></div></button></div>`
+    +`<p class="disclaimer">Demo Mode(가상 센서) 기준입니다. 정상 범위는 <b>${BASELINE.label}</b>이며 과학적으로 검증된 값이 아닙니다. 데이터가 부족하면 자동으로 정상 처리하지 않습니다.</p>`;
+}
+function recentTable(n){ const rows=[...history].sort((a,b)=>b.timestamp-a.timestamp).slice(0,n);
+  if(!rows.length) return `<div class="card"><div class="empty"><div class="ei"><svg><use href="#i-history"/></svg></div><div>아직 측정 기록이 없습니다.</div></div></div>`;
+  return `<div class="card tbl-wrap"><table class="tbl"><thead><tr><th></th><th>측정일</th><th>상태</th><th>주요 주파수</th><th>신호 강도</th><th>품질</th></tr></thead><tbody>
+    ${rows.map(m=>`<tr data-mid="${m.measurementId}"><td><span class="thumb">${mossVisual(m.status,{size:34})}</span></td><td class="mono">${dateLabel(m.timestamp)} ${two(m.timestamp.getHours())}:${two(m.timestamp.getMinutes())}</td><td>${badge(m.status)}</td><td class="mono">${num(m.frequencyPeak,1)} kHz</td><td class="mono">${num(m.signalStrength)}%</td><td>${m.measurementQuality==='high'?'높음':m.measurementQuality==='low'?'낮음':'—'}</td></tr>`).join('')}
+  </tbody></table></div>`;
+}
+
+/* ---- 측정 ---- */
+const measure={phase:'idle',elapsed:0,timer:null,wave:[],waveTimer:null};
+function viewMeasure(v){ const sh=sensorHealth();
+  v.innerHTML=`<div class="page-title">초음파 측정</div><div class="page-sub">이끼에 가까이 마이크를 위치시켜 주세요.</div>`
+    +`<div class="card pad" style="margin-top:16px"><div class="measure-wrap">
+        <div style="font-size:14px;font-weight:600;color:var(--muted);margin-bottom:4px">측정 대상 · 이끼</div>
+        <div class="moss-measure" id="moss-measure"><span class="pulse"></span><span class="pulse p2"></span>${mossVisual('normal',{size:180})}</div>
+        <div style="margin-top:14px">${badge(sensorConnected||connection==='demo'?'normal':'insufficient', sensorConnected?'센서 연결됨':connection==='demo'?'센서 미연결 (Demo 측정 가능)':'센서 연결 필요')}</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:10px;max-width:360px">${sensorConnected?'센서를 이끼 가까이에 위치시켜 주세요.':'실제 센서가 없어 Demo 측정으로 화면을 체험합니다. 실제 측정은 센서 연결 후 가능합니다.'}</div>
+        <button class="mbtn" id="mbtn"><svg><use href="#i-mic"/></svg><span id="mbtn-t">측정 시작</span></button>
+        <div id="mstate" style="font-size:13px;color:var(--muted);margin-top:14px"></div>
+        <div class="live" id="mlive" hidden></div>
+        <div id="mdone" hidden style="margin-top:18px"><button class="btn primary" id="analyze-go">분석 시작 <svg><use href="#i-arrow"/></svg></button></div>
+      </div></div>`
+    +`<div class="grid c4" style="margin-top:16px">${metric('i-analyze','측정 시간',{word:'00:00'})}${metric('i-check','신호 강도',{word:'—'})}${metric('i-gauge','주파수 범위',{word:'20~50 kHz'})}${metric('i-analyze','품질',{word:'—'})}</div>`
+    +`<div class="sec"><h2>센서 상태</h2><span class="hint">센서 값이 아닌 센서 자체 정상 여부</span></div><div class="card pad"><div class="checklist">${sh.map(c=>ck(c.label,c.ok)).join('')}</div></div>`
+    +`<p class="disclaimer">Web 환경의 실제 센서 연결(Web Audio / Web Bluetooth / Web Serial / WebUSB)은 사용할 하드웨어 확정 후 적용됩니다. 지원하지 않는 브라우저에서는 그 사실을 안내하며, 연결 실패를 임의의 정상 데이터로 대체하지 않습니다.</p>`;
+}
+function ck(label,ok,okT,badT){ const col=ok?'var(--good)':'var(--caution)',tint=ok?'var(--good-tint)':'var(--caution-tint)';
+  return `<div class="ci"><span class="ck" style="background:${tint};color:${col}"><svg><use href="#${ok?'i-check':'i-alert'}"/></svg></span><span class="cl">${label}</span><span class="cv" style="color:${col}">${ok?(okT||'정상'):(badT||'점검 필요')}</span></div>`;}
+function resetMeasure(){clearInterval(measure.timer);clearInterval(measure.waveTimer);measure.phase='idle';measure.elapsed=0;measure.wave=[];}
+function toggleMeasure(){ if(measure.phase==='measuring') stopMeasure(); else startMeasure(); }
+function startMeasure(){ measure.phase='measuring';measure.elapsed=0;measure.wave=makeWave(56,7);
+  const mm=document.getElementById('moss-measure'); if(mm) mm.classList.add('measuring');
+  document.getElementById('mbtn').classList.add('rec'); document.getElementById('mbtn-t').textContent='측정 중지';
+  document.getElementById('mdone').hidden=true; const live=document.getElementById('mlive'); live.hidden=false;
+  renderLive(); document.getElementById('mstate').textContent='측정 중입니다. 움직이지 마세요.';
+  measure.timer=setInterval(()=>{measure.elapsed++;const t=document.getElementById('mtime');if(t)t.textContent=fmtDur(measure.elapsed);if(measure.elapsed>=20)stopMeasure();},1000);
+  measure.waveTimer=setInterval(()=>{let ph=measure.elapsed;measure.wave.push(Math.sin(ph)*.5+(Math.random()-.5)*.4);measure.wave.shift();const c=document.getElementById('mwave');if(c)c.innerHTML=lineChart(measure.wave,{color:'var(--anomaly)',h:90,fill:false});},140);
+}
+function renderLive(){ const live=document.getElementById('mlive');
+  live.innerHTML=`<div id="mwave">${lineChart(measure.wave,{color:'var(--anomaly)',h:90,fill:false})}</div>
+    <div class="row3">${metric('i-analyze','측정 시간',{word:'<span id="mtime">00:00</span>'})}${metric('i-gauge','현재 주파수',{word:'—'})}${metric('i-check','신호 강도',{word:'측정 중'})}</div>`;
+}
+function stopMeasure(){ clearInterval(measure.timer);clearInterval(measure.waveTimer);measure.phase='done';
+  const dur=Math.max(3,measure.elapsed||20);
+  const peak= sim.noData?null : r1(BASELINE.normalRangeMin-2+Math.random()*(BASELINE.normalRangeMax-BASELINE.normalRangeMin+6));
+  const q= sim.lowQuality?'low':(Math.random()>0.2?'high':'low');
+  lastMeasurement=buildMeasurement(peak,dur,q);
+  const mm=document.getElementById('moss-measure'); if(mm){mm.classList.remove('measuring');mm.innerHTML=`<span class="pulse"></span><span class="pulse p2"></span>${mossVisual(lastMeasurement.status,{size:180})}`;}
+  const b=document.getElementById('mbtn'); b.classList.remove('rec'); document.getElementById('mbtn-t').textContent='다시 측정';
+  document.getElementById('mstate').innerHTML=`측정 완료 · ${fmtDur(dur)} · 품질 ${q==='high'?'높음':'낮음'}${q==='low'?' <span style="color:var(--caution)">(신호 불안정 — 확정 판정 불가)</span>':''}`;
+  document.getElementById('mdone').hidden=false;
+}
+
+/* ---- 분석 ---- */
+function viewAnalysis(v){ const m=lastMeasurement||latest();
+  if(!m){ v.innerHTML=`<div class="page-title">분석</div><div class="card" style="margin-top:16px"><div class="empty"><div class="ei"><svg><use href="#i-analyze"/></svg></div><div>분석할 측정이 없습니다.</div><button class="btn primary" data-nav="measure" style="margin-top:6px">측정하러 가기</button></div></div>`; return; }
+  const s=STATUS[m.status];const info=aiText(m);
+  v.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div class="page-title">초음파 분석</div><div class="page-sub">측정 시간 ${fmtDur(m.measurementDuration)} · ${m.timestamp.toLocaleString('ko-KR',{month:'long',day:'numeric',hour:'2-digit',minute:'2-digit'})} · <span class="badge st-caution" style="vertical-align:middle"><span class="dot"></span>DEMO 분석</span></div></div><button class="btn ghost" id="save-btn" style="min-height:38px"><svg><use href="#i-check"/></svg>결과 저장</button></div>`
+    +`<div style="margin-top:16px">${mossStatusComponent(m,{size:190})}</div>`
+    +`<div class="grid c4" style="margin-top:16px">${metric('i-gauge','주요 주파수',{value:num(m.frequencyPeak,1),unit:'kHz'})}${metric('i-check','신호 강도',{value:num(m.signalStrength),unit:'%'})}${metric('i-analyze','정상 범위',{word:BASELINE.normalRangeMin+'~'+BASELINE.normalRangeMax+' kHz'})}${metric('i-gauge','일치도',{value:m.match!=null?num(m.match):DASH,unit:'%'})}</div>`
+    +`<div class="tabs" role="tablist"><button class="tab" data-tab="wave" role="tab">Waveform</button><button class="tab" data-tab="freq" role="tab">Spectrum</button><button class="tab" data-tab="spectro" role="tab">Spectrogram</button></div><div id="tabpanel" style="margin-top:12px"></div>`
+    +`<div class="sec"><h2>AI 분석 <span class="hint" style="font-weight:400">· 연구용(Demo) · 확정 진단 아님</span></h2></div><div class="card pad">
+        <div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;border-radius:10px;background:${s.tint};color:${s.color};display:grid;place-items:center"><svg style="width:19px;height:19px"><use href="#${s.icon}"/></svg></div><div><div style="font-size:13px;color:var(--muted)">현재 초음파 상태</div><div style="font-size:18px;font-weight:700;color:${s.color}">${s.label}</div></div></div>
+        ${info.causes.length?`<div style="margin-top:14px"><div style="font-size:13px;font-weight:700">가능성</div><ul style="margin:8px 0 0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.8">${info.causes.map(c=>`<li>${c}</li>`).join('')}</ul></div>`:''}
+        <div style="margin-top:14px"><div style="font-size:13px;font-weight:700">분석 근거</div><div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.65">${info.basis}</div></div>
+        <div style="margin-top:14px"><div style="font-size:13px;font-weight:700">권장 행동</div><div style="font-size:13px;color:var(--muted);margin-top:6px;line-height:1.65">${info.rec}</div></div></div>`
+    +`<div class="btn-row" style="display:flex;gap:10px;margin-top:16px"><button class="btn ghost" data-nav="measure"><svg><use href="#i-mic"/></svg>다시 측정</button></div>`
+    +`<p class="disclaimer">AI 분석은 실제 학습 모델이 아닌 Demo 로직입니다. "가능성·추정" 수준의 참고 정보이며 확정 진단이 아닙니다. 품질이 낮은 측정은 확정 판정 근거로 사용하지 않습니다.</p>`;
+  renderTab(m);
+}
+function aiText(m){ if(m.status==='insufficient') return {causes:[],basis:'측정 신호가 불안정하거나 데이터가 부족하여 상태를 확정할 수 없습니다.',rec:'센서 위치를 조정한 뒤 다시 측정해주세요.'};
+  if(m.status==='normal') return {causes:[],basis:'측정 주파수가 정상 기준 범위 안에 있으며 평소 패턴과 큰 차이가 없습니다.',rec:'특별한 조치는 필요하지 않습니다. 주기적으로 측정하여 변화를 관찰하세요.'};
+  const high=m.frequencyPeak>BASELINE.normalRangeMax;
+  return {causes:high?['수분 상태 변화 가능성','환경 변화 가능성']:['수분 부족 가능성','환경 변화 가능성'],
+    basis:`정상 범위(${BASELINE.normalRangeMin}~${BASELINE.normalRangeMax} kHz)보다 ${high?'높은':'낮은'} 주파수 신호가 감지되었습니다. 반복 측정으로 일시적 노이즈 여부를 확인하세요.`,
+    rec:'이끼의 수분 상태와 주변 환경을 확인하고 일정 시간 후 다시 측정하세요.'};
+}
+function renderTab(m){ const p=document.getElementById('tabpanel'); if(!p)return;
+  document.querySelectorAll('[data-tab]').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.tab===analysisTab)));
+  if(analysisTab==='wave') p.innerHTML=`<div class="card pad">${lineChart(m.waveform,{color:'var(--primary)',h:130})}</div><div class="tab-note">파형(Waveform): 시간에 따른 신호 진폭 변화입니다.</div>`;
+  else if(analysisTab==='spectro') p.innerHTML=`<div class="card pad">${spectrogram((m.frequencyPeak||30)*10|0)}</div><div class="tab-note">스펙트로그램: 주파수 대역별 신호 세기(진할수록 강함). 실제 측정 데이터 구조와 연결 가능한 형태입니다.</div>`;
+  else{ let s=(m.frequencyPeak||30)*7|0;const rnd=()=>{s=(s*9301+49297)%233280;return s/233280;};let h='<div style="display:flex;align-items:flex-end;gap:5px;height:130px;padding:10px 4px">';
+    for(let i=0;i<14;i++){const band=Math.exp(-Math.pow(i-7,2)/6),hh=Math.max(8,Math.round((band*.7+rnd()*.35)*100));h+=`<div style="flex:1;height:${hh}%;border-radius:4px 4px 0 0;background:${i===7?'var(--primary)':'var(--moss-4)'}"></div>`;}h+='</div>';
+    p.innerHTML=`<div class="card pad">${h}<div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--faint)"><span>${RANGE_LOW}kHz</span><span>주파수 분포</span><span>${RANGE_HIGH}kHz</span></div></div><div class="tab-note">주파수 분석: 신호가 집중된 주파수 대역을 보여줍니다.</div>`;}
+}
+
+/* ---- 성능 시험 (제품 개발용 · Demo · 검증 전) ---- */
+let PERF=[
+  {no:'#001', name:'거실 3평 시험', date:'2026.09.10', space:'3평(약10㎡)', mins:'30', filter:'이끼 필터 A', moss:'기본 이끼', area:'0.3㎡', water:'자동', fan:'보통', inS:120,outS:120, inE:120,outE:74, airflow:'보통', pressure:44, temp:24, humidity:60, demo:true},
+  {no:'#002', name:'거실 4평 시험', date:'2026.09.03', space:'4평(약13㎡)', mins:'40', filter:'이끼 필터 A', moss:'기본 이끼', area:'0.3㎡', water:'자동', fan:'강', inS:150,outS:150, inE:150,outE:95, airflow:'강', pressure:47, temp:24, humidity:58, demo:true},
+];
+function perfEff(p){ return calcEff(p.inE, p.outE); }   // 필터 통과 정화효율 = ((종료 전단-후단)/전단)×100
+function viewPerf(v){
+  const fld=(id,label,val)=>`<label style="display:block;font-size:12px;color:var(--muted);margin-bottom:12px">${label}<input class="txt" id="pf-${id}" value="${escapeHtml(val||'')}" style="display:block;width:100%;margin-top:4px"></label>`;
+  v.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between"><div><div class="page-title">성능 시험</div><div class="page-sub">시제품 제작 후 센서 데이터로 제품 성능을 기록·비교합니다.</div></div><span class="badge st-caution"><span class="dot"></span>DEMO 시험</span></div>`
+    +`<div class="sec"><h2>새 시험 입력</h2><span class="hint">Demo · 검증된 실제 성능 아님</span></div>
+      <div class="card pad"><div class="grid c3">
+        ${fld('name','시험 이름','거실 시험')}${fld('date','시험 날짜','2026.09.13')}${fld('space','시험 공간','3평(약10㎡)')}
+        ${fld('mins','시험 시간(분)','30')}${fld('filter','필터 종류','이끼 필터 A')}${fld('moss','이끼 종류','기본 이끼')}
+        ${fld('area','이끼 면적','0.3㎡')}${fld('water','관수 조건','자동')}${fld('fan','팬 모드','보통')}
+      </div>
+      <div class="sec" style="margin:12px 2px 8px"><h2 style="font-size:14px">측정값</h2></div><div class="grid c4">
+        ${fld('inS','시작 전단(µg/m³)','120')}${fld('outS','시작 후단(µg/m³)','120')}${fld('inE','종료 전단(µg/m³)','120')}${fld('outE','종료 후단(µg/m³)','74')}
+        ${fld('airflow','평균 풍량','보통')}${fld('pressure','차압(Pa)','44')}${fld('temp','온도(℃)','24')}${fld('humidity','습도(%)','60')}
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:14px;border-top:1px solid var(--divider);gap:12px;flex-wrap:wrap">
+        <div><div style="font-size:12px;color:var(--muted)">자동 계산 · 필터 통과 정화효율</div><div id="pf-eff" style="font-family:var(--mono);font-size:22px;font-weight:600">—</div></div>
+        <div style="display:flex;gap:10px"><button class="btn ghost" id="pf-calc">계산</button><button class="btn primary" id="pf-save">Demo 시험 저장</button></div>
+      </div></div>`
+    +`<div class="sec"><h2>저장된 시험</h2><button class="btn soft" id="pf-csv" style="min-height:36px;padding:0 12px"><svg><use href="#i-download"/></svg>CSV 다운로드</button></div>`
+    +`<div class="card tbl-wrap"><table class="tbl"><thead><tr><th>번호</th><th>이름</th><th>날짜</th><th>공간</th><th>시간</th><th>종료 전단→후단</th><th>정화효율</th><th></th></tr></thead><tbody>
+        ${PERF.map(p=>`<tr style="cursor:default"><td class="mono">${p.no}</td><td>${escapeHtml(p.name)}</td><td class="mono">${p.date}</td><td>${escapeHtml(p.space)}</td><td class="mono">${p.mins}분</td><td class="mono">${p.inE}→${p.outE}</td><td class="mono">${perfEff(p)}%</td><td>${p.demo?badge('caution','Demo'):''}</td></tr>`).join('')}
+      </tbody></table></div>`
+    +`<p class="disclaimer">모든 시험은 <b>Demo(검증 전)</b>입니다. 검증되지 않은 값을 실제 성능으로 표기하지 않습니다. CADR(청정공기공급률)은 실제 시험 데이터가 충분히 축적된 후 계산할 수 있도록 구조만 준비되어 있습니다.</p>`;
+}
+
+/* ---- 기록 ---- */
+let historyFilter='all';
+function viewHistory(v){ const all=[...history].sort((a,b)=>b.timestamp-a.timestamp);
+  const rows=historyFilter==='all'?all:all.filter(m=>m.status===historyFilter);
+  const chip=(k,l)=>`<button class="fchip${historyFilter===k?' on':''}" data-hfilter="${k}">${l}</button>`;
+  v.innerHTML=`<div style="display:flex;align-items:baseline;justify-content:space-between"><div><div class="page-title">측정 기록</div><div class="page-sub">총 ${all.length}회 측정${historyFilter!=='all'?` · ${rows.length}건 표시 중`:''}</div></div><button class="btn soft" id="csv-btn" style="min-height:38px;padding:0 14px"><svg><use href="#i-download"/></svg>CSV 다운로드</button></div>`
+    +`<div class="fchips">${chip('all','전체')}${chip('normal','정상')}${chip('caution','주의')}${chip('anomaly','이상')}${chip('insufficient','판정 불가')}</div>`
+    +(rows.length?`<div class="card tbl-wrap" style="margin-top:16px"><table class="tbl"><thead><tr><th></th><th>측정일</th><th>이끼</th><th>상태</th><th>주요 주파수</th><th>정상 범위</th><th>신호 강도</th><th>품질</th></tr></thead><tbody>
+      ${rows.map(m=>`<tr data-mid="${m.measurementId}"><td><span class="thumb">${mossVisual(m.status,{size:34})}</span></td><td class="mono">${dateLabel(m.timestamp)} ${two(m.timestamp.getHours())}:${two(m.timestamp.getMinutes())}</td><td>${m.mossType}</td><td>${badge(m.status)}</td><td class="mono">${num(m.frequencyPeak,1)} kHz</td><td class="mono">${m.normalRangeMin}~${m.normalRangeMax}</td><td class="mono">${num(m.signalStrength)}%</td><td>${m.measurementQuality==='high'?'높음':m.measurementQuality==='low'?'낮음':'—'}</td></tr>`).join('')}
+      </tbody></table></div>`:`<div class="card" style="margin-top:16px"><div class="empty"><div class="ei"><svg><use href="#i-history"/></svg></div><div>${all.length?'해당 상태의 기록이 없습니다.':'아직 측정 기록이 없습니다.'}</div></div></div>`)
+    +`<div class="sec"><h2>통계</h2><span class="hint">기록 데이터 기반</span></div>${statsBlock()}`
+    +`<p class="disclaimer">행을 클릭하면 분석 화면으로 이동합니다. 통계는 기록된 Demo 데이터로 계산되며 하드코딩이 아닙니다.</p>`;
+}
+let statsPeriod='7d';
+function statsBlock(){ const pts=SERIES.filter(x=>x.t>=cutoff(statsPeriod)); const peaks=pts.map(p=>p.peak);
+  const n=peaks.length, normalN=pts.filter(p=>p.status==='normal').length, cautionN=pts.filter(p=>p.status==='caution').length, anomalyN=pts.filter(p=>p.status==='anomaly').length;
+  const avg=peaks.length?r1(peaks.reduce((a,b)=>a+b,0)/peaks.length):null;
+  const seg=[['today','오늘'],['7d','7일'],['30d','30일']].map(o=>`<button class="tab" data-stat="${o[0]}" aria-selected="${statsPeriod===o[0]}" style="padding:8px 14px">${o[1]}</button>`).join('');
+  return `<div class="tabs" style="max-width:280px;margin-top:0">${seg}</div>
+    <div class="grid c4" style="margin-top:14px">
+      ${metric('i-analyze','측정 횟수',{value:n,unit:'회'})}
+      ${metric('i-check','정상 비율',{value:n?Math.round(normalN/n*100):DASH,unit:'%'})}
+      ${metric('i-alert','주의',{value:cautionN,unit:'회'})}
+      ${metric('i-alert','이상 신호',{value:anomalyN,unit:'회'})}
+      ${metric('i-gauge','평균 주요 주파수',{value:num(avg,1),unit:'kHz'})}</div>
+    <div class="card pad" style="margin-top:16px"><div style="font-size:13px;font-weight:700;margin-bottom:8px">초음파 추세 <span style="font-weight:400;color:var(--faint);font-size:11.5px">(마우스 오버 시 상세값 · 연한 영역=정상 범위)</span></div>${trendChart(pts,{period:statsPeriod})}</div>`;
+}
+
+/* ---- 환경 ---- */
+function viewEnvironment(v){ const r=reading; const mo=moisture();
+  v.innerHTML=`<div class="page-title">환경 데이터</div><div class="page-sub">환경 데이터는 초음파 분석의 보조 정보로 사용됩니다.</div>`
+    +`<div class="grid c4" style="margin-top:16px">
+        ${metric('i-temp','온도',{value:num(r.temperature,1),unit:'°C'})}
+        ${metric('i-humid','습도',{value:num(r.humidity),unit:'%',status:r.humidity!=null&&r.humidity>=80?'caution':'normal'})}
+        ${metric('i-drop','수분(물탱크)',{value:num(r.moisture),unit:'%',status:mo.status})}
+        ${metric('i-light','조도',{value:num(r.light),unit:'lux'})}</div>`
+    +`<div class="sec"><h2>수분·안전 상태</h2></div><div class="card pad"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div style="font-size:20px;font-weight:700;color:${STATUS[mo.status].color}">${mo.label}</div>${mo.action?`<div style="font-size:13px;color:var(--muted);margin-top:4px">권장: ${mo.action}</div>`:''}</div>${badge(mo.status)}</div><p class="disclaimer" style="margin-top:12px">과습/부족 임계값은 확정된 공식 기준이 아니라 참고용 Demo 기준입니다.</p></div>`
+    +`<div class="sec"><h2>공기질 (보조)</h2><span class="hint">진단 핵심 아님 · Demo</span></div><div class="grid c3">
+        ${metric('i-air','PM2.5 전단(유입)',{value:num(r.pm25In),unit:'µg/m³'})}
+        ${metric('i-air','PM2.5 후단(배출)',{value:num(r.pm25Out),unit:'µg/m³'})}
+        ${metric('i-gauge','정화 효율',{value:num(calcEff(r.pm25In,r.pm25Out),1),unit:'%'})}</div>`
+    +`<p class="disclaimer">공기질은 이끼 상태 진단의 보조 데이터입니다. 수치는 Demo 값이며 실제 성능은 검증 전까지 확정하지 않습니다.</p>`;
+}
+function moisture(){ const r=reading;
+  if(r.moisture!=null&&r.moisture<=15) return {status:'anomaly',label:'부족',action:'물을 보충해주세요.'};
+  if(r.moisture!=null&&r.moisture<=30) return {status:'caution',label:'낮음',action:'가까운 시일 내 물을 보충해주세요.'};
+  if(r.humidity!=null&&r.humidity>=80) return {status:'caution',label:'과습 주의',action:'수분 공급 상태와 환기를 확인해주세요.'};
+  return {status:'normal',label:'정상',action:''};
+}
+function calcEff(inV,outV){ if(inV==null||outV==null||inV<=0) return 0; const e=((inV-outV)/inV)*100; return Number.isFinite(e)?Math.round(Math.min(100,Math.max(0,e))*10)/10:0; }
+
+/* ---- 기기 ---- */
+function viewDevice(v){ const r=reading; const act=s=>s==='on'?'작동 중':s==='off'?'꺼짐':'오류'; const lv=s=>s==='on'?'normal':s==='error'?'anomaly':'insufficient';
+  const airLabel=['정지','약','보통','강'][r.airflow]??'—'; const cmh=[0,90,140,185][r.airflow]??null;
+  const devSt = connection==='disconnected'?'insufficient':connection==='error'?'anomaly':'normal';
+  const devLabel = connection==='disconnected'?'연결 안 됨':connection==='error'?'오류':'연결됨';
+  const DEVS=[{ic:'i-mic',name:'초음파 마이크',id:'MOSS-UM-001'},{ic:'i-env',name:'환경 센서',id:'MOSS-ENV-001'},{ic:'i-drop',name:'수분 센서',id:'MOSS-MOIST-001'}];
+  v.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><div><div class="page-title">연결된 장치</div><div class="page-sub">MOSS AIR 하드웨어 · Demo(실제 신호 없음) · 마지막 수신 ${agoText()}</div></div><button class="btn ghost" data-nav="settings" style="min-height:38px"><svg><use href="#i-settings"/></svg>설정</button></div>`
+    +`<div class="card pad" style="margin-top:16px">${DEVS.map(d=>`<div class="dev-row"><span class="dev-ic"><svg><use href="#${d.ic}"/></svg></span><div class="dev-meta"><div class="dev-name">${d.name}</div><div class="dev-id">${d.id}</div></div><div class="dev-right">${badge(devSt,devLabel)}<span class="dev-chev"><svg><use href="#i-arrow"/></svg></span></div></div>`).join('')}</div>`
+    +`<div class="sec"><h2>장치 관리</h2></div><div class="card pad"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px"><div style="font-weight:600">센서 연결 상태를 확인하고, 설정을 관리할 수 있습니다.</div><div style="font-size:13px;color:var(--muted);margin-top:4px">현재 연결: ${connLabel()}</div></div><button class="btn soft" data-nav="settings" style="min-height:42px">장치 관리하기 <svg><use href="#i-arrow"/></svg></button></div></div>`
+    +`<div class="sec"><h2>하드웨어 상태</h2><span class="hint">Demo(실제 신호 없음)</span></div>`
+    +`<div class="grid c3" style="margin-top:16px">
+        ${metric('i-fan','팬 모드',{word:({auto:'자동',low:'약',mid:'보통',high:'강'}[r.fanMode])||'자동'})}
+        ${metric('i-air','실제 풍량',{value:cmh==null?DASH:cmh,unit:'m³/h'})}
+        ${metric('i-gauge','풍량 단계',{word:airLabel})}</div>`
+    +`<div class="grid c3" style="margin-top:16px">
+        ${metric('i-fan','팬',{word:act(r.fan),status:lv(r.fan)})}
+        ${metric('i-pump','펌프',{word:act(r.pump),status:lv(r.pump)})}
+        ${metric('i-bulb','LED',{word:act(r.led),status:lv(r.led)})}</div>`
+    +`<div class="grid c3" style="margin-top:16px">
+        ${metric('i-drop','물탱크',{value:num(r.moisture),unit:'%',status:moisture().status})}
+        ${metric('i-gauge','차압',{value:num(r.pressure),unit:'Pa'})}
+        ${metric('i-filter','이끼 필터',{word:'정상',status:'normal'})}</div>`
+    +`<div class="sec"><h2>센서 상태</h2><span class="hint">값 문제(오류) vs 연결 문제(연결 안 됨) 구분 · 마지막 수신 ${agoText()}</span></div>
+      <div class="card tbl-wrap"><table class="tbl"><thead><tr><th>센서</th><th>현재 값</th><th>상태</th></tr></thead><tbody>
+        ${sensorList().map(x=>`<tr style="cursor:default"><td>${x.label}</td><td class="mono">${x.v}${x.u?' '+x.u:''}</td><td>${badge(SENSOR_STATUS[x.s],SENSOR_LABEL[x.s])}</td></tr>`).join('')}
+      </tbody></table></div>
+      <p class="disclaimer">센서 데이터 문제는 필터 문제와 별개로 표시합니다. 센서 오류 시 필터 상태로 오인하지 않습니다.</p>`
+    +`<div class="sec"><h2>유지관리 기록</h2><span class="hint">Demo · 향후 실제 이력 저장</span></div><div class="card tbl-wrap"><table class="tbl"><thead><tr><th>날짜</th><th>항목</th><th>내용</th></tr></thead><tbody>
+        ${MAINT.map(x=>`<tr style="cursor:default"><td class="mono">${x.date}</td><td>${x.type}</td><td style="color:var(--muted)">${x.note}</td></tr>`).join('')}</tbody></table></div>`
+    +`<p class="disclaimer">실제 풍량(m³/h)은 Demo 환산값입니다. 팬 모드와 실제 풍량은 분리되어 있으며, 실제 풍량 센서 연결 시 그대로 교체할 수 있습니다. 물탱크·차압·필터 판단은 카메라 없이 센서 데이터로만 처리합니다.</p>`;
+}
+const MAINT=[{date:'2026.09.11',type:'물 보충',note:'물탱크 보충'},{date:'2026.09.06',type:'필터 점검',note:'정화 성능 점검(이상 없음)'},{date:'2026.08.15',type:'필터 교체',note:'이끼 필터 교체'}];
+
+/* ---- 설정 ---- */
+function viewSettings(v){ const sw=(id,on)=>`<label class="switch"><input type="checkbox" data-set="${id}" ${on?'checked':''}><span class="tk"></span><span class="th"></span></label>`;
+  v.innerHTML=`<div class="page-title">설정</div>`
+    +`<div class="sec"><h2>계정</h2></div><div class="card pad">${authUser?`
+        <div style="display:flex;align-items:center;gap:12px">${authUser.avatar?`<img src="${authUser.avatar}" alt="" style="width:46px;height:46px;border-radius:50%;object-fit:cover">`:`<div style="width:46px;height:46px;border-radius:50%;background:var(--light);display:grid;place-items:center;color:var(--primary);font-weight:700;font-size:18px">${escapeHtml((authUser.name||'U').slice(0,1))}</div>`}
+          <div style="min-width:0"><div style="font-weight:600">${escapeHtml(authUser.name||'사용자')}</div><div style="font-size:13px;color:var(--muted)">${escapeHtml(authUser.email||'')}${authUser.provider?' · '+escapeHtml(authUser.provider):''}</div></div></div>
+        <button class="btn ghost" id="logout-btn" style="margin-top:14px;min-height:40px"><svg><use href="#i-arrow"/></svg>로그아웃</button>`
+      :`<div style="font-size:14px;color:var(--muted)">현재 로그인하지 않은 <b>Demo Mode</b>로 이용 중입니다. 실제 제품·데이터 연동은 로그인 후 이용할 수 있습니다.</div>
+        <button class="btn primary" id="login-btn" style="margin-top:12px;min-height:42px">로그인하기</button>`}
+      <p class="disclaimer" style="margin-top:10px">사용자 식별을 위한 최소 정보(계정 ID·이메일·이름·프로필 이미지)만 사용하며, 그 외 개인정보는 저장하지 않습니다.</p></div>`
+    +`<div class="sec"><h2>제품</h2></div><div class="card pad">
+        <div class="row"><span class="k">제품 이름</span><input class="txt" id="pname" value="${escapeHtml(settings.productName)}"></div>
+        <div class="row"><span class="k">제품 ID</span><span class="v data">${settings.productId}</span></div>
+        <div class="row"><span class="k">측정 대상 종</span><span class="v">${currentSpecies.name}</span></div>
+        <div class="row"><span class="k">연결 상태</span>${badge(connection==='disconnected'?'anomaly':sensorConnected?'normal':'insufficient', connLabel())}</div>
+        <div style="display:flex;gap:10px;margin-top:12px;flex-wrap:wrap"><button class="btn ghost" data-conn="demo">Demo 연결</button><button class="btn ghost" data-conn="connected">센서 연결(시뮬)</button><button class="btn ghost" data-conn="disconnected">연결 끊김(시뮬)</button></div></div>`
+    +`<div class="sec"><h2>모드</h2></div><div class="card pad"><div class="row"><span class="k">Demo Mode</span>${sw('demoMode',settings.demoMode)}</div><p class="disclaimer" style="margin-top:8px">실제 하드웨어가 없어 Demo Mode를 유지합니다. Demo 데이터는 실제 측정값과 분리되어 있으며 화면에 DEMO로 표시됩니다.</p></div>`
+    +`<div class="sec"><h2>개발자에게 문의</h2></div><div class="card pad">
+        <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:10px">문의 유형
+          <select class="txt" id="sup-type" style="display:block;width:100%;margin-top:4px">
+            <option>제품 문제</option><option>센서 문제</option><option>필터 문제</option><option>앱/웹 문제</option><option>기능 요청</option><option>개선 요청</option><option>기타</option>
+          </select></label>
+        <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:10px">제목<input class="txt" id="sup-title" placeholder="예: 필터 상태가 계속 주의로 나옵니다" style="display:block;width:100%;margin-top:4px"></label>
+        <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:10px">내용<textarea class="txt" id="sup-body" rows="4" placeholder="문제 상황이나 요청사항을 적어주세요." style="display:block;width:100%;margin-top:4px;resize:vertical;font:inherit"></textarea></label>
+        <div style="font-size:12px;color:var(--faint);line-height:1.6;background:var(--light);border-radius:10px;padding:10px 12px">함께 전송: 사용자 ${authUser?escapeHtml(authUser.email||authUser.name||''):'(비로그인)'} · 제품 ${escapeHtml(settings.productId)}(${escapeHtml(settings.productName)}) · 웹 v${APP_VERSION} · 연결 ${CONN_LABEL[connState()]} · 접수시각(자동)<br>※ 비밀번호·인증 토큰은 포함되지 않습니다.</div>
+        <div id="sup-msg" style="margin-top:10px;font-size:13px" hidden></div>
+        <button class="btn primary" id="sup-send" style="margin-top:12px;min-height:42px">문의 보내기</button>
+        <p class="disclaimer" style="margin-top:8px">문의는 서버(Supabase Edge Function)를 통해 개발자 이메일로 전송되고 DB(support_requests)에 저장됩니다. 브라우저에서 직접 메일을 보내지 않습니다.</p></div>`
+    +`<div class="sec"><h2>알림</h2></div><div class="card pad"><div class="row"><span class="k">알림 사용</span>${sw('notifications',settings.notifications)}</div></div>`
+    +`<div class="sec"><h2>데모 상태 테스트</h2></div><div class="card pad">
+        <div class="row"><span class="k">센서 이상 시뮬레이션</span>${sw('sensorFault',sim.sensorFault)}</div>
+        <div class="row"><span class="k">저품질 측정 시뮬레이션</span>${sw('lowQuality',sim.lowQuality)}</div>
+        <div class="row"><span class="k">데이터 없음 시뮬레이션</span>${sw('noData',sim.noData)}</div></div>`
+    +`<p class="disclaimer">설정은 이 브라우저에 저장됩니다. 카메라·이미지 분석 기능은 없습니다. 데이터가 부족하면 "판정 불가"로 표시하며 자동으로 정상 처리하지 않습니다.</p>`;
+}
+function connLabel(){return {demo:'Demo Mode',connected:'연결됨',disconnected:'연결 끊김',error:'오류'}[connection]||'—';}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+const APP_VERSION='1.0.0-user';
+const SUPPORT_CONFIG={ endpoint:'' }; // ← [설정 필요] Supabase Edge Function URL (send-support). 비어있으면 로컬 임시저장 후 안내.
+async function sendSupport(){
+  const btn=document.getElementById('sup-send'), msg=document.getElementById('sup-msg');
+  const type=document.getElementById('sup-type').value, title=(document.getElementById('sup-title').value||'').trim(), body=(document.getElementById('sup-body').value||'').trim();
+  const show=(t,c)=>{msg.hidden=false;msg.textContent=t;msg.style.color=c;};
+  if(!title||!body){ show('제목과 내용을 입력해 주세요.','var(--caution)'); return; }
+  const payload={ type, title, content:body,
+    userId:authUser?authUser.id:null, userEmail:authUser?authUser.email:null,
+    deviceId:settings.productId, productName:settings.productName,
+    appVersion:APP_VERSION, connection:CONN_LABEL[connState()],
+    lastReading:{pm25In:reading.pm25In,pm25Out:reading.pm25Out,efficiency:reading.efficiency,temperature:reading.temperature,humidity:reading.humidity,waterLevel:reading.waterLevel},
+    createdAt:new Date().toISOString() };
+  btn.disabled=true; const orig=btn.textContent; btn.textContent='전송 중...'; show('전송 중...','var(--muted)');
+  try{
+    if(SUPPORT_CONFIG.endpoint){
+      const res=await fetch(SUPPORT_CONFIG.endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      show('문의가 접수되었습니다.','var(--good)');
+      document.getElementById('sup-title').value=''; document.getElementById('sup-body').value='';
+    } else {
+      try{ const q=JSON.parse(localStorage.getItem('moss_support')||'[]'); q.push(payload); localStorage.setItem('moss_support',JSON.stringify(q)); }catch(e){}
+      show('임시 저장되었습니다. 서버(Edge Function) 설정 후 실제 전송됩니다. (아직 개발자에게 발송되지 않음)','var(--caution)');
+    }
+  }catch(e){ show('문의 전송에 실패했습니다. 잠시 후 다시 시도해주세요.','var(--anomaly)'); }
+  finally{ btn.disabled=false; btn.textContent=orig; }
+}
+
+/* ================= CSV ================= */
+function seriesCsv(){ const rows=[['time','peak_kHz','status','normal_min','normal_max']];
+  SERIES.forEach(p=>rows.push([new Date(p.t).toISOString(),p.peak,STATUS[p.status].key,BASELINE.normalRangeMin,BASELINE.normalRangeMax]));
+  history.forEach(m=>rows.push([m.timestamp.toISOString(),num(m.frequencyPeak,1),STATUS[m.status].key,m.normalRangeMin,m.normalRangeMax]));
+  return rows.map(r=>r.join(',')).join('\n'); }
+function downloadCsv(name,text){ try{const blob=new Blob([text],{type:'text/csv;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},100);return true;}catch(e){return false;} }
+
+/* ================= events ================= */
+function bind(){
+  document.querySelectorAll('[data-mid]').forEach(el=>el.onclick=()=>{const m=history.find(x=>x.measurementId===el.dataset.mid);if(m){lastMeasurement=m;go('analysis');}});
+  const mb=document.getElementById('mbtn'); if(mb) mb.onclick=toggleMeasure;
+  const ag=document.getElementById('analyze-go'); if(ag) ag.onclick=()=>go('analysis');
+  const sb=document.getElementById('save-btn'); if(sb) sb.onclick=e=>{const m=lastMeasurement;if(m&&!history.find(h=>h.measurementId===m.measurementId)){history.unshift(m);persist();}e.currentTarget.innerHTML='<svg><use href="#i-check"/></svg>저장됨';e.currentTarget.disabled=true;e.currentTarget.style.opacity='.7';};
+  document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{analysisTab=b.dataset.tab;renderTab(lastMeasurement||latest());});
+  document.querySelectorAll('[data-stat]').forEach(b=>b.onclick=()=>{statsPeriod=b.dataset.stat;render();});
+  document.querySelectorAll('[data-hfilter]').forEach(b=>b.onclick=()=>{historyFilter=b.dataset.hfilter;render();});
+  const lo=document.getElementById('logout-btn'); if(lo) lo.onclick=doLogout;
+  const li=document.getElementById('login-btn'); if(li) li.onclick=()=>{loginErr('');showLogin();};
+  const ss=document.getElementById('sup-send'); if(ss) ss.onclick=sendSupport;
+  const mc=document.getElementById('maint-csv'); if(mc) mc.onclick=()=>{const rows=[['date','type','note'],...MAINT.map(x=>[x.date,x.type,x.note])];downloadCsv('moss_maintenance_demo.csv',rows.map(r=>r.join(',')).join('\n'));};
+  document.querySelectorAll('[data-conn]').forEach(b=>b.onclick=()=>{connection=b.dataset.conn;sensorConnected=(b.dataset.conn==='connected');updateHeader();render();});
+  const pn=document.getElementById('pname'); if(pn) pn.onchange=()=>{settings.productName=pn.value.slice(0,40);persist();};
+  const csv=document.getElementById('csv-btn'); if(csv) csv.onclick=()=>{const ok=downloadCsv('moss_ultrasound_demo.csv',seriesCsv());csv.innerHTML=ok?'<svg><use href="#i-check"/></svg>다운로드됨':'다운로드 불가';};
+  document.querySelectorAll('[data-set]').forEach(b=>b.onchange=()=>{const k=b.dataset.set;
+    if(k in sim){ sim[k]=b.checked; reading=sanitizeEnv(reading); } else { settings[k]=b.checked; persist(); }
+    render();});
+  document.querySelectorAll('[data-nav]').forEach(b=>b.onclick=()=>go(b.dataset.nav));
+  /* 성능 시험 */
+  const pfg=id=>{const el=document.getElementById('pf-'+id);return el?el.value:'';};
+  const pc=document.getElementById('pf-calc'); if(pc) pc.onclick=()=>{const e=calcEff(parseFloat(pfg('inE')),parseFloat(pfg('outE')));const el=document.getElementById('pf-eff');if(el)el.textContent=Number.isFinite(e)?e+'%':'—';};
+  const ps=document.getElementById('pf-save'); if(ps) ps.onclick=()=>{ const n='#'+String(PERF.length+1).padStart(3,'0');
+    PERF.unshift({no:n,name:pfg('name')||'무제 시험',date:pfg('date'),space:pfg('space'),mins:pfg('mins'),filter:pfg('filter'),moss:pfg('moss'),area:pfg('area'),water:pfg('water'),fan:pfg('fan'),inS:+pfg('inS'),outS:+pfg('outS'),inE:+pfg('inE'),outE:+pfg('outE'),airflow:pfg('airflow'),pressure:+pfg('pressure'),temp:+pfg('temp'),humidity:+pfg('humidity'),demo:true}); render(); };
+  const pcsv=document.getElementById('pf-csv'); if(pcsv) pcsv.onclick=()=>{ const rows=[['no','name','date','space','mins','pmIn_end','pmOut_end','efficiency_%']]; PERF.forEach(p=>rows.push([p.no,p.name,p.date,p.space,p.mins,p.inE,p.outE,perfEff(p)])); const ok=downloadCsv('moss_perf_demo.csv',rows.map(r=>r.join(',')).join('\n')); pcsv.innerHTML=ok?'<svg><use href="#i-check"/></svg>다운로드됨':'다운로드 불가'; };
+  bindCharts();
+}
+function bindCharts(){ document.querySelectorAll('.chart2').forEach(c=>{const plot=c.querySelector('.c-plot'),tip=c.querySelector('.c-tip'),guide=c.querySelector('.c-guide');let pts=[];try{pts=JSON.parse(c.dataset.pts);}catch(e){}if(!pts.length||!plot)return;
+  const mv=e=>{const rc=plot.getBoundingClientRect();let rel=(e.clientX-rc.left)/rc.width;rel=Math.max(0,Math.min(1,rel));const i=Math.round(rel*(pts.length-1)),p=pts[i],xp=(pts.length>1?i/(pts.length-1):0)*100;
+    guide.style.left=xp+'%';guide.style.display='block';tip.style.display='block';tip.style.left=Math.max(12,Math.min(88,xp))+'%';
+    tip.innerHTML=`<div class="tt">${p.tl}</div><div class="tr"><span>주파수</span><b>${p.peak} kHz</b></div><div class="tr"><span>상태</span><b>${p.st}</b></div>`;};
+  plot.addEventListener('mousemove',mv);plot.addEventListener('mouseleave',()=>{tip.style.display='none';guide.style.display='none';});});}
+
+/* nav */
+const NAVKEYS=Object.keys(BAR);
+function go(name){ if(!NAVKEYS.includes(name)) name='dashboard'; currentView=name;
+  document.querySelectorAll('.navlink').forEach(n=>n.classList.toggle('active',n.dataset.nav===name));
+  if(name!=='measure') resetMeasure();
+  try{ if(location.hash!=='#'+name) history_pushState(name); }catch(e){}
+  document.querySelector('.main').scrollTop=0; render();
+}
+function history_pushState(name){ try{window.history.pushState({v:name},'','#'+name);}catch(e){} }
+window.addEventListener('popstate',()=>{ const h=(location.hash||'#dashboard').slice(1); currentView=NAVKEYS.includes(h)?h:'dashboard';
+  document.querySelectorAll('.navlink').forEach(n=>n.classList.toggle('active',n.dataset.nav===currentView)); render(); });
+
+/* header/theme/collapse */
+function updateHeader(){ const c=document.getElementById('h-conn'),t=document.getElementById('h-conn-t');
+  c.className='chip'+(connection==='disconnected'?' err':''); t.textContent=connLabel();
+  document.getElementById('h-mode').textContent=settings.demoMode?'DEMO MODE':'REAL DATA';
+  document.getElementById('h-mode').style.display=settings.demoMode?'':'none'; }
+document.getElementById('theme-btn').onclick=()=>{const root=document.documentElement,pd=window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches,cur=root.getAttribute('data-theme')||(pd?'dark':'light'),nx=cur==='dark'?'light':'dark';root.setAttribute('data-theme',nx);document.getElementById('theme-i').setAttribute('href',nx==='dark'?'#i-sun':'#i-moon');try{localStorage.setItem('moss_dx_theme',nx);}catch(e){}};
+document.getElementById('collapse').onclick=()=>document.getElementById('sidebar').classList.toggle('mini');
+
+/* storage */
+function loadSettings(){const d={productName:'거실 MOSS AIR',productId:'MOSS-001',demoMode:true,notifications:true};try{const r=localStorage.getItem('moss_dx');return r?{...d,...JSON.parse(r)}:d;}catch(e){return d;}}
+function persist(){try{localStorage.setItem('moss_dx',JSON.stringify(settings));}catch(e){}}
+try{const t=localStorage.getItem('moss_dx_theme');if(t){document.documentElement.setAttribute('data-theme',t);document.getElementById('theme-i').setAttribute('href',t==='dark'?'#i-sun':'#i-moon');}}catch(e){}
+
+/* 실시간 환경 갱신(대시보드/환경/기기에서만) — Provider 경유, 마지막 수신시간 기록 */
+setInterval(()=>{ if(connection==='disconnected')return;
+  const next=activeProvider.next(reading);
+  if(next==null) return;            // 실제 Provider 미연결 시 데이터 없음(위장 금지)
+  reading=next; lastUpdated=Date.now();
+  if(['dashboard','air','filter','product','stats'].includes(currentView)) render(); },3000);
+
+/* ================= Auth (Supabase) =================
+   비밀값(Client Secret)은 절대 여기에 넣지 않습니다.
+   아래 anon key는 공개 키(공개돼도 안전)이며, Google/Naver Secret은
+   Supabase 대시보드/Edge Function 서버측에만 저장합니다.               */
+const AUTH_CONFIG = {
+  SUPABASE_URL: '',        // ← [설정 필요] 예: https://xxxx.supabase.co
+  SUPABASE_ANON_KEY: '',   // ← [설정 필요] Supabase anon public key (공개 키)
+  NAVER_LOGIN_URL: ''      // ← [설정 필요] 네이버 로그인 시작용 Supabase Edge Function URL
+};
+function redirectURL(){ return location.origin + location.pathname; } // 개발/배포 주소 자동 대응(하드코딩 금지)
+let supa=null, authUser=null, authBusy=false;
+function authConfigured(){ return !!(AUTH_CONFIG.SUPABASE_URL && AUTH_CONFIG.SUPABASE_ANON_KEY); }
+function supaReady(){ return authConfigured() && !!(window.supabase && window.supabase.createClient); }
+function getSupa(){ if(!supa && supaReady()){ try{ supa=window.supabase.createClient(AUTH_CONFIG.SUPABASE_URL,AUTH_CONFIG.SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}}); }catch(e){ supa=null; } } return supa; }
+function showLogin(){ document.getElementById('login-screen').classList.remove('hidden'); document.getElementById('shell').style.display='none'; }
+function hideLogin(){ document.getElementById('login-screen').classList.add('hidden'); document.getElementById('shell').style.display=''; }
+function loginErr(msg){ const e=document.getElementById('login-err'); if(!msg){e.hidden=true;return;} e.hidden=false; e.textContent=msg; }
+function setBusy(on,which){ authBusy=on;
+  const bg=document.getElementById('btn-google'),bn=document.getElementById('btn-naver');
+  bg.disabled=on; bn.disabled=on;
+  bg.querySelector('.oa-t').textContent=(on&&which==='google')?'로그인 중...':'Google로 계속하기';
+  bn.querySelector('.oa-t').textContent=(on&&which==='naver')?'로그인 중...':'Naver로 계속하기'; }
+async function signInGoogle(){ if(authBusy)return; loginErr('');
+  if(!supaReady()){ loginErr('Google 로그인은 Supabase 설정 완료 후 활성화됩니다. 지금은 Demo Mode로 이용해 주세요.'); return; }
+  setBusy(true,'google');
+  try{ const {error}=await getSupa().auth.signInWithOAuth({provider:'google',options:{redirectTo:redirectURL()}}); if(error)throw error; }
+  catch(e){ setBusy(false); loginErr('Google 로그인에 실패했습니다: '+(e&&e.message?e.message:e)); }
+}
+async function signInNaver(){ if(authBusy)return; loginErr('');
+  if(!AUTH_CONFIG.NAVER_LOGIN_URL){ loginErr('Naver 로그인은 서버측(Supabase Edge Function) 설정 완료 후 활성화됩니다. 지금은 Demo Mode로 이용해 주세요.'); return; }
+  setBusy(true,'naver');
+  try{ const u=AUTH_CONFIG.NAVER_LOGIN_URL; location.href=u+(u.includes('?')?'&':'?')+'redirect='+encodeURIComponent(redirectURL()); }
+  catch(e){ setBusy(false); loginErr('Naver 로그인에 실패했습니다: '+(e&&e.message?e.message:e)); }
+}
+function enterDemo(){ try{localStorage.setItem('moss_entry','demo');}catch(e){} hideLogin(); updateHeader(); updateUserChip(); go(currentView); }
+function applyAuthUser(u){ authUser=u?{ id:u.id, email:u.email||'',
+    name:(u.user_metadata&&(u.user_metadata.full_name||u.user_metadata.name))||u.email||'사용자',
+    avatar:(u.user_metadata&&(u.user_metadata.avatar_url||u.user_metadata.picture))||'',
+    provider:(u.app_metadata&&u.app_metadata.provider)||'' }:null; updateUserChip(); }
+function updateUserChip(){ const c=document.getElementById('h-user'); if(!c)return;
+  if(authUser){ c.classList.remove('hidden'); document.getElementById('h-user-name').textContent=authUser.name||'사용자';
+    const av=document.getElementById('h-user-av'); if(authUser.avatar){av.src=authUser.avatar;av.style.display='';}else{av.style.display='none';} }
+  else c.classList.add('hidden'); }
+async function doLogout(){ try{ if(getSupa()) await getSupa().auth.signOut(); }catch(e){} authUser=null;
+  try{localStorage.removeItem('moss_entry');}catch(e){} updateUserChip(); showLogin(); }
+async function authBoot(){
+  try{ const p=new URLSearchParams((location.hash||'').replace(/^#/,'')); const q=new URLSearchParams(location.search);
+    const err=p.get('error_description')||q.get('error_description')||q.get('error');
+    if(err){ loginErr('로그인 오류: '+decodeURIComponent(err)); } }catch(e){}
+  if(supaReady()){
+    try{ const {data}=await getSupa().auth.getSession();
+      if(data&&data.session){ applyAuthUser(data.session.user); hideLogin(); go(currentView); }
+      else if(safeEntry()==='demo'){ hideLogin(); go(currentView); }
+      else showLogin();
+      getSupa().auth.onAuthStateChange((_ev,session)=>{ if(session){ applyAuthUser(session.user); hideLogin(); go(currentView); } else { applyAuthUser(null); } });
+    }catch(e){ if(safeEntry()==='demo'){ hideLogin(); go(currentView); } else { showLogin(); loginErr('인증 서버 연결 오류입니다. Demo Mode로 이용할 수 있습니다.'); } }
+  } else {
+    if(safeEntry()==='demo'){ hideLogin(); go(currentView); }
+    else { showLogin(); document.getElementById('login-note').textContent='현재 Google/Naver 로그인은 Supabase 설정 완료 후 활성화됩니다. 지금은 Demo Mode로 모든 기능을 체험할 수 있습니다.'; }
+  }
+}
+function safeEntry(){ try{return localStorage.getItem('moss_entry');}catch(e){return null;} }
+
+/* init */
+seedHistory(); lastMeasurement=latest();
+const h0=(location.hash||'').slice(1); if(NAVKEYS.includes(h0)) currentView=h0;
+updateHeader();
+document.getElementById('btn-google').onclick=signInGoogle;
+document.getElementById('btn-naver').onclick=signInNaver;
+document.getElementById('btn-demo').onclick=enterDemo;
+document.getElementById('h-user').onclick=()=>go('settings');
+authBoot();
+</script>
+
+</body>
+</html>
