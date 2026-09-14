@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://skysky02209.github.io/moss-air/sitemap.xml
