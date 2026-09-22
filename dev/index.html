@@ -1222,8 +1222,8 @@ setInterval(()=>{ if(connection==='disconnected')return;
    아래 anon key는 공개 키(공개돼도 안전)이며, Google/Naver Secret은
    Supabase 대시보드/Edge Function 서버측에만 저장합니다.               */
 const AUTH_CONFIG = {
-  SUPABASE_URL: '',        // ← [설정 필요] 예: https://xxxx.supabase.co
-  SUPABASE_ANON_KEY: '',   // ← [설정 필요] Supabase anon public key (공개 키)
+  SUPABASE_URL: 'https://eihkzzeupnlfyfibsgrf.supabase.co',        // ← [설정 필요] 예: https://xxxx.supabase.co
+  SUPABASE_ANON_KEY: 'sb_publishable_WlBDn0T6ZBT4-cC0feve9w_t7W9mhwh',   // ← [설정 필요] Supabase anon public key (공개 키)
   NAVER_LOGIN_URL: ''      // ← [설정 필요] 네이버 로그인 시작용 Supabase Edge Function URL
 };
 function redirectURL(){ return location.origin + location.pathname; } // 개발/배포 주소 자동 대응(하드코딩 금지)
