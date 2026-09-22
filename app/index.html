@@ -1023,7 +1023,7 @@ function viewSettings(v){ const sw=(id,on)=>`<label class="switch"><input type="
 function connLabel(){return {demo:'Demo Mode',connected:'연결됨',disconnected:'연결 끊김',error:'오류'}[connection]||'—';}
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 const APP_VERSION='1.0.0-user';
-const SUPPORT_CONFIG={ endpoint:'' }; // ← [설정 필요] Supabase Edge Function URL (send-support). 비어있으면 로컬 임시저장 후 안내.
+const SUPPORT_CONFIG={ endpoint:'https://eihkzzeupnlfyfibsgrf.supabase.co/functions/v1/send-support' }; // Supabase Edge Function (send-support). DB저장 O, 이메일은 RESEND_API_KEY/DEVELOPER_EMAIL 등록 후 발송.
 async function sendSupport(){
   const btn=document.getElementById('sup-send'), msg=document.getElementById('sup-msg');
   const type=document.getElementById('sup-type').value, title=(document.getElementById('sup-title').value||'').trim(), body=(document.getElementById('sup-body').value||'').trim();
