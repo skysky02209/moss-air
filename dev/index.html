@@ -183,6 +183,13 @@
   .login-div::before,.login-div::after{content:"";flex:1;height:1px;background:var(--border)}
   .demo-enter{width:100%;height:46px;border-radius:12px;border:1px solid var(--border);background:transparent;color:var(--muted);font:inherit;font-size:14px;font-weight:500;cursor:pointer;transition:.15s}
   .demo-enter:hover{border-color:var(--secondary);color:var(--primary)}
+  .login-form{text-align:left;margin-bottom:4px}
+  .login-in{width:100%;height:48px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:inherit;font-size:15px;padding:0 14px;margin-bottom:10px;box-sizing:border-box;transition:.15s}
+  .login-in:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(60,120,90,.12)}
+  .oauth-btn.email{background:var(--primary);color:#fff}
+  .oauth-btn.email:hover:not(:disabled){filter:brightness(.94)}
+  .login-signup{width:100%;background:none;border:none;color:var(--secondary);font:inherit;font-size:13px;font-weight:500;cursor:pointer;padding:6px 0 2px;text-decoration:underline}
+  .login-signup:disabled{opacity:.6;cursor:not-allowed}
   .login-err{background:#fdECEC;color:#c0392b;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:16px;text-align:left;line-height:1.5}
   .login-note{font-size:12px;color:var(--faint);margin-top:18px;line-height:1.55}
   .user-chip{display:flex;align-items:center;gap:8px;height:36px;padding:0 13px 0 8px;border-radius:999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;font:inherit;font-size:13px;font-weight:600;color:var(--ink)}
@@ -322,6 +329,13 @@
     <div id="login-err" class="login-err" hidden></div>
     <button class="oauth-btn google" id="btn-google" type="button"><span class="oa-ic"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.71-1.57 2.68-3.88 2.68-6.62Z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.02-3.7H.96v2.34A9 9 0 0 0 9 18Z"/><path fill="#FBBC05" d="M3.98 10.72a5.4 5.4 0 0 1 0-3.44V4.94H.96a9 9 0 0 0 0 8.12l3.02-2.34Z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.46 3.44 1.35l2.58-2.58C13.47.9 11.43 0 9 0A9 9 0 0 0 .96 4.94l3.02 2.34C4.68 5.16 6.66 3.58 9 3.58Z"/></svg></span><span class="oa-t">Google로 계속하기</span></button>
     <button class="oauth-btn naver" id="btn-naver" type="button"><span class="oa-ic">N</span><span class="oa-t">Naver로 계속하기</span></button>
+    <div class="login-div"><span>이메일로 로그인</span></div>
+    <div class="login-form">
+      <input id="em-email" class="login-in" type="email" placeholder="이메일" autocomplete="email">
+      <input id="em-pw" class="login-in" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="current-password">
+      <button class="oauth-btn email" id="btn-email-in" type="button"><span class="oa-t">이메일로 로그인</span></button>
+      <button class="login-signup" id="btn-email-up" type="button">계정이 없으신가요? 이메일로 가입하기</button>
+    </div>
     <div class="login-div"><span>또는</span></div>
     <button class="demo-enter" id="btn-demo" type="button">로그인하지 않고 Demo Mode로 보기</button>
     <p class="login-note" id="login-note"></p>
@@ -1251,6 +1265,32 @@ async function signInNaver(){ if(authBusy)return; loginErr('');
   try{ const u=AUTH_CONFIG.NAVER_LOGIN_URL; location.href=u+(u.includes('?')?'&':'?')+'redirect='+encodeURIComponent(redirectURL()); }
   catch(e){ setBusy(false); loginErr('Naver 로그인에 실패했습니다: '+(e&&e.message?e.message:e)); }
 }
+function setEmailBusy(on,which){ authBusy=on;
+  const bi=document.getElementById('btn-email-in'); if(bi){ bi.disabled=on; const t=bi.querySelector('.oa-t'); if(t) t.textContent=(on&&which==='in')?'로그인 중...':'이메일로 로그인'; }
+  const bu=document.getElementById('btn-email-up'); if(bu){ bu.disabled=on; bu.textContent=(on&&which==='up')?'가입 중...':'계정이 없으신가요? 이메일로 가입하기'; }
+}
+function readEmailForm(){ return { email:(document.getElementById('em-email').value||'').trim(), pw:document.getElementById('em-pw').value||'' }; }
+async function signInEmail(){ if(authBusy)return; loginErr('');
+  const {email,pw}=readEmailForm();
+  if(!email||!pw){ loginErr('이메일과 비밀번호를 입력해 주세요.'); return; }
+  if(!supaReady()){ loginErr('로그인 서버 설정이 필요합니다. 지금은 Demo Mode로 이용해 주세요.'); return; }
+  setEmailBusy(true,'in');
+  try{ const {error}=await getSupa().auth.signInWithPassword({email,password:pw}); if(error)throw error; }
+  catch(e){ setEmailBusy(false); const m=(e&&e.message)||String(e);
+    loginErr(/Invalid login/i.test(m)?'이메일 또는 비밀번호가 올바르지 않습니다.':(/Email not confirmed/i.test(m)?'이메일 인증이 필요합니다. 받은 메일의 링크를 확인해 주세요.':'로그인 실패: '+m)); }
+}
+async function signUpEmail(){ if(authBusy)return; loginErr('');
+  const {email,pw}=readEmailForm();
+  if(!email||!pw){ loginErr('이메일과 비밀번호를 입력해 주세요.'); return; }
+  if(pw.length<6){ loginErr('비밀번호는 6자 이상이어야 합니다.'); return; }
+  if(!supaReady()){ loginErr('로그인 서버 설정이 필요합니다. 지금은 Demo Mode로 이용해 주세요.'); return; }
+  setEmailBusy(true,'up');
+  try{ const {data,error}=await getSupa().auth.signUp({email,password:pw,options:{emailRedirectTo:redirectURL()}}); if(error)throw error;
+    if(!(data&&data.session)){ setEmailBusy(false); loginErr('가입되었습니다. 이제 위에서 로그인해 주세요.'); }
+  }
+  catch(e){ setEmailBusy(false); const m=(e&&e.message)||String(e);
+    loginErr(/already registered|already exists/i.test(m)?'이미 가입된 이메일입니다. 로그인해 주세요.':'가입 실패: '+m); }
+}
 function enterDemo(){ try{localStorage.setItem('moss_entry','demo');}catch(e){} hideLogin(); updateHeader(); updateUserChip(); go(currentView); }
 function applyAuthUser(u){ authUser=u?{ id:u.id, email:u.email||'',
     name:(u.user_metadata&&(u.user_metadata.full_name||u.user_metadata.name))||u.email||'사용자',
@@ -1286,6 +1326,9 @@ const h0=(location.hash||'').slice(1); if(NAVKEYS.includes(h0)) currentView=h0;
 updateHeader();
 document.getElementById('btn-google').onclick=signInGoogle;
 document.getElementById('btn-naver').onclick=signInNaver;
+document.getElementById('btn-email-in').onclick=signInEmail;
+document.getElementById('btn-email-up').onclick=signUpEmail;
+document.getElementById('em-pw').addEventListener('keydown',e=>{ if(e.key==='Enter') signInEmail(); });
 document.getElementById('btn-demo').onclick=enterDemo;
 document.getElementById('h-user').onclick=()=>go('settings');
 authBoot();
